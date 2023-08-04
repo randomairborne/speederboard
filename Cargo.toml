@@ -1,0 +1,21 @@
+[package]
+name = "speederboard"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sqlx = { version = "0.7", features = ["macros", "postgres", "tls-rustls", "runtime-tokio"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal"] }
+redis = { version = "0.23", features = ["aio", "connection-manager"] }
+axum = { version = "0.6", features = ["http2", "headers", "macros"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+serde = { version = "1", features = ["derive"] }
+deadpool-redis = "0.12"
+tower-cookies = "0.9"
+dotenvy = "0.15"
+thiserror = "1"
+tracing = "0.1"
+argon2 = "0.5"
+envy = "0.4"
+rand = "0.8"
+tera = "1"
