@@ -9,13 +9,14 @@ tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal"] }
 redis = { version = "0.23", features = ["aio", "connection-manager"] }
 axum = { version = "0.6", features = ["http2", "headers", "macros"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+axum-extra = { version = "0.7", features = ["cookie"] }
 serde = { version = "1", features = ["derive"] }
 deadpool-redis = "0.12"
-tower-cookies = "0.9"
 dotenvy = "0.15"
 thiserror = "1"
 tracing = "0.1"
 argon2 = "0.5"
 envy = "0.4"
 rand = "0.8"
+rayon = "1"
 tera = "1"

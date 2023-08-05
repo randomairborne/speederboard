@@ -1,13 +1,17 @@
 #![warn(clippy::all, clippy::pedantic)]
+#![allow(clippy::module_name_repetitions)]
 
-mod auth;
+mod user;
 mod error;
+mod id;
 mod routes;
 mod template;
 
+use argon2::Argon2;
 use axum::routing::get;
 use deadpool_redis::Pool as RedisPool;
 use deadpool_redis::{Manager, Runtime};
+use rayon::{ThreadPool, ThreadPoolBuilder};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::sync::Arc;
 use tera::Tera;
@@ -47,11 +51,19 @@ async fn main() {
         .unwrap();
     let tera = Tera::new("./templates/**/*.jinja").expect("Failed to build templates");
     error::ERROR_TERA.set(tera.clone()).unwrap();
+    let rayon = Arc::new(ThreadPoolBuilder::new().num_threads(8).build().unwrap());
+    let argon = Argon2::new(
+        argon2::Algorithm::Argon2id,
+        argon2::Version::V0x13,
+        argon2::Params::new(32767, 8, 2, Some(128)).unwrap(),
+    );
     let state = InnerAppState {
         config: config.clone(),
         tera,
         redis,
         postgres,
+        rayon,
+        argon,
     };
     let router = axum::Router::new()
         .route("/login", get(routes::login::page).post(routes::login::form))
@@ -60,6 +72,7 @@ async fn main() {
             get(routes::signup::page).post(routes::signup::form),
         )
         .with_state(Arc::new(state));
+    info!("Starting server....");
     axum::Server::bind(&([0, 0, 0, 0], config.port).into())
         .serve(router.into_make_service())
         .with_graceful_shutdown(shutdown_signal())
@@ -92,6 +105,23 @@ pub struct InnerAppState {
     tera: Tera,
     redis: RedisPool,
     postgres: PgPool,
+    rayon: Arc<ThreadPool>,
+    argon: Argon2<'static>,
+}
+
+impl InnerAppState {
+    async fn spawn_rayon<O, F>(&self, func: F) -> Result<O, tokio::sync::oneshot::error::RecvError>
+    where
+        O: Send + 'static,
+        F: FnOnce(InnerAppState) -> O + Send + 'static,
+    {
+        let state = self.clone();
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        self.rayon.spawn(move || {
+            let _ = tx.send(func(state));
+        });
+        rx.await
+    }
 }
 
 #[derive(serde::Deserialize, Clone, Debug)]

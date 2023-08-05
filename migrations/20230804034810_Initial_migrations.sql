@@ -1,21 +1,21 @@
 -- Add migration script here
 
 CREATE TABLE users (
-    id BIGINT PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
-    username VARCHAR(128) NOT NULL,
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    username VARCHAR(128) NOT NULL UNIQUE,
     password VARCHAR(1024) NOT NULL
 );
 
 CREATE TABLE games (
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL,
     slug VARCHAR(32) NOT NULL,
     url VARCHAR(128) NOT NULL
 );
 
 CREATE TABLE categories (
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL,
     slug VARCHAR(32) NOT NULL UNIQUE,
     sortby_field VARCHAR(32) NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE permissions (
 CREATE TYPE RUN_STATUS AS ENUM ('rejected', 'verified', 'pending');
 
 CREATE TABLE runs (
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     game BIGINT NOT NULL,
     category BIGINT NOT NULL,
     submitter BIGINT NOT NULL,
