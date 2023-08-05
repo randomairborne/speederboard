@@ -1,11 +1,11 @@
 #![warn(clippy::all, clippy::pedantic)]
 #![allow(clippy::module_name_repetitions)]
 
-mod user;
 mod error;
 mod id;
 mod routes;
 mod template;
+mod user;
 
 use argon2::Argon2;
 use axum::routing::get;
@@ -16,6 +16,9 @@ use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::sync::Arc;
 use tera::Tera;
 use tokio::signal::unix::SignalKind;
+use tower_http::compression::CompressionLayer;
+use tower_http::decompression::DecompressionLayer;
+use tower_http::services::ServeDir;
 use tracing_subscriber::prelude::__tracing_subscriber_SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 
@@ -71,6 +74,10 @@ async fn main() {
             "/signup",
             get(routes::signup::page).post(routes::signup::form),
         )
+        .nest_service("/", ServeDir::new("./public/"))
+        .fallback(routes::notfound)
+        .layer(CompressionLayer::new())
+        .layer(DecompressionLayer::new())
         .with_state(Arc::new(state));
     info!("Starting server....");
     axum::Server::bind(&([0, 0, 0, 0], config.port).into())

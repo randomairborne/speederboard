@@ -86,7 +86,7 @@ impl<T: IdMarker> From<i64> for Id<T> {
     fn from(inner: i64) -> Self {
         Self {
             inner,
-            phantom: PhantomData
+            phantom: PhantomData,
         }
     }
 }
