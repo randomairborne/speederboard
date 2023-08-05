@@ -43,8 +43,7 @@ impl IntoResponse for Error {
         ctx.insert("error", &self_as_string);
         let content = tera.render("error.jinja", &ctx).map_err(|e| {
             format!(
-                "
-There was an error handling your request.
+                "There was an error handling your request.
 In addition, there was an error attempting to use tera to template your request.
 tera error: `{e}`
 original error: `{self_as_string}`

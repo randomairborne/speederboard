@@ -21,3 +21,4 @@ rand = "0.8"
 rayon = "1"
 tera = "1"
 tower-http = { version = "0.4.3", default-features = false, features = ["fs", "compression-full", "decompression-full"] }
+tower = { version = "0.4.13", default-features = false }

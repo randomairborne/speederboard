@@ -8,19 +8,18 @@ mod template;
 mod user;
 
 use argon2::Argon2;
-use axum::routing::get;
-use deadpool_redis::Pool as RedisPool;
-use deadpool_redis::{Manager, Runtime};
+use axum::{handler::Handler, routing::get};
+use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::sync::Arc;
+use template::BaseRenderInfo;
 use tera::Tera;
 use tokio::signal::unix::SignalKind;
-use tower_http::compression::CompressionLayer;
-use tower_http::decompression::DecompressionLayer;
-use tower_http::services::ServeDir;
-use tracing_subscriber::prelude::__tracing_subscriber_SubscriberExt;
-use tracing_subscriber::util::SubscriberInitExt;
+use tower_http::{
+    compression::CompressionLayer, decompression::DecompressionLayer, services::ServeDir,
+};
+use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 
 pub use crate::error::Error;
 
@@ -41,9 +40,14 @@ async fn main() {
         .init();
     let config: Config = envy::from_env().expect("Failed to read config");
     let root_url = config.root_url.trim_end_matches('/').to_string();
-    let config = Config { root_url, ..config };
+    let cdn_url = config.cdn_url.trim_end_matches('/').to_string();
+    let config = Config {
+        root_url,
+        cdn_url,
+        ..config
+    };
     let postgres = PgPoolOptions::new()
-        .connect(&config.postgres_url)
+        .connect(&config.database_url)
         .await
         .expect("Failed to connect to the database");
     sqlx::migrate!().run(&postgres).await.unwrap();
@@ -52,7 +56,8 @@ async fn main() {
         .runtime(Runtime::Tokio1)
         .build()
         .unwrap();
-    let tera = Tera::new("./templates/**/*.jinja").expect("Failed to build templates");
+    let mut tera = Tera::new("./templates/**/*.jinja").expect("Failed to build templates");
+    tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
     error::ERROR_TERA.set(tera.clone()).unwrap();
     let rayon = Arc::new(ThreadPoolBuilder::new().num_threads(8).build().unwrap());
     let argon = Argon2::new(
@@ -68,18 +73,18 @@ async fn main() {
         rayon,
         argon,
     };
+    let state = Arc::new(state);
+    let servedir = ServeDir::new("./public/").fallback(routes::notfound.with_state(state.clone()));
     let router = axum::Router::new()
         .route("/login", get(routes::login::page).post(routes::login::form))
         .route(
             "/signup",
             get(routes::signup::page).post(routes::signup::form),
         )
-        .nest_service("/", ServeDir::new("./public/"))
-        .fallback(routes::notfound)
         .layer(CompressionLayer::new())
-        .layer(DecompressionLayer::new())
-        .with_state(Arc::new(state));
-    info!("Starting server....");
+        .layer(DecompressionLayer::new()).nest_service("/", servedir)
+        .with_state(state);
+    info!("Starting server on http://localhost:{}", config.port);
     axum::Server::bind(&([0, 0, 0, 0], config.port).into())
         .serve(router.into_make_service())
         .with_graceful_shutdown(shutdown_signal())
@@ -129,13 +134,17 @@ impl InnerAppState {
         });
         rx.await
     }
+    fn base_context(&self) -> BaseRenderInfo {
+        BaseRenderInfo::new(&self.config.root_url, &self.config.cdn_url)
+    }
 }
 
 #[derive(serde::Deserialize, Clone, Debug)]
 struct Config {
     redis_url: String,
-    postgres_url: String,
+    database_url: String,
     root_url: String,
+    cdn_url: String,
     #[serde(default = "default_port")]
     port: u16,
 }

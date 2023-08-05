@@ -4,11 +4,14 @@
 <head>
     <meta charset="utf-8">
     <title>speederboard - {% block title %}{% endblock title %}</title>
-    <meta name="description" content="speederboard is a software for game leaderboards,
-        such as speedruns and highest scores,
-        powered by an amazing community." />
-    <link rel="icon" href="/favicon.png" type="image/x-icon" />
-    <link rel="stylesheet" href="/">
+    <meta name="description" content="{% block description %}{% endblock description %}" />
+    <link rel="icon" href="{{ root_url }}/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="{{ root_url }}/style.css">
+    {% if logged_in_user and logged_in_user.has_custom_stylesheet %}
+    <link rel="stylesheet" href="{{ cdn_root }}/customfiles/users/{{ logged_in_user.id }}/style.css">
+    {% endif %}
+    {% block extraheaders %}
+    {% endblock %}
 </head>
 
 <body>

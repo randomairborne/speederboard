@@ -37,7 +37,7 @@ pub struct LoginFormData {
 #[allow(clippy::unused_async)]
 pub async fn page(State(state): State<AppState>) -> Result<Html<String>, Error> {
     let ctx = LoginPage {
-        core: BaseRenderInfo::new(&state.config.root_url),
+        core: state.base_context(),
     };
     let context_ser = Context::from_serialize(ctx)?;
     Ok(Html(state.tera.render("login.jinja", &context_ser)?))

@@ -12,4 +12,5 @@ pub struct AuthUser {
 pub struct FrontendUser {
     pub id: Id<UserMarker>,
     pub username: String,
+    pub has_custom_stylesheet: bool,
 }
