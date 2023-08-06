@@ -1,16 +1,10 @@
-use crate::{
-    template::BaseRenderInfo,
-    user::{User, TOKEN_COOKIE},
-    AppState, Error,
-};
-use argon2::{PasswordHash, PasswordVerifier};
+use crate::{template::BaseRenderInfo, user::User, AppState, Error};
 use axum::{
     extract::{Path, State},
+    http::StatusCode,
     response::{Html, Redirect},
-    Form,
+    Form, Json,
 };
-use axum_extra::extract::{cookie::Cookie, CookieJar};
-use rand::distributions::DistString;
 use tera::Context;
 
 #[derive(serde::Serialize)]
@@ -24,6 +18,19 @@ pub struct UserPage<'a> {
 pub struct UserUpdateForm {
     username: Option<String>,
     biography: Option<String>,
+}
+
+#[derive(serde::Serialize)]
+pub struct PresignEndpoint {
+    put: String,
+    del: String,
+}
+
+#[derive(serde::Serialize)]
+pub struct PresignsResponse {
+    stylesheet: PresignEndpoint,
+    pfp: PresignEndpoint,
+    banner: PresignEndpoint,
 }
 
 #[allow(clippy::unused_async)]
@@ -49,21 +56,73 @@ pub async fn get(
     Ok(Html(state.tera.render("user.jinja", &context_ser)?))
 }
 
-pub async fn post(
+pub async fn put(
     State(state): State<AppState>,
     user: User,
     Form(form): Form<UserUpdateForm>,
 ) -> Result<Redirect, Error> {
-    let own_page = format!("/user/{}", user.username);
-    let Some(output) = query!(
+    query!(
         "UPDATE users
-        SET username = $1
+        SET username = COALESCE($2, username),
+        biography = COALESCE($3, username)
         WHERE id = $1",
-        user.id.get()
+        user.id.get(),
+        form.username,
+        form.biography
     )
-    .fetch_optional(&state.postgres)
-    .await? else {
-        return Ok(Redirect::to(&own_page));
+    .execute(&state.postgres)
+    .await?;
+    Ok(Redirect::to("?updated=true"))
+}
+
+fn gen_presigns(state: &AppState, path: &str) -> Result<PresignEndpoint, s3::error::S3Error> {
+    Ok(PresignEndpoint {
+        put: state.s3.presign_put(path, 60, None)?,
+        del: state.s3.presign_delete(path, 60)?,
+    })
+}
+
+#[allow(clippy::unused_async)]
+pub async fn presigns(
+    State(state): State<AppState>,
+    user: User,
+) -> Result<Json<PresignsResponse>, Error<true>> {
+    Ok(Json(PresignsResponse {
+        stylesheet: gen_presigns(&state, &user.stylesheet_dest_path())?,
+        pfp: gen_presigns(&state, &user.pfp_dest_path())?,
+        banner: gen_presigns(&state, &user.banner_dest_path())?,
+    }))
+}
+
+#[allow(clippy::unused_async)]
+pub async fn extensions(
+    State(state): State<AppState>,
+    user: User,
+) -> Result<StatusCode, Error<true>> {
+    let banner_ext = if state.s3.head_object(user.banner_dest_path()).await?.1 == 404 {
+        None
+    } else {
+        Some("png")
     };
-    Ok(Redirect::to(&own_page))
+    let pfp_ext = if state.s3.head_object(user.pfp_dest_path()).await?.1 == 404 {
+        None
+    } else {
+        Some("png")
+    };
+    let has_stylesheet = state.s3.head_object(user.pfp_dest_path()).await?.1 == 404;
+    query!(
+        "UPDATE users SET
+        banner_ext = $2,
+        pfp_ext = $3,
+        has_stylesheet = $4
+        WHERE id = $1
+     ",
+        user.id.get(),
+        banner_ext,
+        pfp_ext,
+        has_stylesheet
+    )
+    .execute(&state.postgres)
+    .await?;
+    Ok(StatusCode::ACCEPTED)
 }

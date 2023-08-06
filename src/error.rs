@@ -4,11 +4,12 @@ use crate::AppState;
 use axum::{
     http::StatusCode,
     response::{Html, IntoResponse},
+    Json,
 };
 pub static ERROR_STATE: OnceLock<AppState> = OnceLock::new();
 
 #[derive(Debug, thiserror::Error)]
-pub enum Error {
+pub enum Error<const JSON: bool = false> {
     #[error("SQLx error: {0}")]
     Sqlx(#[from] sqlx::Error),
     #[error("Redis Deadpool error: {0}")]
@@ -23,6 +24,8 @@ pub enum Error {
     OneshotRecv(#[from] tokio::sync::oneshot::error::RecvError),
     #[error("JSON serialization or deserialization error: {0}")]
     SerdeJson(#[from] serde_json::Error),
+    #[error("s3 library error: {0}")]
+    S3(#[from] s3::error::S3Error),
     #[error("Field {0} must {1}")]
     FormValidation(&'static str, &'static str),
     #[error("Username or password is incorrect")]
@@ -33,7 +36,7 @@ pub enum Error {
     NotFound,
 }
 
-impl IntoResponse for Error {
+impl<const JSON: bool> IntoResponse for Error<{ JSON }> {
     fn into_response(self) -> axum::response::Response {
         error!(?self, "failed to handle request");
         let state = ERROR_STATE.get().unwrap();
@@ -44,13 +47,17 @@ impl IntoResponse for Error {
             | Self::Tera(_)
             | Self::Argon2(_)
             | Self::OneshotRecv(_)
-            | Self::SerdeJson(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            | Self::SerdeJson(_)
+            | Self::S3(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::FormValidation(_, _) => StatusCode::BAD_REQUEST,
             Self::InvalidPassword => StatusCode::FORBIDDEN,
             Self::InvalidCookie => StatusCode::UNAUTHORIZED,
-            Self::NotFound => return crate::routes::notfound(state.clone()).into_response(),
+            Self::NotFound => return crate::routes::notfound(state).into_response(),
         };
         let self_as_string = self.to_string();
+        if JSON {
+            return Json(serde_json::json!({"error": self_as_string})).into_response();
+        }
         let mut ctx = match tera::Context::from_serialize(state.base_context()) {
             Ok(v) => v,
             Err(source) => {
@@ -77,7 +84,7 @@ impl IntoResponse for Error {
 fn format_raw_error(original: &str, tera: &str) -> String {
     format!(
         "There was an error handling your request.
-In addition, there was an error attempting to use tera to template your request.
+In addition, there was an error attempting to use tera to template said error.
 original error: `{original}`
 tera error: `{tera}`
 Please send an email to valk@randomairborne.dev with a copy of this message."
@@ -111,13 +118,13 @@ impl From<argon2::Error> for ArgonError {
     }
 }
 
-impl From<argon2::password_hash::Error> for Error {
+impl<const JSON: bool> From<argon2::password_hash::Error> for Error<JSON> {
     fn from(value: argon2::password_hash::Error) -> Self {
         Self::Argon2(ArgonError::PasswordHash(value))
     }
 }
 
-impl From<argon2::Error> for Error {
+impl<const JSON: bool> From<argon2::Error> for Error<JSON> {
     fn from(value: argon2::Error) -> Self {
         Self::Argon2(ArgonError::Argon2(value))
     }

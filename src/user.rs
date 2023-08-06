@@ -19,6 +19,41 @@ pub struct User {
     pub banner_ext: Option<String>,
 }
 
+const DEFAULT_PFP: &str = "/static/pfp/default.png";
+
+impl User {
+    pub fn banner_dest_path(&self) -> String {
+        format!("/customfiles/users/{}/banner.png", self.id)
+    }
+    pub fn pfp_dest_path(&self) -> String {
+        format!("/customfiles/users/{}/pfp.png", self.id)
+    }
+    pub fn stylesheet_dest_path(&self) -> String {
+        format!("/customfiles/users/{}/style.css", self.id)
+    }
+    pub fn stylesheet(&self) -> Option<String> {
+        if self.has_stylesheet {
+            Some(self.stylesheet_dest_path())
+        } else {
+            None
+        }
+    }
+    pub fn pfp_path(&self) -> String {
+        if self.pfp_ext.is_some() {
+            self.pfp_dest_path()
+        } else {
+            DEFAULT_PFP.to_string()
+        }
+    }
+    pub fn banner_path(&self) -> Option<String> {
+        if self.has_stylesheet {
+            Some(self.banner_dest_path())
+        } else {
+            None
+        }
+    }
+}
+
 pub const TOKEN_COOKIE: &str = "token";
 
 #[axum::async_trait]

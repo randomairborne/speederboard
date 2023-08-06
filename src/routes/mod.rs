@@ -10,10 +10,10 @@ pub mod user;
 pub async fn notfound_handler(
     State(state): State<AppState>,
 ) -> Result<(StatusCode, Html<String>), Error> {
-    notfound(state)
+    notfound(&state)
 }
 
-pub fn notfound(state: AppState) -> Result<(StatusCode, Html<String>), Error> {
+pub fn notfound(state: &AppState) -> Result<(StatusCode, Html<String>), Error> {
     let context_ser = tera::Context::from_serialize(state.base_context())?;
     Ok((
         StatusCode::NOT_FOUND,

@@ -9,15 +9,16 @@ mod user;
 
 use argon2::Argon2;
 use axum::{handler::Handler, routing::get};
+use axum_extra::routing::RouterExt;
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
 use rayon::{ThreadPool, ThreadPoolBuilder};
+use s3::{creds::Credentials, Bucket};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::{fmt::Debug, sync::Arc};
 use template::BaseRenderInfo;
 use tera::Tera;
 use tower_http::{
-    compression::CompressionLayer, decompression::DecompressionLayer,
-    normalize_path::NormalizePathLayer, services::ServeDir,
+    compression::CompressionLayer, decompression::DecompressionLayer, services::ServeDir,
 };
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 
@@ -56,6 +57,23 @@ async fn main() {
         .runtime(Runtime::Tokio1)
         .build()
         .unwrap();
+    let s3 = Bucket::new(
+        &config.s3_bucket,
+        s3::Region::Custom {
+            region: config.s3_region.clone(),
+            endpoint: config.s3_endpoint.clone(),
+        },
+        Credentials::new(
+            Some(&config.s3_access_key_id),
+            Some(&config.s3_secret_access_key),
+            None,
+            None,
+            None,
+        )
+        .expect("Invalid S3 credentials"),
+    )
+    .unwrap()
+    .with_path_style();
     let mut tera = Tera::new("./templates/**/*").expect("Failed to build templates");
     tera.register_filter("markdown", |data: &tera::Value, _args: &_| {
         Ok(tera::Value::String(markdown::to_html(&data.to_string())))
@@ -74,36 +92,43 @@ async fn main() {
         postgres,
         rayon,
         argon,
+        s3,
     };
     let state = Arc::new(state);
     assert!(
         error::ERROR_STATE.set(state.clone()).is_ok(),
         "Could not set error state, this should be impossible"
     );
-    let servedir =
-        ServeDir::new("./public/").fallback(routes::notfound_handler.with_state(state.clone()));
-    let router = axum::Router::new()
-        .route("/", get(routes::index::get))
-        .route("/login", get(routes::login::get).post(routes::login::post))
-        .route(
-            "/signup",
-            get(routes::signup::get).post(routes::signup::post),
-        )
-        .route(
-            "/user/:username",
-            get(routes::user::get).post(routes::user::post),
-        )
-        .layer(CompressionLayer::new())
-        .layer(DecompressionLayer::new())
-        .layer(NormalizePathLayer::trim_trailing_slash())
-        .fallback_service(servedir)
-        .with_state(state);
     info!("Starting server on http://localhost:{}", config.port);
     axum::Server::bind(&([0, 0, 0, 0], config.port).into())
-        .serve(router.into_make_service())
+        .serve(build_router(state).into_make_service())
         .with_graceful_shutdown(shutdown_signal())
         .await
         .unwrap();
+}
+
+fn build_router(state: AppState) -> axum::Router {
+    let servedir =
+        ServeDir::new("./public/").fallback(routes::notfound_handler.with_state(state.clone()));
+    axum::Router::new()
+        .route("/", get(routes::index::get))
+        .route_with_tsr("/login", get(routes::login::get).post(routes::login::post))
+        .route_with_tsr(
+            "/signup",
+            get(routes::signup::get).post(routes::signup::post),
+        )
+        .route_with_tsr(
+            "/user/:username",
+            get(routes::user::get).put(routes::user::put),
+        )
+        .route(
+            "/user/:username/assets",
+            get(routes::user::presigns).put(routes::user::extensions),
+        )
+        .layer(CompressionLayer::new())
+        .layer(DecompressionLayer::new())
+        .fallback_service(servedir)
+        .with_state(state)
 }
 
 async fn shutdown_signal() {
@@ -132,6 +157,7 @@ pub struct InnerAppState {
     postgres: PgPool,
     rayon: Arc<ThreadPool>,
     argon: Argon2<'static>,
+    s3: Bucket,
 }
 
 impl InnerAppState {
@@ -164,6 +190,11 @@ struct Config {
     database_url: String,
     root_url: String,
     cdn_url: String,
+    s3_endpoint: String,
+    s3_bucket: String,
+    s3_region: String,
+    s3_secret_access_key: String,
+    s3_access_key_id: String,
     #[serde(default = "default_port")]
     port: u16,
 }
