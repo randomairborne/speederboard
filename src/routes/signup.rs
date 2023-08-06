@@ -1,5 +1,9 @@
-use crate::{error::ArgonError, template::BaseRenderInfo, AppState, Error};
-
+use crate::{
+    error::ArgonError,
+    template::BaseRenderInfo,
+    user::{FrontendUser, TOKEN_COOKIE},
+    AppState, Error,
+};
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use axum::{
     extract::State,
@@ -33,7 +37,7 @@ pub struct SignUpFormData {
 }
 
 #[allow(clippy::unused_async)]
-pub async fn page(State(state): State<AppState>) -> Result<Html<String>, Error> {
+pub async fn get(State(state): State<AppState>) -> Result<Html<String>, Error> {
     let ctx = SignUpPage {
         core: state.base_context(),
     };
@@ -41,7 +45,7 @@ pub async fn page(State(state): State<AppState>) -> Result<Html<String>, Error> 
     Ok(Html(state.tera.render("signup.jinja", &context_ser)?))
 }
 
-pub async fn form(
+pub async fn post(
     State(state): State<AppState>,
     cookies: CookieJar,
     Form(form): Form<SignUpFormData>,
@@ -61,19 +65,25 @@ pub async fn form(
     let password_hash = state
         .spawn_rayon(move |state| hash_password(form.password.as_bytes(), &state.argon))
         .await??;
-    let id = query!(
-        "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id",
+    let user = query_as!(
+        FrontendUser,
+        "INSERT INTO users (username, email, password, has_stylesheet) VALUES ($1, $2, $3, false)
+        RETURNING id, username, has_stylesheet, pfp_ext, banner_ext",
         form.username,
         form.email,
         password_hash.to_string()
     )
     .fetch_one(&state.postgres)
-    .await?
-    .id;
+    .await?;
     let token = rand::distributions::Alphanumeric.sample_string(&mut rand::thread_rng(), 64);
-    state.redis.get().await?.set_ex(&token, id, 86_400).await?;
+    state
+        .redis
+        .get()
+        .await?
+        .set_ex(&token, serde_json::to_string(&user)?, 86_400)
+        .await?;
     Ok((
-        cookies.add(Cookie::new("auth", token)),
+        cookies.add(Cookie::new(TOKEN_COOKIE, token)),
         Redirect::to(&state.config.root_url),
     ))
 }

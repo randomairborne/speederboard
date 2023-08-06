@@ -12,10 +12,9 @@ use axum::{handler::Handler, routing::get};
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use sqlx::{postgres::PgPoolOptions, PgPool};
-use std::sync::Arc;
+use std::{fmt::Debug, sync::Arc};
 use template::BaseRenderInfo;
 use tera::Tera;
-use tokio::signal::unix::SignalKind;
 use tower_http::{
     compression::CompressionLayer, decompression::DecompressionLayer, services::ServeDir,
 };
@@ -56,14 +55,13 @@ async fn main() {
         .runtime(Runtime::Tokio1)
         .build()
         .unwrap();
-    let mut tera = Tera::new("./templates/**/*.jinja").expect("Failed to build templates");
+    let mut tera = Tera::new("./templates/**/*").expect("Failed to build templates");
     tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
-    error::ERROR_TERA.set(tera.clone()).unwrap();
     let rayon = Arc::new(ThreadPoolBuilder::new().num_threads(8).build().unwrap());
     let argon = Argon2::new(
         argon2::Algorithm::Argon2id,
         argon2::Version::V0x13,
-        argon2::Params::new(32767, 8, 2, Some(128)).unwrap(),
+        argon2::Params::new(32767, 8, 8, Some(64)).unwrap(),
     );
     let state = InnerAppState {
         config: config.clone(),
@@ -74,15 +72,18 @@ async fn main() {
         argon,
     };
     let state = Arc::new(state);
+    assert!(error::ERROR_STATE.set(state.clone()).is_ok(), "Could not set error state, this should be impossible");
     let servedir = ServeDir::new("./public/").fallback(routes::notfound.with_state(state.clone()));
     let router = axum::Router::new()
-        .route("/login", get(routes::login::page).post(routes::login::form))
+        .route("/", get(routes::index::get))
+        .route("/login", get(routes::login::get).post(routes::login::post))
         .route(
             "/signup",
-            get(routes::signup::page).post(routes::signup::form),
+            get(routes::signup::get).post(routes::signup::post),
         )
         .layer(CompressionLayer::new())
-        .layer(DecompressionLayer::new()).nest_service("/", servedir)
+        .layer(DecompressionLayer::new())
+        .fallback_service(servedir)
         .with_state(state);
     info!("Starting server on http://localhost:{}", config.port);
     axum::Server::bind(&([0, 0, 0, 0], config.port).into())
@@ -97,7 +98,7 @@ async fn shutdown_signal() {
     compile_error!("WASM and windows are not supported platforms, please use WSL if on windows!");
     #[cfg(target_family = "unix")]
     {
-        use tokio::signal::unix::signal;
+        use tokio::signal::unix::{signal, SignalKind};
         let mut interrupt = signal(SignalKind::interrupt()).expect("Failed to listen to sigint");
         let mut quit = signal(SignalKind::quit()).expect("Failed to listen to sigquit");
         let mut terminate = signal(SignalKind::terminate()).expect("Failed to listen to sigterm");
@@ -106,7 +107,6 @@ async fn shutdown_signal() {
             _ = interrupt.recv() => {},
             _ = quit.recv() => {},
             _ = terminate.recv() => {}
-
         }
     }
 }
@@ -122,7 +122,12 @@ pub struct InnerAppState {
 }
 
 impl InnerAppState {
-    async fn spawn_rayon<O, F>(&self, func: F) -> Result<O, tokio::sync::oneshot::error::RecvError>
+    /// # Errors
+    /// If somehow the channel hangs up, this can error.
+    pub async fn spawn_rayon<O, F>(
+        &self,
+        func: F,
+    ) -> Result<O, tokio::sync::oneshot::error::RecvError>
     where
         O: Send + 'static,
         F: FnOnce(InnerAppState) -> O + Send + 'static,
@@ -134,7 +139,8 @@ impl InnerAppState {
         });
         rx.await
     }
-    fn base_context(&self) -> BaseRenderInfo {
+    #[must_use]
+    pub fn base_context(&self) -> BaseRenderInfo {
         BaseRenderInfo::new(&self.config.root_url, &self.config.cdn_url)
     }
 }

@@ -4,14 +4,20 @@ CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     username VARCHAR(128) NOT NULL UNIQUE,
-    password VARCHAR(1024) NOT NULL
+    password VARCHAR(1024) NOT NULL,
+    has_stylesheet BOOL NOT NULL,
+    banner_ext VARCHAR(4),
+    pfp_ext VARCHAR(4)
 );
 
 CREATE TABLE games (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL,
     slug VARCHAR(32) NOT NULL,
-    url VARCHAR(128) NOT NULL
+    url VARCHAR(128) NOT NULL,
+    has_stylesheet BOOL NOT NULL,
+    banner_ext VARCHAR(4),
+    cover_art_ext VARCHAR(4)
 );
 
 CREATE TABLE categories (

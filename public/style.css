@@ -1,0 +1,31 @@
+html {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.navlist {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+.navlistleft {
+  float: left;
+}
+
+.navlistright {
+    float: left;
+  }
+
+.navlistlink {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.navlistitem a:hover {
+  background-color: #111;
+}

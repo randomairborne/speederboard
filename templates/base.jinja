@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
 
 <head>
     <meta charset="utf-8">
@@ -7,6 +7,7 @@
     <meta name="description" content="{% block description %}{% endblock description %}" />
     <link rel="icon" href="{{ root_url }}/favicon.png" type="image/png" />
     <link rel="stylesheet" href="{{ root_url }}/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {% if logged_in_user and logged_in_user.has_custom_stylesheet %}
     <link rel="stylesheet" href="{{ cdn_root }}/customfiles/users/{{ logged_in_user.id }}/style.css">
     {% endif %}
@@ -15,7 +16,12 @@
 </head>
 
 <body>
-
+    <ul class="navlist">
+        <li class="navlistleft"><a class="navlistlink" href="/">Home</a></li>
+        <li class="navlistright"><a class="navlistlink" href="/login">Log In</a></li>
+        <li class="navlistright"><a class="navlistlink" href="/signup">Sign Up</a></li>
+    </ul>
+    {% block body %}{% endblock body %}
 </body>
 
 </html>
