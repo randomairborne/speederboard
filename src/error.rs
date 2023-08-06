@@ -29,6 +29,8 @@ pub enum Error {
     InvalidPassword,
     #[error("Invalid auth cookie")]
     InvalidCookie,
+    #[error("Not found")]
+    NotFound,
 }
 
 impl IntoResponse for Error {
@@ -46,6 +48,7 @@ impl IntoResponse for Error {
             Self::FormValidation(_, _) => StatusCode::BAD_REQUEST,
             Self::InvalidPassword => StatusCode::FORBIDDEN,
             Self::InvalidCookie => StatusCode::UNAUTHORIZED,
+            Self::NotFound => return crate::routes::notfound(state.clone()).into_response(),
         };
         let self_as_string = self.to_string();
         let mut ctx = match tera::Context::from_serialize(state.base_context()) {

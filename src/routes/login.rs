@@ -1,6 +1,6 @@
 use crate::{
     template::BaseRenderInfo,
-    user::{AuthUser, TOKEN_COOKIE},
+    user::{User, TOKEN_COOKIE},
     AppState, Error,
 };
 use argon2::{PasswordHash, PasswordVerifier};
@@ -11,6 +11,7 @@ use axum::{
 };
 use axum_extra::extract::{cookie::Cookie, CookieJar};
 use rand::distributions::DistString;
+use redis::AsyncCommands;
 use tera::Context;
 
 #[allow(clippy::module_name_repetitions)]
@@ -50,7 +51,7 @@ pub async fn get(
 ) -> Result<Html<String>, Error> {
     let ctx = LoginPage {
         core: state.base_context(),
-        incorrect: query.incorrect.unwrap_or(false)
+        incorrect: query.incorrect.unwrap_or(false),
     };
     let context_ser = Context::from_serialize(ctx)?;
     Ok(Html(state.tera.render("login.jinja", &context_ser)?))
@@ -61,18 +62,25 @@ pub async fn post(
     cookies: CookieJar,
     Form(form): Form<LoginFormData>,
 ) -> Result<(CookieJar, Redirect), Error> {
-    let Some(output) = query_as!(
-        AuthUser,
-        "SELECT id, username, email, password FROM users WHERE email = $1",
+    let Some(record) = query!(
+        "SELECT * FROM users WHERE email = $1",
         form.email
     )
     .fetch_optional(&state.postgres)
     .await? else {
         return Ok((cookies, Redirect::to("?incorrect=true")));
     };
+    let user = User {
+        id: record.id.into(),
+        username: record.username,
+        has_stylesheet: record.has_stylesheet,
+        pfp_ext: record.pfp_ext,
+        banner_ext: record.banner_ext,
+        biography: record.biography,
+    };
     let password_result = state
         .spawn_rayon(move |state| {
-            let hash = PasswordHash::new(&output.password)?;
+            let hash = PasswordHash::new(&record.password)?;
             state.argon.verify_password(form.password.as_ref(), &hash)
         })
         .await?;
@@ -83,6 +91,16 @@ pub async fn post(
     // a password, we want to report it, but differently then if the password is *wrong*
     password_result?;
     let token = rand::distributions::Alphanumeric.sample_string(&mut rand::thread_rng(), 64);
+    state
+        .redis
+        .get()
+        .await?
+        .set_ex(
+            format!("token:user:{token}"),
+            serde_json::to_string(&user)?,
+            86_400,
+        )
+        .await?;
     Ok((
         cookies.add(Cookie::new(TOKEN_COOKIE, token)),
         Redirect::to(&state.config.root_url),

@@ -5,6 +5,7 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     username VARCHAR(128) NOT NULL UNIQUE,
     password VARCHAR(1024) NOT NULL,
+    biography VARCHAR(4000) NOT NULL,
     has_stylesheet BOOL NOT NULL,
     banner_ext VARCHAR(4),
     pfp_ext VARCHAR(4)
@@ -15,6 +16,7 @@ CREATE TABLE games (
     name VARCHAR(128) NOT NULL,
     slug VARCHAR(32) NOT NULL,
     url VARCHAR(128) NOT NULL,
+    description VARCHAR(4000) NOT NULL,
     has_stylesheet BOOL NOT NULL,
     banner_ext VARCHAR(4),
     cover_art_ext VARCHAR(4)
@@ -24,6 +26,7 @@ CREATE TABLE categories (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL,
     slug VARCHAR(32) NOT NULL UNIQUE,
+    description VARCHAR(4000) NOT NULL,
     sortby_field VARCHAR(32) NOT NULL,
     sort_ascending BIT NOT NULL
 );

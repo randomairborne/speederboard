@@ -16,7 +16,8 @@ use std::{fmt::Debug, sync::Arc};
 use template::BaseRenderInfo;
 use tera::Tera;
 use tower_http::{
-    compression::CompressionLayer, decompression::DecompressionLayer, services::ServeDir,
+    compression::CompressionLayer, decompression::DecompressionLayer,
+    normalize_path::NormalizePathLayer, services::ServeDir,
 };
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 
@@ -56,6 +57,9 @@ async fn main() {
         .build()
         .unwrap();
     let mut tera = Tera::new("./templates/**/*").expect("Failed to build templates");
+    tera.register_filter("markdown", |data: &tera::Value, _args: &_| {
+        Ok(tera::Value::String(markdown::to_html(&data.to_string())))
+    });
     tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
     let rayon = Arc::new(ThreadPoolBuilder::new().num_threads(8).build().unwrap());
     let argon = Argon2::new(
@@ -72,8 +76,12 @@ async fn main() {
         argon,
     };
     let state = Arc::new(state);
-    assert!(error::ERROR_STATE.set(state.clone()).is_ok(), "Could not set error state, this should be impossible");
-    let servedir = ServeDir::new("./public/").fallback(routes::notfound.with_state(state.clone()));
+    assert!(
+        error::ERROR_STATE.set(state.clone()).is_ok(),
+        "Could not set error state, this should be impossible"
+    );
+    let servedir =
+        ServeDir::new("./public/").fallback(routes::notfound_handler.with_state(state.clone()));
     let router = axum::Router::new()
         .route("/", get(routes::index::get))
         .route("/login", get(routes::login::get).post(routes::login::post))
@@ -81,8 +89,13 @@ async fn main() {
             "/signup",
             get(routes::signup::get).post(routes::signup::post),
         )
+        .route(
+            "/user/:username",
+            get(routes::user::get).post(routes::user::post),
+        )
         .layer(CompressionLayer::new())
         .layer(DecompressionLayer::new())
+        .layer(NormalizePathLayer::trim_trailing_slash())
         .fallback_service(servedir)
         .with_state(state);
     info!("Starting server on http://localhost:{}", config.port);

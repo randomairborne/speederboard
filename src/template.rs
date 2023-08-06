@@ -1,10 +1,10 @@
-use crate::user::FrontendUser;
+use crate::user::User;
 
 #[derive(serde::Serialize)]
 pub struct BaseRenderInfo<'a> {
     pub root_url: &'a str,
     pub cdn_url: &'a str,
-    pub logged_in_user: Option<FrontendUser>,
+    pub logged_in_user: Option<User>,
 }
 
 impl<'a> BaseRenderInfo<'a> {

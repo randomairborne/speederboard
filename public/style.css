@@ -1,5 +1,6 @@
-html {
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
+html, body {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  margin: 0px;
 }
 
 .navlist {
@@ -7,21 +8,22 @@ html {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: #333;
+  display: flex;
+  background-color: rgb(146, 59, 187);
 }
 
 .navlistleft {
-  float: left;
+  justify-self: start;
 }
 
 .navlistright {
-    float: left;
-  }
+  justify-self: end;
+}
 
 .navlistlink {
   display: block;
-  color: white;
   text-align: center;
+  color: white;
   padding: 14px 16px;
   text-decoration: none;
 }

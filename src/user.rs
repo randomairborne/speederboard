@@ -8,26 +8,21 @@ use crate::{
 };
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub struct AuthUser {
-    pub id: Id<UserMarker>,
-    pub username: String,
-    pub email: String,
-    pub password: String,
-}
-
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub struct FrontendUser {
+pub struct User {
     pub id: Id<UserMarker>,
     pub username: String,
     pub has_stylesheet: bool,
+    pub biography: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub pfp_ext: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub banner_ext: Option<String>,
 }
 
 pub const TOKEN_COOKIE: &str = "token";
 
 #[axum::async_trait]
-impl FromRequestParts<AppState> for FrontendUser {
+impl FromRequestParts<AppState> for User {
     type Rejection = Error;
     async fn from_request_parts(
         parts: &mut Parts,

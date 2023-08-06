@@ -1,7 +1,7 @@
 use crate::{
     error::ArgonError,
     template::BaseRenderInfo,
-    user::{FrontendUser, TOKEN_COOKIE},
+    user::{User, TOKEN_COOKIE},
     AppState, Error,
 };
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
@@ -50,10 +50,10 @@ pub async fn post(
     cookies: CookieJar,
     Form(form): Form<SignUpFormData>,
 ) -> Result<(CookieJar, Redirect), Error> {
-    if form.username.len() > 128 {
+    if form.username.len() > 16 {
         return Err(Error::FormValidation(
             "username",
-            "be less then 128 characters",
+            "be less then 16 characters",
         ));
     }
     if form.email.len() > 255 {
@@ -66,9 +66,9 @@ pub async fn post(
         .spawn_rayon(move |state| hash_password(form.password.as_bytes(), &state.argon))
         .await??;
     let user = query_as!(
-        FrontendUser,
+        User,
         "INSERT INTO users (username, email, password, has_stylesheet) VALUES ($1, $2, $3, false)
-        RETURNING id, username, has_stylesheet, pfp_ext, banner_ext",
+        RETURNING id, username, has_stylesheet, pfp_ext, banner_ext, biography",
         form.username,
         form.email,
         password_hash.to_string()
@@ -80,7 +80,11 @@ pub async fn post(
         .redis
         .get()
         .await?
-        .set_ex(&token, serde_json::to_string(&user)?, 86_400)
+        .set_ex(
+            format!("token:user:{token}"),
+            serde_json::to_string(&user)?,
+            86_400,
+        )
         .await?;
     Ok((
         cookies.add(Cookie::new(TOKEN_COOKIE, token)),
