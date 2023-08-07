@@ -26,6 +26,8 @@ pub enum Error<const JSON: bool = false> {
     SerdeJson(#[from] serde_json::Error),
     #[error("s3 library error: {0}")]
     S3(#[from] s3::error::S3Error),
+    #[error("multipart upload error: {0}")]
+    Multipart(#[from] axum::extract::multipart::MultipartError),
     #[error("Field {0} must {1}")]
     FormValidation(&'static str, &'static str),
     #[error("Username or password is incorrect")]
@@ -49,7 +51,7 @@ impl<const JSON: bool> IntoResponse for Error<{ JSON }> {
             | Self::OneshotRecv(_)
             | Self::SerdeJson(_)
             | Self::S3(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::FormValidation(_, _) => StatusCode::BAD_REQUEST,
+            Self::FormValidation(_, _) | Self::Multipart(_) => StatusCode::BAD_REQUEST,
             Self::InvalidPassword => StatusCode::FORBIDDEN,
             Self::InvalidCookie => StatusCode::UNAUTHORIZED,
             Self::NotFound => return crate::routes::notfound(state).into_response(),

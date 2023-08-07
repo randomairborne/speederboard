@@ -3,6 +3,7 @@ use axum::{extract::State, http::StatusCode, response::Html};
 
 pub mod index;
 pub mod login;
+pub mod settings;
 pub mod signup;
 pub mod user;
 

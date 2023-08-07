@@ -67,7 +67,9 @@ pub async fn post(
         .await??;
     let user = query_as!(
         User,
-        "INSERT INTO users (username, email, password, has_stylesheet) VALUES ($1, $2, $3, false)
+        "INSERT INTO users
+        (username, email, password, has_stylesheet, pfp_ext, banner_ext, biography)
+        VALUES ($1, $2, $3, false, NULL, NULL, '')
         RETURNING id, username, has_stylesheet, pfp_ext, banner_ext, biography",
         form.username,
         form.email,

@@ -8,7 +8,10 @@ mod template;
 mod user;
 
 use argon2::Argon2;
-use axum::{handler::Handler, routing::get};
+use axum::{
+    handler::Handler,
+    routing::{get, post},
+};
 use axum_extra::routing::RouterExt;
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
 use rayon::{ThreadPool, ThreadPoolBuilder};
@@ -117,14 +120,10 @@ fn build_router(state: AppState) -> axum::Router {
             "/signup",
             get(routes::signup::get).post(routes::signup::post),
         )
-        .route_with_tsr(
-            "/user/:username",
-            get(routes::user::get).put(routes::user::put),
-        )
-        .route(
-            "/user/:username/assets",
-            get(routes::user::presigns).put(routes::user::extensions),
-        )
+        .route_with_tsr("/user/:username", get(routes::user::get))
+        .route_with_tsr("/settings", get(routes::settings::get))
+        .route("/settings/pfp", post(routes::settings::pfp))
+        .route("/settings/banner", post(routes::settings::banner))
         .layer(CompressionLayer::new())
         .layer(DecompressionLayer::new())
         .fallback_service(servedir)
