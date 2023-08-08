@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <title>speederboard - {% block title %}{% endblock title %}</title>
     <meta name="description" content="{% block description %}{% endblock description %}" />
-    <link rel="icon" href="{{ root_url }}/favicon.png" type="image/png" />
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" type="image/png" />
     <link rel="stylesheet" href="{{ root_url }}/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {% if logged_in_user and logged_in_user.has_custom_stylesheet %}
@@ -17,11 +17,16 @@
 
 <body>
     <ul class="navlist">
-        <li class="navlistleft"><a class="navlistlink" href="/">Home</a></li>
-        <li class="navlistright"><a class="navlistlink" href="/login">Log In</a></li>
-        <li class="navlistright"><a class="navlistlink" href="/signup">Sign Up</a></li>
+        <li class="navlistleft"><a class="navlistlink" href="/">home</a></li>
+        <li class="navlistright"><a class="navlistlink" href="/login">log in</a></li>
+        <li class="navlistright"><a class="navlistlink" href="/signup">sign up</a></li>
+        {% if logged_in_user %}
+        <li class="navlistright"><a class="navlistlink" href="/settings">account</a></li>
+        {% endif %}
     </ul>
+    <div class="mount">
     {% block body %}{% endblock body %}
+    </div>
 </body>
 
 </html>

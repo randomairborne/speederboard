@@ -3,6 +3,12 @@ html, body {
   margin: 0px;
 }
 
+.mount {
+  margin-top: 1ch;
+  margin-right: 1vw;
+  margin-left: 1vw;
+}
+
 .navlist {
   list-style-type: none;
   margin: 0;

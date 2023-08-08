@@ -23,7 +23,7 @@ pub async fn update_password(
     let mut trans = state.postgres.begin().await?;
     let Ok(user) = User::from_db(&state, trans.as_mut(), form.email, form.old_password).await?
     else {
-        return Ok(Redirect::to("?incorrect=true"));
+        return Ok(Redirect::to("/settings?incorrect=true"));
     };
     query!(
         "UPDATE users SET password = $2 WHERE id = $1",
@@ -43,7 +43,7 @@ pub async fn update_email(
     let mut trans = state.postgres.begin().await?;
     let Ok(user) = User::from_db(&state, trans.as_mut(), form.old_email, form.password).await?
     else {
-        return Ok(Redirect::to("?incorrect=true"));
+        return Ok(Redirect::to("/settings?incorrect=true"));
     };
     query!(
         "UPDATE users SET email = $2 WHERE id = $1",

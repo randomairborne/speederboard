@@ -1,0 +1,26 @@
+{% extends "base.jinja" %}
+{% block extraheaders %}{% endblock extraheaders %}
+{% block title %}manage your account{% endblock title %}
+{% block body %}
+<details>
+<summary>Change email (currently <code>{{ user.email }}</code>)</summary>
+<form method="post" action="/settings/email">
+  <table>
+    <tr>
+      <td><label for="new_email">new email</label></td>
+      <td><input name="new_email" id="new_email" type="email" />
+      </td>
+    </tr>
+    <tr>
+      <td><label for="password">password</label></td>
+      <td><input name="password" id="password" type="password" />
+      </td>
+    </tr>
+  </table>
+  <input name="old_email" id="email" value="{{ user.email }}" hidden />
+  <div>
+    <button>change</button>
+  </div>
+</form>
+</details>
+{% endblock body %}

@@ -80,7 +80,7 @@ async fn main() {
     let argon = Argon2::new(
         argon2::Algorithm::Argon2id,
         argon2::Version::V0x13,
-        argon2::Params::new(32767, 8, 8, Some(64)).unwrap(),
+        argon2::Params::new(16384, 192, 8, Some(64)).unwrap(),
     );
     let state = InnerAppState {
         config: config.clone(),

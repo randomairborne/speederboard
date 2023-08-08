@@ -3,7 +3,7 @@ use std::{fmt::Display, sync::OnceLock};
 use crate::AppState;
 use axum::{
     http::StatusCode,
-    response::{Html, IntoResponse},
+    response::{Html, IntoResponse, Redirect},
 };
 pub static ERROR_STATE: OnceLock<AppState> = OnceLock::new();
 
@@ -53,7 +53,6 @@ impl From<Error> for std::io::Error {
 
 impl IntoResponse for Error {
     fn into_response(self) -> axum::response::Response {
-        error!(?self, "failed to handle request");
         let state = ERROR_STATE.get().unwrap();
         let status = match &self {
             Self::Sqlx(_)
@@ -70,9 +69,12 @@ impl IntoResponse for Error {
             | Self::InvalidMultipart(_)
             | Self::TokenHasIdButIdIsUnkown => StatusCode::BAD_REQUEST,
             Self::InvalidPassword => StatusCode::FORBIDDEN,
-            Self::InvalidCookie => StatusCode::UNAUTHORIZED,
+            Self::InvalidCookie => return Redirect::to("/login").into_response(),
             Self::NotFound => return crate::routes::notfound(state).into_response(),
         };
+        if status == StatusCode::INTERNAL_SERVER_ERROR {
+            error!(?self, "failed to handle request");
+        }
         let self_as_string = self.to_string();
         let mut ctx = match tera::Context::from_serialize(state.base_context()) {
             Ok(v) => v,
