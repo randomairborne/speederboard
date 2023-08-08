@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n        id, username, has_stylesheet, pfp_ext, banner_ext, biography, email\n        FROM users WHERE id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "username",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "has_stylesheet",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "pfp_ext",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "banner_ext",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "biography",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "email",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "e1dcea4ca8059ada58f85c5dff10ec3f1e614c759d389c4187971b1b0c569cb2"
+}
