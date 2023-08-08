@@ -1,33 +1,27 @@
 #![warn(clippy::all, clippy::pedantic)]
 #![allow(clippy::module_name_repetitions)]
 
+mod config;
 mod error;
 mod id;
+mod router;
 mod routes;
+mod state;
 mod template;
 mod user;
+mod utils;
 
 use argon2::Argon2;
-use axum::{
-    handler::Handler,
-    routing::{get, post},
-};
-use axum_extra::routing::RouterExt;
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
-use rayon::{ThreadPool, ThreadPoolBuilder};
+use rayon::ThreadPoolBuilder;
 use s3::{creds::Credentials, Bucket};
-use sqlx::{postgres::PgPoolOptions, PgPool};
-use std::{fmt::Debug, sync::Arc};
-use template::BaseRenderInfo;
+use sqlx::postgres::PgPoolOptions;
+use std::sync::Arc;
 use tera::Tera;
-use tower_http::{
-    compression::CompressionLayer, decompression::DecompressionLayer, services::ServeDir,
-};
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 
-pub use crate::error::Error;
-
-pub type AppState = Arc<InnerAppState>;
+use crate::{config::Config, state::InnerAppState};
+pub use crate::{error::Error, state::AppState};
 
 #[macro_use]
 extern crate tracing;
@@ -104,30 +98,10 @@ async fn main() {
     );
     info!("Starting server on http://localhost:{}", config.port);
     axum::Server::bind(&([0, 0, 0, 0], config.port).into())
-        .serve(build_router(state).into_make_service())
+        .serve(router::build(state).into_make_service())
         .with_graceful_shutdown(shutdown_signal())
         .await
         .unwrap();
-}
-
-fn build_router(state: AppState) -> axum::Router {
-    let servedir =
-        ServeDir::new("./public/").fallback(routes::notfound_handler.with_state(state.clone()));
-    axum::Router::new()
-        .route("/", get(routes::index::get))
-        .route_with_tsr("/login", get(routes::login::get).post(routes::login::post))
-        .route_with_tsr(
-            "/signup",
-            get(routes::signup::get).post(routes::signup::post),
-        )
-        .route_with_tsr("/user/:username", get(routes::user::get))
-        .route_with_tsr("/settings", get(routes::settings::get))
-        .route("/settings/pfp", post(routes::settings::pfp))
-        .route("/settings/banner", post(routes::settings::banner))
-        .layer(CompressionLayer::new())
-        .layer(DecompressionLayer::new())
-        .fallback_service(servedir)
-        .with_state(state)
 }
 
 async fn shutdown_signal() {
@@ -146,58 +120,4 @@ async fn shutdown_signal() {
             _ = terminate.recv() => {}
         }
     }
-}
-
-#[derive(Clone)]
-pub struct InnerAppState {
-    config: Config,
-    tera: Tera,
-    redis: RedisPool,
-    postgres: PgPool,
-    rayon: Arc<ThreadPool>,
-    argon: Argon2<'static>,
-    s3: Bucket,
-}
-
-impl InnerAppState {
-    /// # Errors
-    /// If somehow the channel hangs up, this can error.
-    pub async fn spawn_rayon<O, F>(
-        &self,
-        func: F,
-    ) -> Result<O, tokio::sync::oneshot::error::RecvError>
-    where
-        O: Send + 'static,
-        F: FnOnce(InnerAppState) -> O + Send + 'static,
-    {
-        let state = self.clone();
-        let (tx, rx) = tokio::sync::oneshot::channel();
-        self.rayon.spawn(move || {
-            let _ = tx.send(func(state));
-        });
-        rx.await
-    }
-    #[must_use]
-    pub fn base_context(&self) -> BaseRenderInfo {
-        BaseRenderInfo::new(&self.config.root_url, &self.config.cdn_url)
-    }
-}
-
-#[derive(serde::Deserialize, Clone, Debug)]
-struct Config {
-    redis_url: String,
-    database_url: String,
-    root_url: String,
-    cdn_url: String,
-    s3_endpoint: String,
-    s3_bucket: String,
-    s3_region: String,
-    s3_secret_access_key: String,
-    s3_access_key_id: String,
-    #[serde(default = "default_port")]
-    port: u16,
-}
-
-fn default_port() -> u16 {
-    8080
 }

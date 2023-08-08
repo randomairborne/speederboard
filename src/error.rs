@@ -4,12 +4,11 @@ use crate::AppState;
 use axum::{
     http::StatusCode,
     response::{Html, IntoResponse},
-    Json,
 };
 pub static ERROR_STATE: OnceLock<AppState> = OnceLock::new();
 
 #[derive(Debug, thiserror::Error)]
-pub enum Error<const JSON: bool = false> {
+pub enum Error {
     #[error("SQLx error: {0}")]
     Sqlx(#[from] sqlx::Error),
     #[error("Redis Deadpool error: {0}")]
@@ -28,17 +27,31 @@ pub enum Error<const JSON: bool = false> {
     S3(#[from] s3::error::S3Error),
     #[error("multipart upload error: {0}")]
     Multipart(#[from] axum::extract::multipart::MultipartError),
+    #[error("format error: {0}")]
+    InvalidMultipart(&'static str),
+    #[error("This should be impossible. {0}")]
+    Impossible(#[from] std::convert::Infallible),
     #[error("Field {0} must {1}")]
     FormValidation(&'static str, &'static str),
     #[error("Username or password is incorrect")]
     InvalidPassword,
     #[error("Invalid auth cookie")]
     InvalidCookie,
+    #[error(
+        "This token has a valid ID associated with it, but no data is associated with its ID."
+    )]
+    TokenHasIdButIdIsUnkown,
     #[error("Not found")]
     NotFound,
 }
 
-impl<const JSON: bool> IntoResponse for Error<{ JSON }> {
+impl From<Error> for std::io::Error {
+    fn from(value: Error) -> Self {
+        std::io::Error::new(std::io::ErrorKind::InvalidData, value)
+    }
+}
+
+impl IntoResponse for Error {
     fn into_response(self) -> axum::response::Response {
         error!(?self, "failed to handle request");
         let state = ERROR_STATE.get().unwrap();
@@ -50,16 +63,17 @@ impl<const JSON: bool> IntoResponse for Error<{ JSON }> {
             | Self::Argon2(_)
             | Self::OneshotRecv(_)
             | Self::SerdeJson(_)
-            | Self::S3(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::FormValidation(_, _) | Self::Multipart(_) => StatusCode::BAD_REQUEST,
+            | Self::S3(_)
+            | Self::Impossible(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::FormValidation(_, _)
+            | Self::Multipart(_)
+            | Self::InvalidMultipart(_)
+            | Self::TokenHasIdButIdIsUnkown => StatusCode::BAD_REQUEST,
             Self::InvalidPassword => StatusCode::FORBIDDEN,
             Self::InvalidCookie => StatusCode::UNAUTHORIZED,
             Self::NotFound => return crate::routes::notfound(state).into_response(),
         };
         let self_as_string = self.to_string();
-        if JSON {
-            return Json(serde_json::json!({"error": self_as_string})).into_response();
-        }
         let mut ctx = match tera::Context::from_serialize(state.base_context()) {
             Ok(v) => v,
             Err(source) => {
@@ -120,13 +134,13 @@ impl From<argon2::Error> for ArgonError {
     }
 }
 
-impl<const JSON: bool> From<argon2::password_hash::Error> for Error<JSON> {
+impl From<argon2::password_hash::Error> for Error {
     fn from(value: argon2::password_hash::Error) -> Self {
         Self::Argon2(ArgonError::PasswordHash(value))
     }
 }
 
-impl<const JSON: bool> From<argon2::Error> for Error<JSON> {
+impl From<argon2::Error> for Error {
     fn from(value: argon2::Error) -> Self {
         Self::Argon2(ArgonError::Argon2(value))
     }

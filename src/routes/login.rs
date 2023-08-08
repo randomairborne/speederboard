@@ -3,7 +3,6 @@ use crate::{
     user::{User, TOKEN_COOKIE},
     AppState, Error,
 };
-use argon2::{PasswordHash, PasswordVerifier};
 use axum::{
     extract::{Query, State},
     response::{Html, Redirect},
@@ -34,14 +33,14 @@ pub struct LoginForm<'a> {
 #[allow(clippy::module_name_repetitions)]
 #[derive(serde::Deserialize)]
 pub struct LoginFormData {
-    email: String,
-    password: String,
+    pub email: String,
+    pub password: String,
 }
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(serde::Deserialize)]
 pub struct LoginQuery {
-    incorrect: Option<bool>,
+    pub incorrect: Option<bool>,
 }
 
 #[allow(clippy::unused_async)]
@@ -62,41 +61,22 @@ pub async fn post(
     cookies: CookieJar,
     Form(form): Form<LoginFormData>,
 ) -> Result<(CookieJar, Redirect), Error> {
-    let Some(record) = query!(
-        "SELECT * FROM users WHERE email = $1",
-        form.email
-    )
-    .fetch_optional(&state.postgres)
-    .await? else {
+    let Ok(user) = User::from_db(&state, &state.postgres, form.email, form.password).await? else {
         return Ok((cookies, Redirect::to("?incorrect=true")));
     };
-    let user = User {
-        id: record.id.into(),
-        username: record.username,
-        has_stylesheet: record.has_stylesheet,
-        pfp_ext: record.pfp_ext,
-        banner_ext: record.banner_ext,
-        biography: record.biography,
-    };
-    let password_result = state
-        .spawn_rayon(move |state| {
-            let hash = PasswordHash::new(&record.password)?;
-            state.argon.verify_password(form.password.as_ref(), &hash)
-        })
-        .await?;
-    if let Err(argon2::password_hash::Error::Password) = password_result {
-        return Ok((cookies, Redirect::to("?incorrect=true")));
-    }
-    // this looks a little weird! but we do this because if there's an error verifying
-    // a password, we want to report it, but differently then if the password is *wrong*
-    password_result?;
     let token = rand::distributions::Alphanumeric.sample_string(&mut rand::thread_rng(), 64);
     state
         .redis
         .get()
         .await?
+        .set_ex(format!("token:user:{token}"), user.id.get(), 86_400)
+        .await?;
+    state
+        .redis
+        .get()
+        .await?
         .set_ex(
-            format!("token:user:{token}"),
+            format!("user:{}", user.id),
             serde_json::to_string(&user)?,
             86_400,
         )

@@ -1,20 +1,24 @@
+use core::hash::Hash;
 use std::marker::PhantomData;
 
 use sqlx::{postgres::PgTypeInfo, Postgres};
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(serde::Deserialize, serde::Serialize, Clone, Copy, PartialEq, Eq, Hash)]
 #[serde(transparent)]
-pub struct Id<T: IdMarker> {
+pub struct Id<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> {
     inner: i64,
     #[serde(skip)]
     phantom: PhantomData<T>,
 }
 
-impl<T: IdMarker> Id<T> {
-    pub fn get(&self) -> i64 {
+impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> Id<T> {
+    pub fn new(data: i64) -> Self {
+        data.into()
+    }
+    pub fn get(self) -> i64 {
         self.inner
     }
-    pub fn cast<O: IdMarker>(self) -> Id<O> {
+    pub fn cast<O: IdMarker + Clone + Copy + PartialEq + Eq + Hash>(self) -> Id<O> {
         Id {
             inner: self.inner,
             phantom: PhantomData,
@@ -22,25 +26,26 @@ impl<T: IdMarker> Id<T> {
     }
 }
 
-impl<T: IdMarker> std::fmt::Debug for Id<T> {
+impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> std::fmt::Debug for Id<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self.inner)
     }
 }
 
-impl<T: IdMarker> std::fmt::Display for Id<T> {
+impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> std::fmt::Display for Id<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.inner)
     }
 }
 
-impl<T: IdMarker> sqlx::Type<Postgres> for Id<T> {
+impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> sqlx::Type<Postgres> for Id<T> {
     fn type_info() -> <Postgres as sqlx::Database>::TypeInfo {
         PgTypeInfo::with_name("BIGINT")
     }
 }
 
-impl<'q, T: IdMarker, DB: sqlx::Database> sqlx::Encode<'q, DB> for Id<T>
+impl<'q, T: IdMarker + Clone + Copy + PartialEq + Eq + Hash, DB: sqlx::Database>
+    sqlx::Encode<'q, DB> for Id<T>
 where
     i64: sqlx::Encode<'q, DB>,
 {
@@ -67,7 +72,8 @@ where
     }
 }
 
-impl<'q, T: IdMarker, DB: sqlx::Database> sqlx::Decode<'q, DB> for Id<T>
+impl<'q, T: IdMarker + Clone + Copy + PartialEq + Eq + Hash, DB: sqlx::Database>
+    sqlx::Decode<'q, DB> for Id<T>
 where
     i64: sqlx::Decode<'q, DB>,
 {
@@ -82,7 +88,7 @@ where
     }
 }
 
-impl<T: IdMarker> From<i64> for Id<T> {
+impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> From<i64> for Id<T> {
     fn from(inner: i64) -> Self {
         Self {
             inner,
@@ -91,7 +97,7 @@ impl<T: IdMarker> From<i64> for Id<T> {
     }
 }
 
-impl<T: IdMarker> From<Id<T>> for i64 {
+impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> From<Id<T>> for i64 {
     fn from(id: Id<T>) -> Self {
         id.inner
     }
@@ -100,11 +106,15 @@ impl<T: IdMarker> From<Id<T>> for i64 {
 #[allow(clippy::module_name_repetitions)]
 pub trait IdMarker {}
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct UserMarker;
 impl IdMarker for UserMarker {}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct GameMarker;
 impl IdMarker for GameMarker {}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct CategoryMarker;
 impl IdMarker for CategoryMarker {}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct RunMarker;
 impl IdMarker for RunMarker {}

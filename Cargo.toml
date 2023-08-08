@@ -6,15 +6,18 @@ edition = "2021"
 [dependencies]
 tower-http = { version = "0.4", default-features = false, features = ["fs", "compression-full", "decompression-full"] }
 sqlx = { version = "0.7", features = ["macros", "postgres", "tls-rustls", "runtime-tokio"] }
+rust-s3 = { version = "0.33", default-features = false, features = ["tokio-rustls-tls"] }
 axum = { version = "0.6", features = ["http2", "headers", "macros", "multipart"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal"] }
 redis = { version = "0.23", features = ["aio", "connection-manager"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 axum-extra = { version = "0.7", features = ["cookie"] }
-tower = { version = "0.4", default-features = false }
+# tower = { version = "0.4", default-features = false }
+tokio-util = { version = "0.7", features = ["io"] }
 serde = { version = "1", features = ["derive"] }
 markdown = "1.0.0-alpha.11"
 deadpool-redis = "0.12"
+futures-util = "0.3"
 serde_json = "1"
 dotenvy = "0.15"
 thiserror = "1"
@@ -24,4 +27,3 @@ tera = "1.19"
 envy = "0.4"
 rand = "0.8"
 rayon = "1"
-rust-s3 = { version = "0.33.0", default-features = false, features = ["tokio-rustls-tls"] }

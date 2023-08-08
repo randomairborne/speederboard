@@ -1,17 +1,15 @@
 use crate::{
-    error::ArgonError,
     template::BaseRenderInfo,
     user::{User, TOKEN_COOKIE},
     AppState, Error,
 };
-use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use axum::{
     extract::State,
     response::{Html, Redirect},
     Form,
 };
 use axum_extra::extract::{cookie::Cookie, CookieJar};
-use rand::{distributions::DistString, rngs::OsRng};
+use rand::distributions::DistString;
 use redis::AsyncCommands;
 use tera::Context;
 
@@ -63,7 +61,9 @@ pub async fn post(
         ));
     }
     let password_hash = state
-        .spawn_rayon(move |state| hash_password(form.password.as_bytes(), &state.argon))
+        .spawn_rayon(move |state| {
+            crate::utils::hash_password(form.password.as_bytes(), &state.argon)
+        })
         .await??;
     let user = query_as!(
         User,
@@ -92,12 +92,4 @@ pub async fn post(
         cookies.add(Cookie::new(TOKEN_COOKIE, token)),
         Redirect::to(&state.config.root_url),
     ))
-}
-
-fn hash_password(password: &[u8], argon: &Argon2) -> Result<String, ArgonError> {
-    let salt = SaltString::generate(&mut OsRng);
-    argon
-        .hash_password(password, &salt)
-        .map_err(Into::into)
-        .map(|v| v.to_string())
 }
