@@ -3,17 +3,63 @@
 {% block title %}manage your account{% endblock title %}
 {% block body %}
 <details>
-<summary>Change email (currently <code>{{ user.email }}</code>)</summary>
+<summary>change email (currently <code>{{ user.email }}</code>)</summary>
 <form method="post" action="/settings/email">
   <table>
     <tr>
       <td><label for="new_email">new email</label></td>
-      <td><input name="new_email" id="new_email" type="email" />
+      <td><input name="new_email" id="new_email" type="email" maxlength="255" />
       </td>
     </tr>
     <tr>
       <td><label for="password">password</label></td>
       <td><input name="password" id="password" type="password" />
+      </td>
+    </tr>
+  </table>
+  <input name="old_email" id="email" value="{{ user.email }}" hidden />
+  <div>
+    <button>change</button>
+  </div>
+</form>
+</details>
+<details>
+<summary>change password</summary>
+<form method="post" action="/settings/password">
+  <table>
+    <tr>
+      <td><label for="email">email</label></td>
+      <td><input name="email" id="email" type="email" value="{{ user.email }}" maxlength="255"/>
+      </td>
+    </tr>
+    <tr>
+      <td><label for="old_password">old password</label></td>
+      <td><input name="old_password" id="old_password" type="password" />
+      </td>
+    </tr>
+    <tr>
+      <td><label for="new_password">new password</label></td>
+      <td><input name="new_password" id="new_password" type="password" />
+      </td>
+    </tr>
+  </table>
+  <div>
+    <button>change</button>
+  </div>
+</form>
+</details>
+<details>
+<summary>change profile info</summary>
+<form method="post" action="/settings">
+  <table>
+    <tr>
+      <td><label for="username">username</label></td>
+      <td><input name="username" id="username" type="username" value="{{ user.username }}" maxlength="16"/>
+      </td>
+    </tr>
+    <tr>
+      <td><label for="biography">biography</label></td>
+      <td><textarea name="biography" id="biography" maxlength="4000"></textarea>
       </td>
     </tr>
   </table>

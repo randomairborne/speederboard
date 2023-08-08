@@ -48,18 +48,6 @@ pub async fn post(
     cookies: CookieJar,
     Form(form): Form<SignUpFormData>,
 ) -> Result<(CookieJar, Redirect), Error> {
-    if form.username.len() > 16 {
-        return Err(Error::FormValidation(
-            "username",
-            "be less then 16 characters",
-        ));
-    }
-    if form.email.len() > 255 {
-        return Err(Error::FormValidation(
-            "email",
-            "be less then 255 characters",
-        ));
-    }
     let password_hash = state
         .spawn_rayon(move |state| {
             crate::utils::hash_password(form.password.as_bytes(), &state.argon)

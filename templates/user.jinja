@@ -2,5 +2,7 @@
 {% block extraheaders %}{% endblock extraheaders %}
 {% block title %}speedruns and game leaderboards{% endblock title %}
 {% block body %}
+{{ user.username }}
+<br>
 {{ __tera_context }}
 {% endblock body %}

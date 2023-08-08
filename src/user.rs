@@ -104,7 +104,8 @@ impl FromRequestParts<AppState> for User {
         let jar = CookieJar::from_request_parts(parts, state).await?;
         let cookie = jar.get(TOKEN_COOKIE).ok_or(Error::InvalidCookie)?;
 
-        let maybe_user_id: Option<String> = redis.get(format!("token:user:{}", cookie.value())).await?;
+        let maybe_user_id: Option<String> =
+            redis.get(format!("token:user:{}", cookie.value())).await?;
         let user_id = maybe_user_id.ok_or(Error::InvalidCookie)?;
 
         let maybe_user: Option<String> = redis.get(format!("user:{user_id}")).await?;
