@@ -1,4 +1,4 @@
-name: CI
+name: Deploy s3 upload worker
 on:
   push:
     branches:
