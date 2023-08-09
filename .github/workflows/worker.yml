@@ -22,6 +22,6 @@ jobs:
       - name: deploy
         uses: cloudflare/wrangler-action@3
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }
+          apiToken: ${{ secrets.CF_API_TOKEN }}
           workingDirectory: "cdn-upload-worker"
           command: publish --env staging
