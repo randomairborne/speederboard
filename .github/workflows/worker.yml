@@ -17,10 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code into the proper directory
-        uses: actions/checkout@v3.0.1
+        uses: actions/checkout@v3
 
       - name: deploy
-        uses: cloudflare/wrangler-action@3
+        uses: cloudflare/wrangler-action@3.0.1
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           workingDirectory: "cdn-upload-worker"
