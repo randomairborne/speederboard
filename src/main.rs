@@ -14,9 +14,8 @@ mod utils;
 use argon2::Argon2;
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
 use rayon::ThreadPoolBuilder;
-use s3::{creds::Credentials, Bucket};
 use sqlx::postgres::PgPoolOptions;
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 use tera::Tera;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 
@@ -39,9 +38,11 @@ async fn main() {
     let config: Config = envy::from_env().expect("Failed to read config");
     let root_url = config.root_url.trim_end_matches('/').to_string();
     let cdn_url = config.cdn_url.trim_end_matches('/').to_string();
+    let fakes3_endpoint = config.fakes3_endpoint.trim_end_matches('/').to_string();
     let config = Config {
         root_url,
         cdn_url,
+        fakes3_endpoint,
         ..config
     };
     let postgres = PgPoolOptions::new()
@@ -54,23 +55,6 @@ async fn main() {
         .runtime(Runtime::Tokio1)
         .build()
         .unwrap();
-    let s3 = Bucket::new(
-        &config.s3_bucket,
-        s3::Region::Custom {
-            region: config.s3_region.clone(),
-            endpoint: config.s3_endpoint.clone(),
-        },
-        Credentials::new(
-            Some(&config.s3_access_key_id),
-            Some(&config.s3_secret_access_key),
-            None,
-            None,
-            None,
-        )
-        .expect("Invalid S3 credentials"),
-    )
-    .unwrap()
-    .with_path_style();
     let mut tera = Tera::new("./templates/**/*").expect("Failed to build templates");
     tera.register_filter("markdown", |data: &tera::Value, _args: &_| {
         Ok(tera::Value::String(markdown::to_html(&data.to_string())))
@@ -82,6 +66,11 @@ async fn main() {
         argon2::Version::V0x13,
         argon2::Params::new(16384, 192, 8, Some(64)).unwrap(),
     );
+    let http = reqwest::ClientBuilder::new()
+        .user_agent("speederboard http")
+        .timeout(Duration::from_secs(10))
+        .build()
+        .unwrap();
     let state = InnerAppState {
         config: config.clone(),
         tera,
@@ -89,7 +78,7 @@ async fn main() {
         postgres,
         rayon,
         argon,
-        s3,
+        http,
     };
     let state = Arc::new(state);
     assert!(

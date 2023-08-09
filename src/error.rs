@@ -23,10 +23,10 @@ pub enum Error {
     OneshotRecv(#[from] tokio::sync::oneshot::error::RecvError),
     #[error("JSON serialization or deserialization error: {0}")]
     SerdeJson(#[from] serde_json::Error),
-    #[error("s3 library error: {0}")]
-    S3(#[from] s3::error::S3Error),
+    #[error("reqwest error: {0}")]
+    Reqwest(#[from] reqwest::Error),
     #[error("multipart upload error: {0}")]
-    Multipart(#[from] axum::extract::multipart::MultipartError),
+    Multipart(#[from] axum_extra::extract::multipart::MultipartError),
     #[error("format error: {0}")]
     InvalidMultipart(&'static str),
     #[error("This should be impossible. {0}")]
@@ -62,7 +62,7 @@ impl IntoResponse for Error {
             | Self::Argon2(_)
             | Self::OneshotRecv(_)
             | Self::SerdeJson(_)
-            | Self::S3(_)
+            | Self::Reqwest(_)
             | Self::Impossible(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::FormValidation(_, _)
             | Self::Multipart(_)

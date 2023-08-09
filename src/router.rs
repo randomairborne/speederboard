@@ -26,15 +26,21 @@ pub fn build(state: AppState) -> Router {
             get(routes::settings::get).post(routes::settings::profile),
         )
         .route("/settings/pfp", post(routes::settings::files::pfp))
-        .route("/settings/pfp/del", post(routes::settings::files::pfp_del))
+        .route(
+            "/settings/pfp/delete",
+            post(routes::settings::files::pfp_del),
+        )
         .route("/settings/banner", post(routes::settings::files::banner))
         .route(
-            "/settings/banner/del",
+            "/settings/banner/delete",
             post(routes::settings::files::banner_del),
         )
-        .route("/settings/css", post(routes::settings::files::stylesheet))
         .route(
-            "/settings/stylesheet/del",
+            "/settings/stylesheet",
+            post(routes::settings::files::stylesheet),
+        )
+        .route(
+            "/settings/stylesheet/delete",
             post(routes::settings::files::stylesheet_del),
         )
         .route(

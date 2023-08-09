@@ -9,7 +9,6 @@ use argon2::Argon2;
 use deadpool_redis::Pool as RedisPool;
 use rayon::ThreadPool;
 use redis::AsyncCommands;
-use s3::Bucket;
 use sqlx::PgPool;
 use std::sync::Arc;
 use tera::Tera;
@@ -24,7 +23,7 @@ pub struct InnerAppState {
     pub postgres: PgPool,
     pub rayon: Arc<ThreadPool>,
     pub argon: Argon2<'static>,
-    pub s3: Bucket,
+    pub http: reqwest::Client,
 }
 
 impl InnerAppState {
@@ -78,6 +77,35 @@ impl InnerAppState {
             .set_ex(user.id.get(), serde_json::to_string(&new_db_user)?, 86_400)
             .await?;
         Ok(new_db_user)
+    }
+    pub async fn put_r2_file(
+        &self,
+        location: &str,
+        file: reqwest::Body,
+        content_type: &str,
+    ) -> Result<(), Error> {
+        let resp = self
+            .http
+            .put(format!("{}{}", self.config.fakes3_endpoint, location))
+            .bearer_auth(&self.config.fakes3_token)
+            .header("content-type", content_type)
+            .body(file)
+            .send()
+            .await?
+            .error_for_status()?;
+        trace!(?resp, "got response on creation");
+        Ok(())
+    }
+    pub async fn delete_r2_file(&self, location: &str) -> Result<(), Error> {
+        let resp = self
+            .http
+            .delete(format!("{}{}", self.config.fakes3_endpoint, location))
+            .bearer_auth(&self.config.fakes3_token)
+            .send()
+            .await?
+            .error_for_status()?;
+        trace!(?resp, "got response on deletion");
+        Ok(())
     }
 }
 
