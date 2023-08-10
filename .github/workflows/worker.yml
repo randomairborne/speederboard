@@ -15,9 +15,16 @@ jobs:
       - name: Check out code into the proper directory
         uses: actions/checkout@v3
 
-      - name: deploy
+      - name: deploy prod
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           workingDirectory: "cdn-upload-worker"
-          command: publish --config wrangler.prod.toml
+          command: deploy --config wrangler.prod.toml
+
+      - name: deploy dev
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          workingDirectory: "cdn-upload-worker"
+          command: deploy --config wrangler.toml
