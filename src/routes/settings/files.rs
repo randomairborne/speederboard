@@ -83,7 +83,7 @@ async fn multipart_into_s3(
             let bytes = field.bytes().await?;
             if bytes.len() > SIZE_LIMIT {
                 return Err(Error::FormValidation(
-                    "image",
+                    "file",
                     "be smaller then 512 kilobytes",
                 ));
             }
