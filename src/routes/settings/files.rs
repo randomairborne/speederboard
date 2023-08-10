@@ -63,6 +63,8 @@ pub async fn stylesheet_del(State(state): State<AppState>, user: User) -> Result
     Ok(Redirect::to(UPDATE_COMPLETE_URL))
 }
 
+const SIZE_LIMIT: usize = 1024 * 512;
+
 async fn multipart_into_s3(
     state: &AppState,
     mut multipart: Multipart,
@@ -79,6 +81,12 @@ async fn multipart_into_s3(
                 ctype.unwrap_or("application/octet-stream").to_string()
             };
             let bytes = field.bytes().await?;
+            if bytes.len() > SIZE_LIMIT {
+                return Err(Error::FormValidation(
+                    "image",
+                    "be smaller then 512 kilobytes",
+                ));
+            }
             state
                 .put_r2_file(dest, reqwest::Body::from(bytes), &content_type)
                 .await?;
