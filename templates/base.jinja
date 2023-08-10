@@ -8,82 +8,31 @@
     <link rel="icon"
         href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
         type="image/png" />
-    <link rel="stylesheet" href="{{ root_url }}/bulma.min.css">
+    <link rel="stylesheet" href="{{ root_url }}/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {% if logged_in_user and logged_in_user.has_custom_stylesheet %}
-    <link rel="stylesheet" href="{{ cdn_root }}/customfiles/users/{{ logged_in_user.id }}/style.css">
+    <link rel="stylesheet" href="{{ cdn_url }}/customfiles/users/{{ logged_in_user.id }}/style.css">
     {% endif %}
     {% block extraheaders %}
     {% endblock %}
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
-            $navbarBurgers.forEach(el => {
-                el.addEventListener('click', () => {
-                    const target = el.dataset.target;
-                    const $target = document.getElementById(target);
-                    el.classList.toggle('is-active');
-                    $target.classList.toggle('is-active');
-                });
-            });
-
-        });
-    </script>
 </head>
 
 <body>
-    <nav class="navbar" role="navigation" aria-label="main navigation">
-        <div class="navbar-brand">
-            <a class="navbar-item" href="{{ root_url }}">
-                speederboard
-            </a>
-
-            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"
-                data-target="navbarBasicExample">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-            </a>
+    <nav>
+        <div class="left">
+        <a href="{{ root_url }}" class="pad-left-1ch">home</a>
         </div>
-
-        <div id="navbarBasicExample" class="navbar-menu">
-            <div class="navbar-start">
-                <a class="navbar-item" href="{{ root_url }}">
-                    home
-                </a>
-
-                <a class="navbar-item" href="{{ root_url }}/forums/">
-                    forums
-                </a>
-            </div>
-
-            <div class="navbar-end">
-                <div class="navbar-item">
-                    <div class="buttons">
-                        {% if logged_in_user %}
-
-                        <a class="button is-primary">
-                            <strong>Sign up</strong>
-                        </a>
-                        <a class="button is-light">
-                            Log in
-                        </a>
-                        {% else %}
-                        {% if logged_in_user.pfp_ext %}
-                        <a class="button is-light" href="/settings">settings</a>
-                        {% else %}
-                        <a class="button is-light" href="/settings">
-                            <img src="{{ cdn_root }}/customfiles/users/{{ logged_in_user.id }}/pfp.png"
-                                alt="Your profile picture. Clicking will take you to your settings." />
-                        </a>
-                        {% endif %}
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+        <div class="right">
+        {% if logged_in_user %}
+        <a href="{{ root_url }}/logout" class="pad-right-1ch">logout</a>
+        <a href="{{ root_url }}/settings" class="pad-right-1ch">settings</a>
+        {% else %}
+        <a href="{{ root_url }}/login" class="pad-right-1ch">login</a>
+        <a href="{{ root_url }}/signup" class="pad-right-1ch">signup</a>
+        {% endif %}
         </div>
     </nav>
-    <div class="mount">
+    <div class="body">
         {% block body %}{% endblock body %}
     </div>
 </body>

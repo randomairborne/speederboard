@@ -16,6 +16,7 @@ pub fn build(state: AppState) -> Router {
     Router::new()
         .route("/", get(routes::index::get))
         .route_with_tsr("/login", get(routes::login::get).post(routes::login::post))
+        .route_with_tsr("/logout", get(routes::login::logout))
         .route_with_tsr(
             "/signup",
             get(routes::signup::get).post(routes::signup::post),

@@ -2,7 +2,9 @@
 {% block extraheaders %}{% endblock extraheaders %}
 {% block title %}{{ user.username }}{% endblock title %}
 {% block body %}
-{{ user.username }}
-<br>
-{{ __tera_context }}
+{% if user.pfp_ext %}
+<img src="{{ cdn_url }}/customfiles/users/{{ user.id }}/pfp.png" alt="{{ user.username }}'s profile picture" />
+{% endif %}
+<h2>{{ user.username }}</h2>
+<div>{{ user.biography | markdown }}</div>
 {% endblock body %}

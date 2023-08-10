@@ -1,6 +1,6 @@
 use crate::{
     template::BaseRenderInfo,
-    user::{User, TOKEN_COOKIE},
+    user::{User, TOKEN_COOKIE, TOKEN_TTL},
     AppState, Error,
 };
 use axum::{
@@ -69,7 +69,7 @@ pub async fn post(
         .redis
         .get()
         .await?
-        .set_ex(format!("token:user:{token}"), user.id.get(), 86_400)
+        .set_ex(format!("token:user:{token}"), user.id.get(), TOKEN_TTL)
         .await?;
     state
         .redis
@@ -78,11 +78,34 @@ pub async fn post(
         .set_ex(
             format!("user:{}", user.id),
             serde_json::to_string(&user)?,
-            86_400,
+            TOKEN_TTL,
         )
         .await?;
     Ok((
         cookies.add(Cookie::new(TOKEN_COOKIE, token)),
+        Redirect::to(&state.config.root_url),
+    ))
+}
+
+pub async fn logout(
+    State(state): State<AppState>,
+    cookies: CookieJar,
+) -> Result<(CookieJar, Redirect), Error> {
+    let Some(token) = cookies.get(TOKEN_COOKIE).map(Cookie::value) else {
+        return Ok((cookies, Redirect::to(&state.config.root_url)));
+    };
+    let maybe_id: Option<String> = state
+        .redis
+        .get()
+        .await?
+        .get_del(format!("token:user:{token}"))
+        .await?;
+    let Some(id) = maybe_id else {
+        return Ok((cookies, Redirect::to(&state.config.root_url)));
+    };
+    state.redis.get().await?.del(format!("user:{id}")).await?;
+    Ok((
+        cookies.remove(Cookie::named(TOKEN_COOKIE)),
         Redirect::to(&state.config.root_url),
     ))
 }

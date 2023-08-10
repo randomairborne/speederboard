@@ -1,6 +1,7 @@
 use crate::{AppState, Error};
 use axum::{extract::State, http::StatusCode, response::Html};
 
+pub mod game;
 pub mod index;
 pub mod login;
 pub mod settings;

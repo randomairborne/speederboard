@@ -1,6 +1,6 @@
 use crate::{
     template::BaseRenderInfo,
-    user::{User, TOKEN_COOKIE},
+    user::{User, TOKEN_COOKIE, TOKEN_TTL},
     AppState, Error,
 };
 use axum::{
@@ -73,7 +73,7 @@ pub async fn post(
         .set_ex(
             format!("token:user:{token}"),
             serde_json::to_string(&user)?,
-            86_400,
+            TOKEN_TTL,
         )
         .await?;
     Ok((

@@ -1,0 +1,50 @@
+* {
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0%;
+}
+
+nav {
+    width: 100%;
+    height: 5ch;
+    background-color: blueviolet;
+    align-items: center;
+    display: flex;
+}
+
+nav * {
+    display: flex;
+}
+
+nav * a {
+    color: white;
+    height: 100%;
+}
+
+nav .left {
+    justify-content: left;
+    width: 50%;
+}
+
+nav .right {
+    justify-content: right;
+    width: 50%;
+}
+
+.pad-left-1ch {
+    padding-left: 1ch;
+}
+
+.pad-right-1ch {
+    padding-right: 1ch;
+}
+
+.body {
+    padding-right: 5ch;
+    padding-left: 5ch;
+    padding-top: 2ch;
+}

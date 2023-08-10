@@ -92,6 +92,7 @@ impl User {
 }
 
 pub const TOKEN_COOKIE: &str = "token";
+pub const TOKEN_TTL: usize = 24 * 60 * 60;
 
 #[axum::async_trait]
 impl FromRequestParts<AppState> for User {

@@ -74,7 +74,11 @@ impl InnerAppState {
         self.redis
             .get()
             .await?
-            .set_ex(user.id.get(), serde_json::to_string(&new_db_user)?, 86_400)
+            .set_ex(
+                format!("user:{}", user.id.get()),
+                serde_json::to_string(&new_db_user)?,
+                86_400,
+            )
             .await?;
         Ok(new_db_user)
     }
