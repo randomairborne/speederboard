@@ -20,4 +20,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           workingDirectory: "cdn-upload-worker"
-          command: publish --env staging
+          command: publish --config wrangler.prod.toml
