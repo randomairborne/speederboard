@@ -8,8 +8,7 @@ export interface Env {
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const { method, headers, body, url } = request;
-		const path = new URL(url).pathname;
-		const destination = headers.get('destination');
+		const path = new URL(url).pathname.replace(/^\//, '');
 		const bearer_authorization = headers.get('authorization');
 		const authorization = bearer_authorization?.replace('Bearer ', '');
 		let maybeContentType = headers.get('content-type');
