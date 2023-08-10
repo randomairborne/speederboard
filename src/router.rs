@@ -22,6 +22,15 @@ pub fn build(state: AppState) -> Router {
             get(routes::signup::get).post(routes::signup::post),
         )
         .route_with_tsr("/user/:username", get(routes::user::get))
+        .merge(settings_router(state.clone()))
+        .layer(CompressionLayer::new())
+        .layer(DecompressionLayer::new())
+        .fallback_service(servedir)
+        .with_state(state)
+}
+
+pub fn settings_router(state: AppState) -> Router<AppState> {
+    Router::new()
         .route_with_tsr(
             "/settings",
             get(routes::settings::get).post(routes::settings::profile),
@@ -52,8 +61,5 @@ pub fn build(state: AppState) -> Router {
             "/settings/password",
             post(routes::settings::credentials::update_password),
         )
-        .layer(CompressionLayer::new())
-        .layer(DecompressionLayer::new())
-        .fallback_service(servedir)
         .with_state(state)
 }
