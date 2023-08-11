@@ -22,6 +22,7 @@ pub fn build(state: AppState) -> Router {
             get(routes::signup::get).post(routes::signup::post),
         )
         .route_with_tsr("/user/:username", get(routes::user::get))
+        .merge(game_router(state.clone()))
         .merge(settings_router(state.clone()))
         .layer(CompressionLayer::new())
         .layer(DecompressionLayer::new())
@@ -61,5 +62,11 @@ pub fn settings_router(state: AppState) -> Router<AppState> {
             "/settings/password",
             post(routes::settings::credentials::update_password),
         )
+        .with_state(state)
+}
+
+pub fn game_router(state: AppState) -> Router<AppState> {
+    Router::new()
+        .route_with_tsr("/game/:gameslug", get(routes::game::root::get))
         .with_state(state)
 }

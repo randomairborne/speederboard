@@ -6,6 +6,7 @@ CREATE TABLE users (
     username VARCHAR(128) NOT NULL UNIQUE,
     password VARCHAR(1024) NOT NULL,
     biography VARCHAR(4000) NOT NULL,
+    admin BOOL NOT NULL,
     has_stylesheet BOOL NOT NULL,
     banner_ext VARCHAR(4),
     pfp_ext VARCHAR(4)
@@ -16,24 +17,29 @@ CREATE TABLE games (
     name VARCHAR(128) NOT NULL,
     slug VARCHAR(32) NOT NULL,
     url VARCHAR(128) NOT NULL,
+    default_category BIGINT NOT NULL,
     description VARCHAR(4000) NOT NULL,
     has_stylesheet BOOL NOT NULL,
     banner_ext VARCHAR(4),
     cover_art_ext VARCHAR(4)
 );
 
+CREATE INDEX games_slug_index ON games(slug);
+
 CREATE TABLE categories (
     id BIGSERIAL PRIMARY KEY,
+    game BIGINT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
     name VARCHAR(128) NOT NULL,
     slug VARCHAR(32) NOT NULL UNIQUE,
     description VARCHAR(4000) NOT NULL,
+    rules TEXT NOT NULL,
     sortby_field VARCHAR(32) NOT NULL,
-    sort_ascending BIT NOT NULL
+    sort_ascending BOOL NOT NULL
 );
 
 CREATE TABLE permissions (
-    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
-    game_id BIGINT REFERENCES games(id) ON DELETE CASCADE,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    game_id BIGINT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
     permissions BIT(64) NOT NULL,
     PRIMARY KEY (user_id, game_id)
 );

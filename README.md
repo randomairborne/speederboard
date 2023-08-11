@@ -3,6 +3,7 @@
 A game leaderboard website.
 
 If you're looking to contribute, you might want to have a look at TEMPLATES.md or in a file in ./public
+contributions would be greatly appreciated, especially with CSS and HTML. Please contact me if you're interested in helping.
 
 suggested dev command:
 

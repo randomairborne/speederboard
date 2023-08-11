@@ -1,6 +1,6 @@
 use axum::{extract::State, response::Redirect, Form};
 
-use crate::{user::User, AppState, Error};
+use crate::{model::User, AppState, Error};
 
 #[derive(serde::Deserialize)]
 pub struct UpdateEmailForm {
@@ -28,7 +28,7 @@ pub async fn update_password(
     query!(
         "UPDATE users SET password = $2 WHERE id = $1",
         user.id.get(),
-        crate::utils::hash_password(form.new_password.as_bytes(), &state.argon)?
+        crate::util::hash_password(form.new_password.as_bytes(), &state.argon)?
     )
     .execute(trans.as_mut())
     .await?;

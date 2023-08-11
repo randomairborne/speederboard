@@ -1,6 +1,6 @@
 pub mod credentials;
 pub mod files;
-use crate::{id::Id, state::DbUserUpdate, template::BaseRenderInfo, user::User, AppState, Error};
+use crate::{id::Id, model::User, state::DbUserUpdate, template::BaseRenderInfo, AppState, Error};
 use axum::{
     extract::{Query, State},
     response::{Html, Redirect},
@@ -48,7 +48,7 @@ pub async fn get(
 ) -> Result<Html<String>, Error> {
     let record = query!(
         "SELECT
-        id, username, has_stylesheet, pfp_ext, banner_ext, biography, email
+        id, username, has_stylesheet, pfp_ext, banner_ext, biography, email, admin
         FROM users WHERE id = $1",
         user.id.get()
     )
@@ -62,6 +62,7 @@ pub async fn get(
         biography: record.biography,
         pfp_ext: record.pfp_ext,
         banner_ext: record.banner_ext,
+        admin: record.admin,
     };
     let private_user = PrivateUser {
         base: base_user,

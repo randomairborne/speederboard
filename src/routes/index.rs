@@ -1,4 +1,4 @@
-use crate::{user::User, AppState, Error};
+use crate::{model::User, AppState, Error};
 use axum::{extract::State, response::Html};
 use tera::Context;
 

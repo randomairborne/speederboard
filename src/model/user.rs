@@ -5,12 +5,13 @@ use redis::AsyncCommands;
 
 use crate::{
     id::{Id, UserMarker},
+    util::AUTHTOKEN_COOKIE,
     AppState, Error,
 };
 
 /// pull it out of the DB with
-/// `RETURNING id, username, has_stylesheet, pfp_ext, banner_ext, biography`
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq)]
+/// `RETURNING id, username, has_stylesheet, pfp_ext, banner_ext, biography, admin`
+#[derive(serde::Serialize, serde::Deserialize, Debug, Encode, Hash, PartialEq, Eq, Clone)]
 pub struct User {
     pub id: Id<UserMarker>,
     pub username: String,
@@ -20,6 +21,7 @@ pub struct User {
     pub pfp_ext: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub banner_ext: Option<String>,
+    pub admin: bool,
 }
 
 const DEFAULT_PFP: &str = "/static/pfp/default.png";
@@ -80,6 +82,7 @@ impl User {
             pfp_ext: record.pfp_ext,
             banner_ext: record.banner_ext,
             biography: record.biography,
+            admin: record.admin,
         };
         if let Err(argon2::password_hash::Error::Password) = password_result {
             return Ok(Err(()));
@@ -91,9 +94,6 @@ impl User {
     }
 }
 
-pub const TOKEN_COOKIE: &str = "token";
-pub const TOKEN_TTL: usize = 24 * 60 * 60;
-
 #[axum::async_trait]
 impl FromRequestParts<AppState> for User {
     type Rejection = Error;
@@ -103,7 +103,7 @@ impl FromRequestParts<AppState> for User {
     ) -> Result<Self, Self::Rejection> {
         let mut redis = state.redis.get().await?;
         let jar = CookieJar::from_request_parts(parts, state).await?;
-        let cookie = jar.get(TOKEN_COOKIE).ok_or(Error::InvalidCookie)?;
+        let cookie = jar.get(AUTHTOKEN_COOKIE).ok_or(Error::InvalidCookie)?;
 
         let maybe_user_id: Option<String> =
             redis.get(format!("token:user:{}", cookie.value())).await?;

@@ -4,12 +4,12 @@
 mod config;
 mod error;
 mod id;
+mod model;
 mod router;
 mod routes;
 mod state;
 mod template;
-mod user;
-mod utils;
+mod util;
 
 use argon2::Argon2;
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};

@@ -1,8 +1,8 @@
 use crate::{
     config::Config,
     id::{Id, UserMarker},
+    model::User,
     template::BaseRenderInfo,
-    user::User,
     Error,
 };
 use argon2::Argon2;
@@ -59,7 +59,7 @@ impl InnerAppState {
                 banner_ext = CASE WHEN $7 THEN NULL ELSE COALESCE($8, banner_ext) END
             WHERE id = $1
             RETURNING id, username, has_stylesheet,
-            pfp_ext, banner_ext, biography",
+            pfp_ext, banner_ext, biography, admin",
             user.id.get(),
             user.username,
             user.has_stylesheet,
@@ -121,6 +121,7 @@ pub struct DbUserUpdate {
     biography: Option<String>,
     pfp_ext: MaybeNullUpdate<String>,
     banner_ext: MaybeNullUpdate<String>,
+    admin: Option<bool>,
 }
 
 impl DbUserUpdate {
@@ -132,6 +133,7 @@ impl DbUserUpdate {
             biography: None,
             pfp_ext: MaybeNullUpdate::None,
             banner_ext: MaybeNullUpdate::None,
+            admin: None,
         }
     }
     pub fn username(self, username: String) -> Self {
@@ -161,6 +163,12 @@ impl DbUserUpdate {
     pub fn banner_ext(self, banner_ext: Option<String>) -> Self {
         Self {
             banner_ext: banner_ext.into(),
+            ..self
+        }
+    }
+    pub fn admin(self, is_admin: bool) -> Self {
+        Self {
+            admin: Some(is_admin),
             ..self
         }
     }

@@ -1,6 +1,7 @@
 use crate::{
+    model::User,
     template::BaseRenderInfo,
-    user::{User, TOKEN_COOKIE, TOKEN_TTL},
+    util::{AUTHTOKEN_COOKIE, AUTHTOKEN_TTL},
     AppState, Error,
 };
 use axum::{
@@ -50,15 +51,15 @@ pub async fn post(
 ) -> Result<(CookieJar, Redirect), Error> {
     let password_hash = state
         .spawn_rayon(move |state| {
-            crate::utils::hash_password(form.password.as_bytes(), &state.argon)
+            crate::util::hash_password(form.password.as_bytes(), &state.argon)
         })
         .await??;
     let user = query_as!(
         User,
         "INSERT INTO users
-        (username, email, password, has_stylesheet, pfp_ext, banner_ext, biography)
-        VALUES ($1, $2, $3, false, NULL, NULL, '')
-        RETURNING id, username, has_stylesheet, pfp_ext, banner_ext, biography",
+        (username, email, password, has_stylesheet, pfp_ext, banner_ext, biography, admin)
+        VALUES ($1, $2, $3, false, NULL, NULL, '', false)
+        RETURNING id, username, has_stylesheet, pfp_ext, banner_ext, biography, admin",
         form.username,
         form.email,
         password_hash.to_string()
@@ -73,11 +74,11 @@ pub async fn post(
         .set_ex(
             format!("token:user:{token}"),
             serde_json::to_string(&user)?,
-            TOKEN_TTL,
+            AUTHTOKEN_TTL,
         )
         .await?;
     Ok((
-        cookies.add(Cookie::new(TOKEN_COOKIE, token)),
+        cookies.add(Cookie::new(AUTHTOKEN_COOKIE, token)),
         Redirect::to(&state.config.root_url),
     ))
 }

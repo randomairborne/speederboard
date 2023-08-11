@@ -1,4 +1,4 @@
-use crate::user::User;
+use crate::model::User;
 
 #[derive(serde::Serialize)]
 pub struct BaseRenderInfo<'a> {
