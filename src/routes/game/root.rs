@@ -35,6 +35,15 @@ pub async fn get(
     .await?;
     let selected =
         get_selected(&categories, &category_slug, game.default_category).ok_or(Error::NotFound)?;
+    let runs = query_as!(
+        Run,
+        "SELECT * FROM runs
+        WHERE game = $1 AND category = $2
+        ORDER BY data->$3 ASC",
+        game.id.get()
+    )
+    .fetch_all(&state.postgres)
+    .await?;
     let get_game_ctx = GetGameContext {
         core: state.base_context(),
         categories,

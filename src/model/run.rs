@@ -9,10 +9,9 @@ pub enum RunStatus {
     Pending,
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq, Eq, Clone, PartialOrd, Ord)]
 pub enum RunMetadataEntry {
     ArbitraryString(String),
-    Float(f64),
     Int(i64),
     Time(u64),
 }
