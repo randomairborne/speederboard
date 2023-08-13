@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT runs.*, users.username as submitter_name\n        FROM runs JOIN users\n        ON runs.submitter = users.id\n        WHERE game = $1 AND category = $2\n        ORDER BY $3 LIMIT 51",
+  "query": "SELECT runs.*, users.username as submitter_name\n        FROM runs JOIN users\n        ON runs.submitter = users.id\n        WHERE game = $1 AND category = $2\n        ORDER BY $3",
   "describe": {
     "columns": [
       {
@@ -80,5 +80,5 @@
       false
     ]
   },
-  "hash": "cab830f8fec98ae9b035d57958eb631f66014636a67df7dd8cd7457ca30aa23e"
+  "hash": "25edda6841328d4993d2a691d136b938310c8ea13601917a4a0b030722f4b3e0"
 }
