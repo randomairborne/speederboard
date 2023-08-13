@@ -57,7 +57,8 @@ async fn main() {
         .unwrap();
     let mut tera = Tera::new("./templates/**/*").expect("Failed to build templates");
     tera.register_filter("markdown", crate::template::MarkdownFilter);
-    tera.register_filter("format_duration", crate::template::HumanizeDuration);
+    tera.register_filter("long_format_duration", crate::template::HumanizeDuration);
+    tera.register_filter("duration", crate::template::Duration);
     tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
     let rayon = Arc::new(ThreadPoolBuilder::new().num_threads(8).build().unwrap());
     let argon = Argon2::new(

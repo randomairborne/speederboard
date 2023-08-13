@@ -2,11 +2,10 @@
 {% block extraheaders %}{% endblock extraheaders %}
 {% block title %}run{% endblock title %}
 {% block body %}
-{{ __tera_context }}
-<p>from {{ user.username }}</p>
-{{ run.video }}
+<h1>{{ user.username }}&apos;s run of {{ game.name }}</h1>
+<a href="{{ run.video }}">{{ run.video }}</a>
 <h2>
-time: {{ run.time | format_duration }}
+time: {{ run.time | duration }}
 </h2>
 <h2>
 score: {{ run.score }}

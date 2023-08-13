@@ -3,13 +3,17 @@
 {% block title %}game{% endblock title %}
 {% block body %}
 <table>
-    <th>
-    <td></td>
-
-    </th>
+    <tr>
+        <th>user</th>
+        <th>time</th>
+        <th>score</th>
+    </tr>
     {% for run in runs %}
     <tr>
-        <td></td>
+        <td>{{ run.submitter_name }}</td>
+        <td>{{ run.time }}</td>
+        <td>{{ run.score }}</td>
+
     </tr>
     {% endfor %}
 </table>

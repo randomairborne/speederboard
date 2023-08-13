@@ -66,7 +66,8 @@ impl tera::Filter for HumanizeDuration {
         let total_time = value
             .as_u64()
             .ok_or_else(|| tera::Error::msg("Display duration was not a real number"))?;
-        let output = millis_to_string(total_time)
+        let (days, hours, minutes, seconds, milliseconds) = millis_to_ddhhmmssms(total_time);
+        let output = millis_to_long_string(days, hours, minutes, seconds, milliseconds)
             .map_err(|v| tera::Error::msg(format!("Failed formatting string: {v:?}")))?;
         Ok(tera::Value::String(output))
     }
@@ -75,13 +76,98 @@ impl tera::Filter for HumanizeDuration {
     }
 }
 
-fn millis_to_string(total_time_ms: u64) -> Result<String, std::fmt::Error> {
+pub struct Duration;
+
+impl tera::Filter for Duration {
+    fn filter(
+        &self,
+        value: &tera::Value,
+        _args: &std::collections::HashMap<String, tera::Value>,
+    ) -> tera::Result<tera::Value> {
+        let total_time = value
+            .as_u64()
+            .ok_or_else(|| tera::Error::msg("Display duration was not a real number"))?;
+        let (days, hours, minutes, seconds, milliseconds) = millis_to_ddhhmmssms(total_time);
+        let output = millis_to_sr_string(days, hours, minutes, seconds, milliseconds)
+            .map_err(|v| tera::Error::msg(format!("Failed formatting string: {v:?}")))?;
+        Ok(tera::Value::String(output))
+    }
+    fn is_safe(&self) -> bool {
+        false
+    }
+}
+
+fn millis_to_long_string(
+    days: u64,
+    hours: u64,
+    minutes: u64,
+    seconds: u64,
+    millis: u64,
+) -> Result<String, std::fmt::Error> {
+    fn pluralize(num: u64) -> &'static str {
+        if num == 1 {
+            ""
+        } else {
+            "s"
+        }
+    }
+
+    let mut output = String::with_capacity(1024);
+    let mut started = false;
+
+    if days > 0 {
+        write!(output, "{days} day{} ", pluralize(days))?;
+        started = true;
+    }
+    if hours > 0 || started {
+        write!(output, "{hours} hour{} ", pluralize(hours))?;
+        started = true;
+    }
+    if minutes > 0 || started {
+        write!(output, "{minutes} minute{} ", pluralize(minutes))?;
+        started = true;
+    }
+    if seconds > 0 || started {
+        write!(output, "{seconds} second{} ", pluralize(seconds))?;
+    }
+    write!(output, "{millis} millisecond{}", pluralize(millis))?;
+    Ok(output)
+}
+
+fn millis_to_sr_string(
+    days: u64,
+    hours: u64,
+    minutes: u64,
+    seconds: u64,
+    millis: u64,
+) -> Result<String, std::fmt::Error> {
+    let mut output = String::with_capacity(1024);
+    let mut started = false;
+
+    if days > 0 {
+        write!(output, "{days}d ")?;
+        started = true;
+    }
+    if hours > 0 || started {
+        write!(output, "{hours}h ")?;
+        started = true;
+    }
+    if minutes > 0 || started {
+        write!(output, "{minutes}m ")?;
+        started = true;
+    }
+    if seconds > 0 || started {
+        write!(output, "{seconds}s ")?;
+    }
+    write!(output, "{millis}ms")?;
+    Ok(output)
+}
+
+fn millis_to_ddhhmmssms(total_time_ms: u64) -> (u64, u64, u64, u64, u64) {
     const MILLIS_PER_DAY: u64 = 86_400_000;
     const MILLIS_PER_HOUR: u64 = 3_600_000;
     const MILLIS_PER_MINUTE: u64 = 60_000;
     const MILLIS_PER_SECOND: u64 = 1000;
-
-    let mut output = String::with_capacity(1024);
 
     let days = total_time_ms / MILLIS_PER_DAY;
     let remainder = total_time_ms % MILLIS_PER_DAY;
@@ -94,34 +180,5 @@ fn millis_to_string(total_time_ms: u64) -> Result<String, std::fmt::Error> {
 
     let seconds = remainder / MILLIS_PER_SECOND;
     let milliseconds = seconds % MILLIS_PER_SECOND;
-
-    let mut started = false;
-
-    if days > 0 {
-        write!(output, "{days} day{} ", pluralize(days))?;
-        started = true;
-    }
-    if hours > 0 || started {
-        write!(output, "{hours} hour{} ", pluralize(hours))?;
-    }
-    if minutes > 0 || started {
-        write!(output, "{minutes} minute{} ", pluralize(minutes))?;
-    }
-    if seconds > 0 || started {
-        write!(output, "{seconds} second{} ", pluralize(seconds))?;
-    }
-    write!(
-        output,
-        "{milliseconds} millisecond{}",
-        pluralize(milliseconds)
-    )?;
-    Ok(output)
-}
-
-fn pluralize(num: u64) -> &'static str {
-    if num == 1 {
-        ""
-    } else {
-        "s"
-    }
+    (days, hours, minutes, seconds, milliseconds)
 }

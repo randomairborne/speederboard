@@ -86,7 +86,7 @@ pub(super) async fn get_game_category(
         FROM runs JOIN users
         ON runs.submitter = users.id
         WHERE game = $1 AND category = $2
-        ORDER BY $3 LIMIT 51",
+        ORDER BY $3",
         game.id.get(),
         category.id.get(),
         order_by
