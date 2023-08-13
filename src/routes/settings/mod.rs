@@ -8,9 +8,9 @@ use axum::{
 };
 
 #[derive(serde::Serialize)]
-pub struct SettingsUserContext<'a> {
+pub struct SettingsUserContext {
     #[serde(flatten)]
-    core: BaseRenderInfo<'a>,
+    base: BaseRenderInfo,
     user: PrivateUser,
     updated: String,
 }
@@ -44,6 +44,7 @@ const UPDATE_COMPLETE_URL: &str = "/settings?updated=true";
 pub async fn get(
     State(state): State<AppState>,
     user: User,
+    base: BaseRenderInfo,
     Query(query): Query<UpdateQuery>,
 ) -> Result<Html<String>, Error> {
     let record = query!(
@@ -68,10 +69,8 @@ pub async fn get(
         base: base_user,
         email: record.email,
     };
-    let mut core = state.base_context();
-    core.logged_in_user = Some(user.clone());
     let ctx = SettingsUserContext {
-        core,
+        base,
         user: private_user,
         updated: query.updated,
     };

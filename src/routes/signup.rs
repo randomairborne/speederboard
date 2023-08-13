@@ -15,17 +15,17 @@ use redis::AsyncCommands;
 use tera::Context;
 
 #[derive(serde::Serialize)]
-pub struct SignUpPage<'a> {
+pub struct SignUpPage {
     #[serde(flatten)]
-    core: BaseRenderInfo<'a>,
+    core: BaseRenderInfo,
 }
 
 #[derive(serde::Serialize)]
-pub struct SignUpForm<'a> {
+pub struct SignUpForm {
     username: String,
     email: String,
     #[serde(flatten)]
-    core: BaseRenderInfo<'a>,
+    core: BaseRenderInfo,
 }
 
 #[derive(serde::Deserialize)]
@@ -36,10 +36,11 @@ pub struct SignUpFormData {
 }
 
 #[allow(clippy::unused_async)]
-pub async fn get(State(state): State<AppState>) -> Result<Html<String>, Error> {
-    let ctx = SignUpPage {
-        core: state.base_context(),
-    };
+pub async fn get(
+    State(state): State<AppState>,
+    core: BaseRenderInfo,
+) -> Result<Html<String>, Error> {
+    let ctx = SignUpPage { core };
     let context_ser = Context::from_serialize(ctx)?;
     Ok(Html(state.tera.render("signup.jinja", &context_ser)?))
 }
@@ -71,8 +72,14 @@ pub async fn post(
         .redis
         .get()
         .await?
+        .set_ex(format!("token:user:{token}"), user.id.get(), AUTHTOKEN_TTL)
+        .await?;
+    state
+        .redis
+        .get()
+        .await?
         .set_ex(
-            format!("token:user:{token}"),
+            format!("user:{}", user.id),
             serde_json::to_string(&user)?,
             AUTHTOKEN_TTL,
         )

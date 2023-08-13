@@ -2,7 +2,6 @@ use crate::{
     config::Config,
     id::{Id, UserMarker},
     model::User,
-    template::BaseRenderInfo,
     Error,
 };
 use argon2::Argon2;
@@ -44,10 +43,6 @@ impl InnerAppState {
         });
         rx.await
     }
-    #[must_use]
-    pub fn base_context(&self) -> BaseRenderInfo {
-        BaseRenderInfo::new(&self.config.root_url, &self.config.cdn_url)
-    }
     pub async fn update_user(&self, user: DbUserUpdate) -> Result<User, Error> {
         let new_db_user = query_as!(
             User,
@@ -56,7 +51,8 @@ impl InnerAppState {
                 has_stylesheet = COALESCE($3, has_stylesheet),
                 biography = COALESCE($4, biography),
                 pfp_ext = CASE WHEN $5 THEN NULL ELSE COALESCE($6, pfp_ext) END,
-                banner_ext = CASE WHEN $7 THEN NULL ELSE COALESCE($8, banner_ext) END
+                banner_ext = CASE WHEN $7 THEN NULL ELSE COALESCE($8, banner_ext) END,
+                admin = COALESCE($9, admin)
             WHERE id = $1
             RETURNING id, username, has_stylesheet,
             pfp_ext, banner_ext, biography, admin",
@@ -68,6 +64,7 @@ impl InnerAppState {
             user.pfp_ext.into_option(),
             user.banner_ext.is_null(),
             user.banner_ext.into_option(),
+            user.admin
         )
         .fetch_one(&self.postgres)
         .await?;

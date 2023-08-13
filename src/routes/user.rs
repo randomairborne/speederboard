@@ -6,9 +6,9 @@ use axum::{
 use tera::Context;
 
 #[derive(serde::Serialize)]
-pub struct UserPage<'a> {
+pub struct UserPage {
     #[serde(flatten)]
-    core: BaseRenderInfo<'a>,
+    core: BaseRenderInfo,
     user: User,
 }
 
@@ -16,7 +16,7 @@ pub struct UserPage<'a> {
 pub async fn get(
     State(state): State<AppState>,
     Path(username): Path<String>,
-    logged_in_user: Option<User>,
+    core: BaseRenderInfo,
 ) -> Result<Html<String>, Error> {
     let user = query_as!(
         User,
@@ -28,8 +28,6 @@ pub async fn get(
     .fetch_optional(&state.postgres)
     .await?
     .ok_or(Error::NotFound)?;
-    let mut core = state.base_context();
-    core.logged_in_user = logged_in_user;
     let ctx = UserPage { core, user };
     let context_ser = Context::from_serialize(ctx)?;
     Ok(Html(state.tera.render("user.jinja", &context_ser)?))

@@ -1,0 +1,47 @@
+{% extends "base.jinja" %}
+{% block extraheaders %}{% endblock extraheaders %}
+{% block title %}create a new game{% endblock title %}
+{% block body %}
+<h1>create new game</h1>
+<form method="post">
+    <table>
+        <tr>
+            <td><label for="name">game name</label></td>
+            <td><input name="name" id="name" maxlength="128" minlength="1" /></td>
+        </tr>
+        <tr>
+            <td><label for="slug">game slug</label></td>
+            <td><input name="slug" id="slug" pattern="[a-z0-9]+" maxlength="32" /></td>
+        </tr>
+        <tr>
+            <td><label for="url">game website url</label></td>
+            <td><input name="url" id="url" type="url" maxlength="128" /></td>
+        </tr>
+        <tr>
+            <td><label for="description">game description</label></td>
+            <td><textarea name="description" id="description" maxlength="4000"></textarea></td>
+        </tr>
+        <tr>
+            <td><label for="cat_name">category name</label></td>
+            <td><input name="cat_name" id="cat_name" maxlength="128"></td>
+        </tr>
+        <tr>
+            <td><label for="cat_description">category description</label></td>
+            <td><textarea name="cat_description" id="cat_description" maxlength="4000"></textarea></td>
+        </tr>
+        <tr>
+            <td><label for="cat_rules">category rules</label></td>
+            <td><textarea name="cat_rules" id="cat_rules"></textarea></td>
+        </tr>
+        <tr>
+            <td><label for="sort_by_score">sort by score rather then time</label></td>
+            <td><input name="sort_by_score" id="sort_by_score" type="checkbox" value="true"/></td>
+        </tr>
+        <tr>
+            <td><label for="sort_ascending">sort in reverse</label></td>
+            <td><input name="sort_ascending" id="sort_ascending" type="checkbox" value="true"/></td>
+        </tr>
+    </table>
+    <button>submit!</button>
+</form>
+{% endblock body %}

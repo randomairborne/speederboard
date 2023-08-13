@@ -1,6 +1,6 @@
 use std::{fmt::Display, sync::OnceLock};
 
-use crate::AppState;
+use crate::{template::BaseRenderInfo, AppState};
 use axum::{
     http::StatusCode,
     response::{Html, IntoResponse, Redirect},
@@ -27,6 +27,8 @@ pub enum Error {
     Reqwest(#[from] reqwest::Error),
     #[error("multipart upload error: {0}")]
     Multipart(#[from] axum_extra::extract::multipart::MultipartError),
+    #[error("dependency tokio task panicked: {0}")]
+    TaskJoin(#[from] tokio::task::JoinError),
     #[error("format error: {0}")]
     InvalidMultipart(&'static str),
     #[error("This should be impossible. {0}")]
@@ -43,6 +45,10 @@ pub enum Error {
     TokenHasIdButIdIsUnkown,
     #[error("Not found")]
     NotFound,
+    #[error("This resource exists, but you do not have permission to access it")]
+    InsufficientPermissions,
+    #[error("That category isn't part of that game!")]
+    InvalidGameCategoryPair,
 }
 
 impl From<Error> for std::io::Error {
@@ -54,6 +60,7 @@ impl From<Error> for std::io::Error {
 impl IntoResponse for Error {
     fn into_response(self) -> axum::response::Response {
         let state = ERROR_STATE.get().unwrap();
+        let core = BaseRenderInfo::new(state.config.root_url.clone(), state.config.cdn_url.clone());
         let status = match &self {
             Self::Sqlx(_)
             | Self::DeadpoolRedis(_)
@@ -63,20 +70,22 @@ impl IntoResponse for Error {
             | Self::OneshotRecv(_)
             | Self::SerdeJson(_)
             | Self::Reqwest(_)
-            | Self::Impossible(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            | Self::Impossible(_)
+            | Self::TaskJoin(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::FormValidation(_, _)
             | Self::Multipart(_)
             | Self::InvalidMultipart(_)
-            | Self::TokenHasIdButIdIsUnkown => StatusCode::BAD_REQUEST,
-            Self::InvalidPassword => StatusCode::FORBIDDEN,
+            | Self::TokenHasIdButIdIsUnkown
+            | Self::InvalidGameCategoryPair => StatusCode::BAD_REQUEST,
+            Self::InvalidPassword | Self::InsufficientPermissions => StatusCode::FORBIDDEN,
             Self::InvalidCookie => return Redirect::to("/login").into_response(),
-            Self::NotFound => return crate::routes::notfound(state).into_response(),
+            Self::NotFound => return crate::routes::notfound(state, core).into_response(),
         };
         if status == StatusCode::INTERNAL_SERVER_ERROR {
             error!(?self, "failed to handle request");
         }
         let self_as_string = self.to_string();
-        let mut ctx = match tera::Context::from_serialize(state.base_context()) {
+        let mut ctx = match tera::Context::from_serialize(core) {
             Ok(v) => v,
             Err(source) => {
                 return (

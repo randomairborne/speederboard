@@ -57,7 +57,22 @@ impl User {
             None
         }
     }
-    pub async fn from_db(
+    pub async fn from_db(state: &AppState, id: Id<UserMarker>) -> Result<User, Error> {
+        let record = query!("SELECT * FROM users WHERE id = $1", id.get())
+            .fetch_one(&state.postgres)
+            .await?;
+        let user = User {
+            id: record.id.into(),
+            username: record.username,
+            has_stylesheet: record.has_stylesheet,
+            pfp_ext: record.pfp_ext,
+            banner_ext: record.banner_ext,
+            biography: record.biography,
+            admin: record.admin,
+        };
+        Ok(user)
+    }
+    pub async fn from_db_auth(
         state: &AppState,
         db: impl sqlx::PgExecutor<'_>,
         email: String,
@@ -113,5 +128,29 @@ impl FromRequestParts<AppState> for User {
         let user = maybe_user.ok_or(Error::TokenHasIdButIdIsUnkown)?;
 
         Ok(serde_json::from_str(&user)?)
+    }
+}
+
+pub struct Admin(pub User);
+
+impl AsRef<User> for Admin {
+    fn as_ref(&self) -> &User {
+        &self.0
+    }
+}
+
+#[axum::async_trait]
+impl FromRequestParts<AppState> for Admin {
+    type Rejection = Error;
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &AppState,
+    ) -> Result<Self, Self::Rejection> {
+        let user = User::from_request_parts(parts, state).await?;
+        if user.admin {
+            Ok(Admin(user))
+        } else {
+            Err(Error::InsufficientPermissions)
+        }
     }
 }

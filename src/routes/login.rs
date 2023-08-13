@@ -16,19 +16,19 @@ use tera::Context;
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(serde::Serialize)]
-pub struct LoginPage<'a> {
+pub struct LoginPage {
     #[serde(flatten)]
-    core: BaseRenderInfo<'a>,
+    core: BaseRenderInfo,
     incorrect: bool,
 }
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(serde::Serialize)]
-pub struct LoginForm<'a> {
+pub struct LoginForm {
     username: String,
     email: String,
     #[serde(flatten)]
-    core: BaseRenderInfo<'a>,
+    core: BaseRenderInfo,
 }
 
 #[allow(clippy::module_name_repetitions)]
@@ -48,9 +48,10 @@ pub struct LoginQuery {
 pub async fn get(
     State(state): State<AppState>,
     Query(query): Query<LoginQuery>,
+    core: BaseRenderInfo,
 ) -> Result<Html<String>, Error> {
     let ctx = LoginPage {
-        core: state.base_context(),
+        core,
         incorrect: query.incorrect.unwrap_or(false),
     };
     let context_ser = Context::from_serialize(ctx)?;
@@ -62,7 +63,7 @@ pub async fn post(
     cookies: CookieJar,
     Form(form): Form<LoginFormData>,
 ) -> Result<(CookieJar, Redirect), Error> {
-    let Ok(user) = User::from_db(&state, &state.postgres, form.email, form.password).await? else {
+    let Ok(user) = User::from_db_auth(&state, &state.postgres, form.email, form.password).await? else {
         return Ok((cookies, Redirect::to("?incorrect=true")));
     };
     let token = rand::distributions::Alphanumeric.sample_string(&mut rand::thread_rng(), 64);

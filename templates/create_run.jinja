@@ -1,0 +1,27 @@
+{% extends "base.jinja" %}
+{% block extraheaders %}{% endblock extraheaders %}
+{% block title %}submit a new run{% endblock title %}
+{% block body %}
+<h1>submit new run</h1>
+<form method="post">
+    <table>
+        <tr>
+            <td><label for="video">video url</label></td>
+            <td><input name="video" id="video" maxlength="256" minlength="1" type="url" required /></td>
+        </tr>
+        <tr>
+            <td><label for="description">description of this run</label></td>
+            <td><textarea name="description" id="description" maxlength="4000"></textarea></td>
+        </tr>
+        <tr>
+            <td><label for="time">time</label></td>
+            <td><input name="time" id="time" type="number"/></td>
+        </tr>
+        <tr>
+            <td><label for="score">game score</label></td>
+            <td><input name="score" id="score" type="number"/></td>
+        </tr>
+    </table>
+    <button>submit!</button>
+</form>
+{% endblock body %}

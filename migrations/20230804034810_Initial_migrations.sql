@@ -6,7 +6,7 @@ CREATE TABLE users (
     username VARCHAR(128) NOT NULL UNIQUE,
     password VARCHAR(1024) NOT NULL,
     biography VARCHAR(4000) NOT NULL,
-    admin BOOL NOT NULL,
+    admin BOOL NOT NULL DEFAULT false,
     has_stylesheet BOOL NOT NULL,
     banner_ext VARCHAR(4),
     pfp_ext VARCHAR(4)
@@ -15,7 +15,7 @@ CREATE TABLE users (
 CREATE TABLE games (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL,
-    slug VARCHAR(32) NOT NULL,
+    slug VARCHAR(32) NOT NULL UNIQUE,
     url VARCHAR(128) NOT NULL,
     default_category BIGINT NOT NULL,
     description VARCHAR(4000) NOT NULL,
@@ -30,10 +30,9 @@ CREATE TABLE categories (
     id BIGSERIAL PRIMARY KEY,
     game BIGINT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
     name VARCHAR(128) NOT NULL,
-    slug VARCHAR(32) NOT NULL UNIQUE,
     description VARCHAR(4000) NOT NULL,
     rules TEXT NOT NULL,
-    sortby_field VARCHAR(32) NOT NULL,
+    sort_by_score BOOL NOT NULL DEFAULT false,
     sort_ascending BOOL NOT NULL
 );
 
@@ -44,16 +43,15 @@ CREATE TABLE permissions (
     PRIMARY KEY (user_id, game_id)
 );
 
-CREATE TYPE RUN_STATUS AS ENUM ('rejected', 'verified', 'pending');
-
 CREATE TABLE runs (
     id BIGSERIAL PRIMARY KEY,
-    game BIGINT NOT NULL,
-    category BIGINT NOT NULL,
-    submitter BIGINT NOT NULL,
-    video VARCHAR(128) NOT NULL,
+    game BIGINT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    category BIGINT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+    submitter BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    video VARCHAR(256) NOT NULL,
     description VARCHAR(4000) NOT NULL,
-    metadata JSONB NOT NULL,
+    score BIGINT NOT NULL,
+    time BIGINT NOT NULL,
     verifier BIGINT,
-    status RUN_STATUS NOT NULL
+    status SMALLINT NOT NULL
 );

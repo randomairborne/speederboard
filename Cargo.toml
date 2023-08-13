@@ -5,8 +5,8 @@ edition = "2021"
 
 [dependencies]
 tower-http = { version = "0.4", default-features = false, features = ["fs", "compression-full", "decompression-full"] }
-sqlx = { version = "0.7", features = ["macros", "postgres", "tls-rustls", "runtime-tokio"] }
 reqwest = { version = "0.11.18", features = ["rustls-tls", "stream", "trust-dns"], default-features = false }
+sqlx = { version = "0.7", features = ["macros", "postgres", "tls-rustls", "runtime-tokio"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal", "tracing"] }
 redis = { version = "0.23", features = ["aio", "connection-manager"] }
 axum = { version = "0.6", features = ["http2", "headers", "macros"] }
