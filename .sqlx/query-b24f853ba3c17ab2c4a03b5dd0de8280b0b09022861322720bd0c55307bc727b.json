@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT name, id, game, sort_ascending, sort_by_score\n        FROM categories WHERE game = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "game",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "sort_ascending",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "sort_by_score",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "b24f853ba3c17ab2c4a03b5dd0de8280b0b09022861322720bd0c55307bc727b"
+}

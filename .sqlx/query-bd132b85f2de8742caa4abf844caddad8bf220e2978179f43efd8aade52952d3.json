@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM users WHERE email = $1",
+  "query": "SELECT * FROM games WHERE slug = $1",
   "describe": {
     "columns": [
       {
@@ -10,28 +10,28 @@
       },
       {
         "ordinal": 1,
-        "name": "email",
+        "name": "name",
         "type_info": "Varchar"
       },
       {
         "ordinal": 2,
-        "name": "username",
+        "name": "slug",
         "type_info": "Varchar"
       },
       {
         "ordinal": 3,
-        "name": "password",
+        "name": "url",
         "type_info": "Varchar"
       },
       {
         "ordinal": 4,
-        "name": "biography",
-        "type_info": "Varchar"
+        "name": "default_category",
+        "type_info": "Int8"
       },
       {
         "ordinal": 5,
-        "name": "admin",
-        "type_info": "Bool"
+        "name": "description",
+        "type_info": "Varchar"
       },
       {
         "ordinal": 6,
@@ -45,7 +45,7 @@
       },
       {
         "ordinal": 8,
-        "name": "pfp_ext",
+        "name": "cover_art_ext",
         "type_info": "Varchar"
       }
     ],
@@ -66,5 +66,5 @@
       true
     ]
   },
-  "hash": "f3f58600e971f1be6cbe206bba24f77769f54c6230e28f5b3dc719b869d9cb3f"
+  "hash": "bd132b85f2de8742caa4abf844caddad8bf220e2978179f43efd8aade52952d3"
 }

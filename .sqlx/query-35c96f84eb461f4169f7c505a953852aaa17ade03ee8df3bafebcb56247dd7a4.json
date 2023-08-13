@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO games\n        (\n            name, slug, url, description,\n            has_stylesheet, default_category\n        )\n        VALUES ($1, $2, $3, $4, false, -1) RETURNING id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "35c96f84eb461f4169f7c505a953852aaa17ade03ee8df3bafebcb56247dd7a4"
+}

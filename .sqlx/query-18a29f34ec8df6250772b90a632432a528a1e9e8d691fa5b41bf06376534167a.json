@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM users WHERE email = $1",
+  "query": "SELECT * FROM categories WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -10,48 +10,38 @@
       },
       {
         "ordinal": 1,
-        "name": "email",
-        "type_info": "Varchar"
+        "name": "game",
+        "type_info": "Int8"
       },
       {
         "ordinal": 2,
-        "name": "username",
+        "name": "name",
         "type_info": "Varchar"
       },
       {
         "ordinal": 3,
-        "name": "password",
+        "name": "description",
         "type_info": "Varchar"
       },
       {
         "ordinal": 4,
-        "name": "biography",
-        "type_info": "Varchar"
+        "name": "rules",
+        "type_info": "Text"
       },
       {
         "ordinal": 5,
-        "name": "admin",
+        "name": "sort_by_score",
         "type_info": "Bool"
       },
       {
         "ordinal": 6,
-        "name": "has_stylesheet",
+        "name": "sort_ascending",
         "type_info": "Bool"
-      },
-      {
-        "ordinal": 7,
-        "name": "banner_ext",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 8,
-        "name": "pfp_ext",
-        "type_info": "Varchar"
       }
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Int8"
       ]
     },
     "nullable": [
@@ -61,10 +51,8 @@
       false,
       false,
       false,
-      false,
-      true,
-      true
+      false
     ]
   },
-  "hash": "f3f58600e971f1be6cbe206bba24f77769f54c6230e28f5b3dc719b869d9cb3f"
+  "hash": "18a29f34ec8df6250772b90a632432a528a1e9e8d691fa5b41bf06376534167a"
 }

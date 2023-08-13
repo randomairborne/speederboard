@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO users\n        (username, email, password, has_stylesheet, pfp_ext, banner_ext, biography)\n        VALUES ($1, $2, $3, false, NULL, NULL, '')\n        RETURNING id, username, has_stylesheet, pfp_ext, banner_ext, biography",
+  "query": "UPDATE users SET\n                username = COALESCE($2, username),\n                has_stylesheet = COALESCE($3, has_stylesheet),\n                biography = COALESCE($4, biography),\n                pfp_ext = CASE WHEN $5 THEN NULL ELSE COALESCE($6, pfp_ext) END,\n                banner_ext = CASE WHEN $7 THEN NULL ELSE COALESCE($8, banner_ext) END,\n                admin = COALESCE($9, admin)\n            WHERE id = $1\n            RETURNING id, username, has_stylesheet,\n            pfp_ext, banner_ext, biography, admin",
   "describe": {
     "columns": [
       {
@@ -32,13 +32,24 @@
         "ordinal": 5,
         "name": "biography",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "admin",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
       "Left": [
+        "Int8",
         "Varchar",
+        "Bool",
         "Varchar",
-        "Varchar"
+        "Bool",
+        "Varchar",
+        "Bool",
+        "Varchar",
+        "Bool"
       ]
     },
     "nullable": [
@@ -47,8 +58,9 @@
       false,
       true,
       true,
+      false,
       false
     ]
   },
-  "hash": "4a4c2bba4df3f2a11378e752daa9fc29a763b03c24755dff05ededf2765128fc"
+  "hash": "f5a92a8b18f16f379150dd2df7734273e679ff9c335d1948e4de43aaee4e5b37"
 }
