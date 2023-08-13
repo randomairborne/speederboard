@@ -56,7 +56,8 @@ async fn main() {
         .build()
         .unwrap();
     let mut tera = Tera::new("./templates/**/*").expect("Failed to build templates");
-    tera.register_filter("markdown", MarkdownFilter);
+    tera.register_filter("markdown", crate::template::MarkdownFilter);
+    tera.register_filter("format_duration", crate::template::HumanizeDuration);
     tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
     let rayon = Arc::new(ThreadPoolBuilder::new().num_threads(8).build().unwrap());
     let argon = Argon2::new(
@@ -91,22 +92,6 @@ async fn main() {
         .unwrap();
 }
 
-struct MarkdownFilter;
-
-impl tera::Filter for MarkdownFilter {
-    fn filter(
-        &self,
-        value: &tera::Value,
-        _args: &std::collections::HashMap<String, tera::Value>,
-    ) -> tera::Result<tera::Value> {
-        Ok(tera::Value::String(markdown::to_html(
-            value.as_str().unwrap_or(""),
-        )))
-    }
-    fn is_safe(&self) -> bool {
-        true
-    }
-}
 
 async fn shutdown_signal() {
     #[cfg(not(target_family = "unix"))]

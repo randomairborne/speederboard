@@ -3,4 +3,13 @@
 {% block title %}run{% endblock title %}
 {% block body %}
 {{ __tera_context }}
+<p>from {{ user.username }}</p>
+{{ run.video }}
+<h2>
+time: {{ run.time | format_duration }}
+</h2>
+<h2>
+score: {{ run.score }}
+</h2>
+{{ run.description | markdown }}
 {% endblock body %}

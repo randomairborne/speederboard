@@ -33,6 +33,10 @@ pub enum Error {
     InvalidMultipart(&'static str),
     #[error("This should be impossible. {0}")]
     Impossible(#[from] std::convert::Infallible),
+    #[error("Formatting error: {0}")]
+    Format(#[from] std::fmt::Error),
+    #[error("I/O error: {0}")]
+    Io(#[from] std::io::Error),
     #[error("Field {0} must {1}")]
     FormValidation(&'static str, &'static str),
     #[error("Username or password is incorrect")]
@@ -71,7 +75,9 @@ impl IntoResponse for Error {
             | Self::SerdeJson(_)
             | Self::Reqwest(_)
             | Self::Impossible(_)
-            | Self::TaskJoin(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            | Self::TaskJoin(_)
+            | Self::Io(_)
+            | Self::Format(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::FormValidation(_, _)
             | Self::Multipart(_)
             | Self::InvalidMultipart(_)
