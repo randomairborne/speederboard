@@ -93,7 +93,6 @@ async fn main() {
         .unwrap();
 }
 
-
 async fn shutdown_signal() {
     #[cfg(not(target_family = "unix"))]
     compile_error!("WASM and windows are not supported platforms, please use WSL if on windows!");
