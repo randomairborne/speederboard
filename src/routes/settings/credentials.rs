@@ -21,7 +21,8 @@ pub async fn update_password(
     Form(form): Form<UpdatePasswordForm>,
 ) -> Result<Redirect, Error> {
     let mut trans = state.postgres.begin().await?;
-    let Ok(user) = User::from_db_auth(&state, trans.as_mut(), form.email, form.old_password).await?
+    let Ok(user) =
+        User::from_db_auth(&state, trans.as_mut(), form.email, form.old_password).await?
     else {
         return Ok(Redirect::to("/settings?incorrect=true"));
     };
@@ -41,7 +42,8 @@ pub async fn update_email(
     Form(form): Form<UpdateEmailForm>,
 ) -> Result<Redirect, Error> {
     let mut trans = state.postgres.begin().await?;
-    let Ok(user) = User::from_db_auth(&state, trans.as_mut(), form.old_email, form.password).await?
+    let Ok(user) =
+        User::from_db_auth(&state, trans.as_mut(), form.old_email, form.password).await?
     else {
         return Ok(Redirect::to("/settings?incorrect=true"));
     };

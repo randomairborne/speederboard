@@ -63,7 +63,8 @@ pub async fn post(
     cookies: CookieJar,
     Form(form): Form<LoginFormData>,
 ) -> Result<(CookieJar, Redirect), Error> {
-    let Ok(user) = User::from_db_auth(&state, &state.postgres, form.email, form.password).await? else {
+    let Ok(user) = User::from_db_auth(&state, &state.postgres, form.email, form.password).await?
+    else {
         return Ok((cookies, Redirect::to("?incorrect=true")));
     };
     let token = rand::distributions::Alphanumeric.sample_string(&mut rand::thread_rng(), 64);

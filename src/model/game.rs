@@ -28,10 +28,4 @@ impl Game {
         };
         Ok(game)
     }
-    pub async fn from_db_id(state: &AppState, id: Id<GameMarker>) -> Result<Self, Error> {
-        let game = query_as!(Game, "SELECT * FROM games WHERE id = $1", id.get())
-            .fetch_one(&state.postgres)
-            .await?;
-        Ok(game)
-    }
 }

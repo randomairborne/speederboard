@@ -6,7 +6,7 @@ use tera::Context;
 
 use crate::{
     id::{CategoryMarker, GameMarker, Id},
-    model::{Category, Game, ResolvedRun, RunStatus, User},
+    model::{Category, Game, ResolvedRunRef, RunStatus, User},
     template::BaseRenderInfo,
     util::opt_user,
     AppState, Error,
@@ -26,7 +26,7 @@ pub struct GetGameContext<'a> {
     core: BaseRenderInfo,
     categories: Vec<MiniCategory>,
     category: &'a Category,
-    runs: Vec<ResolvedRun<'a>>,
+    runs: Vec<ResolvedRunRef<'a>>,
     game: &'a Game,
 }
 
@@ -65,7 +65,7 @@ pub(super) async fn get_game_category(
     .fetch_optional(&state.postgres)
     .await?
     .ok_or(Error::NotFound)?;
-    let runs: Vec<ResolvedRun> = if category.scoreboard {
+    let runs: Vec<ResolvedRunRef> = if category.scoreboard {
         get_scoreboard(state, &game, &category).await?
     } else {
         get_speedrun(state, &game, &category).await?
@@ -86,7 +86,7 @@ async fn get_scoreboard<'a>(
     state: &AppState,
     game: &'a Game,
     category: &'a Category,
-) -> Result<Vec<ResolvedRun<'a>>, Error> {
+) -> Result<Vec<ResolvedRunRef<'a>>, Error> {
     let records = query!(
         r#"SELECT runs.id, runs.game, runs.category, runs.video,
             runs.description, runs.score, runs.time, runs.status,
@@ -109,9 +109,9 @@ async fn get_scoreboard<'a>(
     )
     .fetch_all(&state.postgres)
     .await?;
-    let mut data: Vec<ResolvedRun> = Vec::with_capacity(records.len());
+    let mut data: Vec<ResolvedRunRef> = Vec::with_capacity(records.len());
     for rec in records {
-        data.push(ResolvedRun {
+        data.push(ResolvedRunRef {
             id: Id::new(rec.id),
             game,
             category,
@@ -149,7 +149,7 @@ async fn get_speedrun<'a>(
     state: &AppState,
     game: &'a Game,
     category: &'a Category,
-) -> Result<Vec<ResolvedRun<'a>>, Error> {
+) -> Result<Vec<ResolvedRunRef<'a>>, Error> {
     let records = query!(
         r#"SELECT runs.id, runs.game, runs.category, runs.video,
             runs.description, runs.score, runs.time, runs.status,
@@ -172,9 +172,9 @@ async fn get_speedrun<'a>(
     )
     .fetch_all(&state.postgres)
     .await?;
-    let mut data: Vec<ResolvedRun> = Vec::with_capacity(records.len());
+    let mut data: Vec<ResolvedRunRef> = Vec::with_capacity(records.len());
     for rec in records {
-        data.push(ResolvedRun {
+        data.push(ResolvedRunRef {
             id: Id::new(rec.id),
             game,
             category,

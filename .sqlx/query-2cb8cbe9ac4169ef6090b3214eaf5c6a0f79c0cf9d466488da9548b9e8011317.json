@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT runs.id, runs.game, runs.category, runs.video,\n            runs.description, runs.score, runs.time, runs.status,\n            ver.id as ver_id, sub.id as sub_id,\n            ver.username as ver_name, sub.username as sub_name,\n            ver.has_stylesheet as ver_has_stylesheet,\n            sub.has_stylesheet as sub_has_stylesheet,\n            ver.biography as ver_bio, sub.biography as sub_bio,\n            ver.pfp_ext as ver_pfp_ext, sub.pfp_ext as sub_pfp_ext,\n            ver.banner_ext as ver_banner_ext,\n            sub.banner_ext as sub_banner_ext,\n            ver.admin as ver_admin, sub.admin as sub_admin\n            FROM runs\n            LEFT JOIN users as ver ON runs.verifier = ver.id\n            JOIN users as sub ON runs.submitter = sub.id\n            WHERE game = $1 AND category = $2\n            ORDER BY score ASC LIMIT 51",
+  "query": "SELECT runs.id, runs.game, runs.category, runs.video,\n            runs.description, runs.score, runs.time, runs.status,\n            ver.id as \"ver_id?\", sub.id as sub_id,\n            ver.username as \"ver_name?\", sub.username as sub_name,\n            ver.has_stylesheet as \"ver_has_stylesheet?\",\n            sub.has_stylesheet as sub_has_stylesheet,\n            ver.biography as \"ver_bio?\", sub.biography as sub_bio,\n            ver.pfp_ext as ver_pfp_ext, sub.pfp_ext as sub_pfp_ext,\n            ver.banner_ext as ver_banner_ext,\n            sub.banner_ext as sub_banner_ext,\n            ver.admin as \"ver_admin?\", sub.admin as sub_admin\n            FROM runs\n            LEFT JOIN users as ver ON runs.verifier = ver.id\n            JOIN users as sub ON runs.submitter = sub.id\n            WHERE game = $1 AND category = $2\n            ORDER BY time ASC LIMIT 51",
   "describe": {
     "columns": [
       {
@@ -45,7 +45,7 @@
       },
       {
         "ordinal": 8,
-        "name": "ver_id",
+        "name": "ver_id?",
         "type_info": "Int8"
       },
       {
@@ -55,7 +55,7 @@
       },
       {
         "ordinal": 10,
-        "name": "ver_name",
+        "name": "ver_name?",
         "type_info": "Varchar"
       },
       {
@@ -65,7 +65,7 @@
       },
       {
         "ordinal": 12,
-        "name": "ver_has_stylesheet",
+        "name": "ver_has_stylesheet?",
         "type_info": "Bool"
       },
       {
@@ -75,7 +75,7 @@
       },
       {
         "ordinal": 14,
-        "name": "ver_bio",
+        "name": "ver_bio?",
         "type_info": "Varchar"
       },
       {
@@ -105,7 +105,7 @@
       },
       {
         "ordinal": 20,
-        "name": "ver_admin",
+        "name": "ver_admin?",
         "type_info": "Bool"
       },
       {
@@ -145,5 +145,5 @@
       false
     ]
   },
-  "hash": "5ddc0f99f01ea7b08d8f993e9cc63dd85d365824dd9c37f858ffde8652d28077"
+  "hash": "2cb8cbe9ac4169ef6090b3214eaf5c6a0f79c0cf9d466488da9548b9e8011317"
 }
