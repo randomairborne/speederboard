@@ -1,6 +1,12 @@
 name: Cargo Check
 on:
   pull_request:
+    paths:
+      - src/**
+      - .sqlx/**
+      - .github/**
+      - Cargo.toml
+      - Cargo.lock
   workflow_dispatch:
   workflow_call:
 
