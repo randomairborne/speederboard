@@ -5,14 +5,14 @@ use axum::{
 
 use crate::{
     id::{CategoryMarker, Id, RunMarker},
-    model::{Category, Game, Run, User},
+    model::{Category, Game, ResolvedRun, Run, User},
     template::BaseRenderInfo,
     AppState, Error,
 };
 
 #[derive(serde::Serialize)]
 pub struct RunPage {
-    run: Run,
+    run: ResolvedRun,
     user: User,
     game: Game,
     category: Category,
@@ -32,15 +32,6 @@ pub async fn get(
         .await?
         .ok_or(Error::NotFound)?;
     let user = User::from_db(&state, Id::new(record.submitter)).await?;
-    let verifier = if let Some(verifier) = record.verifier {
-        Some(User::from_db(&state, Id::new(verifier)).await?)
-    } else {
-        None
-    };
-    let game = Game::from_db_id(&state, Id::new(record.game)).await?;
-    let category = Category::from_db(&state, category_id)
-        .await?
-        .ok_or(Error::NotFound)?;
     if game.slug != game_slug || category.id != category_id {
         return Err(Error::NotFound);
     }
