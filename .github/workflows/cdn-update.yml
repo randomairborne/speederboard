@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  worker-deploy:
+  cdn-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code into the proper directory
@@ -22,4 +22,4 @@ jobs:
         run: rclone sync ./public speederboard-testing:public/
         env:
           RCLONE_CONFIG_PASS: ${{ secrets.RCLONE_CONFIG_PASS }}
-          RCLONE_CONFIG: ./.github/workflows/rclone.conf
+          RCLONE_CONFIG: ./.github/rclone.conf
