@@ -1,18 +1,13 @@
 use axum::{
-    handler::Handler,
     routing::{get, post},
     Router,
 };
 use axum_extra::routing::RouterExt;
-use tower_http::{
-    compression::CompressionLayer, decompression::DecompressionLayer, services::ServeDir,
-};
+use tower_http::{compression::CompressionLayer, decompression::DecompressionLayer};
 
 use crate::{routes, AppState};
 
 pub fn build(state: AppState) -> Router {
-    let servedir =
-        ServeDir::new("./public/").fallback(routes::notfound_handler.with_state(state.clone()));
     Router::new()
         .route("/", get(routes::index::get))
         .route_with_tsr("/login", get(routes::login::get).post(routes::login::post))
@@ -27,7 +22,7 @@ pub fn build(state: AppState) -> Router {
         .merge(admin_router(state.clone()))
         .layer(CompressionLayer::new())
         .layer(DecompressionLayer::new())
-        .fallback_service(servedir)
+        .fallback(routes::notfound_handler)
         .with_state(state)
 }
 
@@ -68,7 +63,7 @@ pub fn settings_router(state: AppState) -> Router<AppState> {
 
 pub fn game_router(state: AppState) -> Router<AppState> {
     Router::new()
-        .route_with_tsr("/game/:gameslug", get(routes::game::root::get))
+        .route_with_tsr("/game/:gameslug", get(routes::game::index::get))
         .route_with_tsr(
             "/game/:gameslug/category/:catid",
             get(routes::game::category::get),

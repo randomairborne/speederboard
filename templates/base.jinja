@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <title>speederboard - {% block title %}{% endblock title %}</title>
     <meta name="description" content="{% block description %}{% endblock description %}" />
-    <link rel="stylesheet" href="{{ root_url }}/style.css">
+    <link rel="stylesheet" href="{{ cdn_url }}/style.css">
+    <link rel="icon" href="{{ cdn_url }}/favicon.png" type="image/png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {% if logged_in_user and logged_in_user.has_custom_stylesheet %}
     <link rel="stylesheet" href="{{ cdn_url }}/customfiles/users/{{ logged_in_user.id }}/style.css">

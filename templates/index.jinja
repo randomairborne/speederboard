@@ -3,4 +3,9 @@
 {% block title %}speedruns and game leaderboards{% endblock title %}
 {% block body %}
 welcome. speederboard is a free and open-source project to create an improved speedrun and leaderboard tracking website.
+{% for game in games %}
+< class="root-game-card">
+<a href="{{ root_url }}/game/{{ game.slug }}"><img src="{{ cdn_url }}/customfiles/games/{}/coverart.png" /></a>
+</div>
+{% endfor %}
 {% endblock body %}

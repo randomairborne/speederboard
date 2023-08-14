@@ -1,0 +1,25 @@
+name: Update the CDN
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  worker-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code into the proper directory
+        uses: actions/checkout@v3
+
+      - name: Install rclone
+        run: sudo apt install rclone
+
+      - name: Sync
+        run: rclone sync ./public speederboard-testing:public/
+        env:
+          RCLONE_CONFIG_PASS: ${{ secrets.RCLONE_CONFIG_PASS }}
+          RCLONE_CONFIG: ./.github/workflows/rclone.conf
