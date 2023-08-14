@@ -18,10 +18,12 @@ impl Category {
         state: &AppState,
         id: Id<CategoryMarker>,
     ) -> Result<Option<Category>, Error> {
-        Ok(
-            query_as!(Category, "SELECT id, game, name, description, rules, scoreboard FROM categories WHERE id = $1", id.get())
-                .fetch_optional(&state.postgres)
-                .await?,
+        Ok(query_as!(
+            Category,
+            "SELECT id, game, name, description, rules, scoreboard FROM categories WHERE id = $1",
+            id.get()
         )
+        .fetch_optional(&state.postgres)
+        .await?)
     }
 }

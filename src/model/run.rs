@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use crate::id::{CategoryMarker, GameMarker, Id, RunMarker, UserMarker};
 
-use super::{Game, Category, User};
+use super::{Category, Game, User};
 
 #[derive(
     serde::Serialize, serde::Deserialize, Debug, Hash, PartialEq, Eq, Clone, Copy, sqlx::Type,

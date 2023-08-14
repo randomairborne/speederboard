@@ -5,5 +5,5 @@ mod user;
 
 pub use category::Category;
 pub use game::Game;
-pub use run::{Run, RunStatus, ResolvedRun};
+pub use run::{ResolvedRun, Run, RunStatus};
 pub use user::User;
