@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT name, id, game, sort_ascending, sort_by_score\n        FROM categories WHERE game = $1",
+  "query": "SELECT name, id, game, scoreboard\n        FROM categories WHERE game = $1",
   "describe": {
     "columns": [
       {
@@ -20,12 +20,7 @@
       },
       {
         "ordinal": 3,
-        "name": "sort_ascending",
-        "type_info": "Bool"
-      },
-      {
-        "ordinal": 4,
-        "name": "sort_by_score",
+        "name": "scoreboard",
         "type_info": "Bool"
       }
     ],
@@ -38,9 +33,8 @@
       false,
       false,
       false,
-      false,
       false
     ]
   },
-  "hash": "b24f853ba3c17ab2c4a03b5dd0de8280b0b09022861322720bd0c55307bc727b"
+  "hash": "f2655bcf7348d751a8d7fbb825612497221dc8c586796de8e92138368c446aa8"
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM categories WHERE id = $1",
+  "query": "SELECT id, game, name, description, rules, scoreboard FROM categories WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -48,5 +48,5 @@
       false
     ]
   },
-  "hash": "18a29f34ec8df6250772b90a632432a528a1e9e8d691fa5b41bf06376534167a"
+  "hash": "9f62aa12bc0dcf37ce724f71fcf39704cf88c8360cd950c9f2b15459f6b46272"
 }

@@ -66,7 +66,7 @@ pub async fn create(
     if category.game != game.id {
         return Err(Error::InvalidGameCategoryPair);
     }
-    if category.sort_by_score {
+    if category.scoreboard {
         if form.score.is_none() {
             return Err(Error::FormValidation(
                 "score",

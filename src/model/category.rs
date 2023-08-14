@@ -10,8 +10,7 @@ pub struct Category {
     pub name: String,
     pub description: String,
     pub rules: String,
-    pub sort_by_score: bool,
-    pub sort_ascending: bool,
+    pub scoreboard: bool,
 }
 
 impl Category {
@@ -20,7 +19,7 @@ impl Category {
         id: Id<CategoryMarker>,
     ) -> Result<Option<Category>, Error> {
         Ok(
-            query_as!(Category, "SELECT * FROM categories WHERE id = $1", id.get())
+            query_as!(Category, "SELECT id, game, name, description, rules, scoreboard FROM categories WHERE id = $1", id.get())
                 .fetch_optional(&state.postgres)
                 .await?,
         )

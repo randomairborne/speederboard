@@ -20,9 +20,7 @@ pub struct CreateGame {
     cat_description: String,
     cat_rules: String,
     #[serde(default = "default_false")]
-    sort_by_score: bool,
-    #[serde(default = "default_false")]
-    sort_ascending: bool,
+    scoreboard: bool,
 }
 
 #[derive(serde::Serialize)]
@@ -67,15 +65,14 @@ pub async fn post(
         "INSERT INTO categories
         (
             game, name, description, rules,
-            sort_by_score, sort_ascending
+            scoreboard
         )
-        VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+        VALUES ($1, $2, $3, $4, $5) RETURNING id",
         game_id,
         newgame.cat_name,
         newgame.cat_description,
         newgame.cat_rules,
-        newgame.sort_by_score,
-        newgame.sort_ascending
+        newgame.scoreboard,
     )
     .fetch_one(trans.as_mut())
     .await?

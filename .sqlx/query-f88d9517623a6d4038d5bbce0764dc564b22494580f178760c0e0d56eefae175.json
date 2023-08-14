@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO categories\n        (\n            game, name, description, rules,\n            sort_by_score, sort_ascending\n        )\n        VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+  "query": "INSERT INTO categories\n        (\n            game, name, description, rules,\n            scoreboard\n        )\n        VALUES ($1, $2, $3, $4, $5) RETURNING id",
   "describe": {
     "columns": [
       {
@@ -15,7 +15,6 @@
         "Varchar",
         "Varchar",
         "Text",
-        "Bool",
         "Bool"
       ]
     },
@@ -23,5 +22,5 @@
       false
     ]
   },
-  "hash": "4ef203b94361c9368b8ee8f5b7b803ac35de675fd98fe0bc87a0e89e47e6a482"
+  "hash": "f88d9517623a6d4038d5bbce0764dc564b22494580f178760c0e0d56eefae175"
 }

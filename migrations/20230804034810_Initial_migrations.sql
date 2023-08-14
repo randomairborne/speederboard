@@ -32,8 +32,7 @@ CREATE TABLE categories (
     name VARCHAR(128) NOT NULL,
     description VARCHAR(4000) NOT NULL,
     rules TEXT NOT NULL,
-    sort_by_score BOOL NOT NULL DEFAULT false,
-    sort_ascending BOOL NOT NULL
+    scoreboard BOOL NOT NULL DEFAULT false
 );
 
 CREATE TABLE permissions (

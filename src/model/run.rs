@@ -2,6 +2,8 @@ use std::cmp::Ordering;
 
 use crate::id::{CategoryMarker, GameMarker, Id, RunMarker, UserMarker};
 
+use super::{Game, Category, User};
+
 #[derive(
     serde::Serialize, serde::Deserialize, Debug, Hash, PartialEq, Eq, Clone, Copy, sqlx::Type,
 )]
@@ -75,6 +77,21 @@ pub struct Run {
     pub submitter: Id<UserMarker>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verifier: Option<Id<UserMarker>>,
+    pub video: String,
+    pub description: String,
+    pub score: i64,
+    pub time: i64,
+    pub status: RunStatus,
+}
+
+#[derive(serde::Serialize, Debug, PartialEq, Clone)]
+pub struct ResolvedRun<'a> {
+    pub id: Id<RunMarker>,
+    pub game: &'a Game,
+    pub category: &'a Category,
+    pub submitter: User,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub verifier: Option<User>,
     pub video: String,
     pub description: String,
     pub score: i64,
