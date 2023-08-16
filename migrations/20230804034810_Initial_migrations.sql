@@ -38,7 +38,7 @@ CREATE TABLE categories (
 CREATE TABLE permissions (
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     game_id BIGINT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
-    permissions BIT(64) NOT NULL,
+    permissions BIGINT NOT NULL,
     PRIMARY KEY (user_id, game_id)
 );
 
