@@ -2,18 +2,30 @@
 {% block extraheaders %}{% endblock extraheaders %}
 {% block title %}game{% endblock title %}
 {% block body %}
+{% for minicat in categories %}
+<a href="{{ root_url }}/game/{{ game.slug }}/category/{{ minicat.id }}">{{ minicat.name }}</a>
+{% endfor %}
+<br>
+<a href="{{ root_url }}/game/{{ game.slug }}/category/{{ category.id }}/run/new">submit run</a>
 <table>
     <tr>
         <th>user</th>
-        <th>time</th>
+        {% if run.category.scoreboard %}
         <th>score</th>
+        {% else %}
+        <th>time</th>
+        {% endif %}
         <th>link</th>
     </tr>
     {% for run in runs %}
     <tr>
         <td><a href="{{ root_url }}/user/{{ run.submitter.username }}">{{ run.submitter.username }}</a></td>
-        <td>{{ run.time }}</td>
+        {% if run.category.scoreboard %}
         <td>{{ run.score }}</td>
+        {% else %}
+        <td>{{ run.time | duration }}</td>
+        {% endif %}
+        </td>
         <td><a href="{{ run.video }}">{{ run.video }}</a></td>
     </tr>
     {% endfor %}

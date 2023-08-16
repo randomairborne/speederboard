@@ -11,18 +11,20 @@ the shasum which can be passed in as a secret on your worker settings page.
 
 The structure of the CDN is as follows:
 
-```
+```text
 .
-├── static
+├── public/
 └── customfiles/
     ├── users/
     │   └── :id/
-    │       ├── pfp.png
-    │       ├── banner.png
+    │       ├── pfp.ext
+    │       ├── banner.ext
     │       └── style.css
     └── games/
         └── :id/
-            ├── banner.png
+            ├── banner.ext
             ├── style.css
-            └── coverart.png
+            └── coverart.ext
 ```
+
+each .ext file is available as PNG, JPEG, and WebP, with `png`, `jpg`, and `webp` as the extensions.

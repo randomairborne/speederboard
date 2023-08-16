@@ -79,7 +79,7 @@ pub(super) async fn get_game_category(
         game: &game,
     };
     let ctx = Context::from_serialize(get_game_ctx)?;
-    Ok(Html(state.tera.render("game.jinja", &ctx)?))
+    Ok(Html(state.tera.render("category.jinja", &ctx)?))
 }
 
 async fn get_scoreboard<'a>(

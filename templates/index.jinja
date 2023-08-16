@@ -4,8 +4,14 @@
 {% block body %}
 welcome. speederboard is a free and open-source project to create an improved speedrun and leaderboard tracking website.
 {% for game in games %}
-< class="root-game-card">
-<a href="{{ root_url }}/game/{{ game.slug }}"><img src="{{ cdn_url }}/customfiles/games/{}/coverart.png" /></a>
+<div class="root-game-card">
+    <a href="{{ root_url }}/game/{{ game.slug }}">
+        {% if game.cover_art_ext %}
+        <img src="{{ cdn_url }}/customfiles/games/{{ game.id }}/coverart.png" />
+        {% else %}
+        <img src="{{ cdn_url }}/static/default-coverart.png" />
+        {% endif %}
+    </a>
 </div>
 {% endfor %}
 {% endblock body %}

@@ -4,11 +4,15 @@
 {% block body %}
 <h1>{{ user.username }}&apos;s run of {{ game.name }}</h1>
 <a href="{{ run.video }}">{{ run.video }}</a>
+{% if run.time %}
 <h2>
 time: {{ run.time | duration }}
 </h2>
+{% endif %}
+{% if run.score %}
 <h2>
 score: {{ run.score }}
 </h2>
+{% endif %}
 {{ run.description | markdown }}
 {% endblock body %}

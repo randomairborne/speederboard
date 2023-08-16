@@ -69,7 +69,7 @@ pub fn game_router(state: AppState) -> Router<AppState> {
             get(routes::game::category::get),
         )
         .route_with_tsr(
-            "/game/:gameslug/category/:catid/new",
+            "/game/:gameslug/category/:catid/run/new",
             get(routes::game::new_run::get).post(routes::game::new_run::create),
         )
         .route_with_tsr(

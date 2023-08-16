@@ -142,24 +142,24 @@ fn millis_to_sr_string(
     millis: u64,
 ) -> Result<String, std::fmt::Error> {
     let mut output = String::with_capacity(1024);
-    let mut started = false;
+    let mut started = true;
 
     if days > 0 {
-        write!(output, "{days}d ")?;
+        write!(output, "{days:0<2}:")?;
         started = true;
     }
     if hours > 0 || started {
-        write!(output, "{hours}h ")?;
+        write!(output, "{hours:0<2}:")?;
         started = true;
     }
     if minutes > 0 || started {
-        write!(output, "{minutes}m ")?;
+        write!(output, "{minutes:0<2}:")?;
         started = true;
     }
     if seconds > 0 || started {
-        write!(output, "{seconds}s ")?;
+        write!(output, "{seconds:0<2}.")?;
     }
-    write!(output, "{millis}ms")?;
+    write!(output, "{millis:0<3}")?;
     Ok(output)
 }
 
@@ -170,15 +170,16 @@ fn millis_to_ddhhmmssms(total_time_ms: u64) -> (u64, u64, u64, u64, u64) {
     const MILLIS_PER_SECOND: u64 = 1000;
 
     let days = total_time_ms / MILLIS_PER_DAY;
-    let remainder = total_time_ms % MILLIS_PER_DAY;
+    let mut remainder = total_time_ms % MILLIS_PER_DAY;
 
     let hours = remainder / MILLIS_PER_HOUR;
-    let remainder = days % MILLIS_PER_HOUR;
+    remainder %= MILLIS_PER_HOUR;
 
     let minutes = remainder / MILLIS_PER_MINUTE;
-    let remainder = hours % MILLIS_PER_MINUTE;
+    remainder %= MILLIS_PER_MINUTE;
 
     let seconds = remainder / MILLIS_PER_SECOND;
-    let milliseconds = seconds % MILLIS_PER_SECOND;
+    let milliseconds = remainder % MILLIS_PER_SECOND;
+
     (days, hours, minutes, seconds, milliseconds)
 }

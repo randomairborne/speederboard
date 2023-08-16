@@ -2,7 +2,6 @@ use super::UPDATE_COMPLETE_URL;
 use crate::{model::User, state::DbUserUpdate, AppState, Error};
 use axum::{extract::State, response::Redirect};
 use axum_extra::extract::multipart::Multipart;
-
 pub async fn pfp(
     State(state): State<AppState>,
     user: User,
