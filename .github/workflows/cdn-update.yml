@@ -22,7 +22,7 @@ jobs:
         run: sudo apt install rclone
 
       - name: Sync
-        run: rclone sync ./assets/public r2:speederboard-testing/public
+        run: rclone sync ./assets/public r2:speederboard-testing/public -vv
         env:
           RCLONE_CONFIG_PASS: ${{ secrets.RCLONE_CONFIG_PASS }}
           RCLONE_CONFIG: ./.github/rclone.conf
