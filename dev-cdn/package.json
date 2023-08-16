@@ -1,0 +1,12 @@
+{
+  "name": "dev-cdn",
+  "version": "1.0.0",
+  "description": "a development CDN for speederboard",
+  "main": "index.js",
+  "author": "valkyrie_pilot",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2"
+  }
+}
