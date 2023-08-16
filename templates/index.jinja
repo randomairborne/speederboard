@@ -7,9 +7,9 @@ welcome. speederboard is a free and open-source project to create an improved sp
 <div class="root-game-card">
     <a href="{{ root_url }}/game/{{ game.slug }}">
         {% if game.cover_art_ext %}
-        <img src="{{ cdn_url }}/customfiles/games/{{ game.id }}/coverart.png" />
+        <img src="{{ cdn_url }}/customfiles/games/{{ game.id }}/coverart.png" width="180" height="240" />
         {% else %}
-        <img src="{{ cdn_url }}/static/default-coverart.png" />
+        <img src="{{ cdn_url }}/public/default-coverart.png" width="180" height="240" />
         {% endif %}
     </a>
 </div>
