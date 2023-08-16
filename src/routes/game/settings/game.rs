@@ -25,8 +25,8 @@ pub async fn get(
     .await?
     .ok_or(Error::InsufficientPermissions)?;
     let perms = Permissions::new(perms_db.permissions);
-    if perms.is_empty() {
-        return Err(Error::InsufficientPermissions);
+    if !perms.contains(Permissions::ADMINISTRATOR) {
+        
     }
     Ok(Html(state.tera.render(
         "edit_game.jinja",
