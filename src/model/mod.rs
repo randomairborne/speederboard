@@ -1,11 +1,13 @@
 mod category;
 mod game;
+mod member;
+mod permissions;
 mod run;
 mod user;
-mod permissions;
 
 pub use category::Category;
 pub use game::Game;
+pub use member::Member;
+pub use permissions::Permissions;
 pub use run::{ResolvedRun, ResolvedRunRef, Run, RunStatus};
 pub use user::User;
-pub use permissions::Permissions;

@@ -1,17 +1,6 @@
 use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign};
 
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    serde::Deserialize,
-    serde::Serialize,
-    sqlx::Type,
-)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, sqlx::Type)]
 pub struct Permissions(i64);
 
 impl Permissions {
@@ -21,20 +10,35 @@ impl Permissions {
     pub const BLOCK_USERS: Self = Self(0b1 << 1);
     pub const MANAGE_CATEGORIES: Self = Self(0b1 << 2);
     pub fn new(input: i64) -> Self {
-        Self(input)
+        input.into()
     }
-    pub fn get(&self) -> i64 {
+    pub fn new_opt(input: Option<i64>) -> Self {
+        input.into()
+    }
+    #[inline]
+    pub fn get(self) -> i64 {
         self.0
     }
-    pub fn is_empty(&self) -> bool {
-        *self == Self::EMPTY
+    #[inline]
+    pub fn is_empty(self) -> bool {
+        self == Self::EMPTY
     }
-    pub fn contains(&self, check: Self) -> bool {
+    #[inline]
+    pub fn contains(self, check: Self) -> bool {
         // administrators occupy the sign bit
-        if self.0.is_negative() {
+        if (self & Self::ADMINISTRATOR) == Self::ADMINISTRATOR {
             return true;
         }
-        (*self & check) == check
+        (self & check) == check
+    }
+    #[inline]
+    fn expand(self) -> PermissionsSerde {
+        PermissionsSerde {
+            administrator: self.contains(Self::ADMINISTRATOR),
+            verify_runs: self.contains(Self::VERIFY_RUNS),
+            block_users: self.contains(Self::BLOCK_USERS),
+            manage_categories: self.contains(Self::MANAGE_CATEGORIES),
+        }
     }
 }
 
@@ -61,5 +65,79 @@ impl BitAnd for Permissions {
 impl BitAndAssign for Permissions {
     fn bitand_assign(&mut self, rhs: Self) {
         *self = *self & rhs;
+    }
+}
+
+impl From<i64> for Permissions {
+    fn from(value: i64) -> Self {
+        Self(value)
+    }
+}
+
+impl From<Option<i64>> for Permissions {
+    fn from(value: Option<i64>) -> Self {
+        if let Some(input) = value {
+            Self::new(input)
+        } else {
+            Self::EMPTY
+        }
+    }
+}
+
+impl From<PermissionsSerde> for Permissions {
+    fn from(value: PermissionsSerde) -> Self {
+        value.compress()
+    }
+}
+
+#[allow(clippy::struct_excessive_bools)]
+#[derive(serde::Deserialize, serde::Serialize, Clone, Copy, Debug, PartialEq, Eq)]
+struct PermissionsSerde {
+    administrator: bool,
+    block_users: bool,
+    manage_categories: bool,
+    verify_runs: bool,
+}
+
+impl PermissionsSerde {
+    fn compress(self) -> Permissions {
+        let mut smol = Permissions::EMPTY;
+        if self.administrator {
+            smol |= Permissions::ADMINISTRATOR;
+        }
+        if self.block_users {
+            smol |= Permissions::BLOCK_USERS;
+        }
+        if self.manage_categories {
+            smol |= Permissions::MANAGE_CATEGORIES;
+        }
+        if self.verify_runs {
+            smol |= Permissions::VERIFY_RUNS;
+        }
+        smol
+    }
+}
+
+impl From<Permissions> for PermissionsSerde {
+    fn from(value: Permissions) -> Self {
+        value.expand()
+    }
+}
+
+impl serde::Serialize for Permissions {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.expand().serialize(serializer)
+    }
+}
+
+impl<'de> serde::Deserialize<'de> for Permissions {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        Ok(PermissionsSerde::deserialize(deserializer)?.into())
     }
 }

@@ -12,7 +12,7 @@ cdn.listen(8000, () => {
 });
 
 let fakes3 = express();
-fakes3.use(bodyParser.raw({ type: '*/*' }));
+fakes3.use(bodyParser.raw({ type: '*' }));
 fakes3.use(function (req, res) {
   if (req.method === "PUT") {
     fs.mkdirSync("../assets/" + req.path.substring(0, req.path.lastIndexOf("/")), { recursive: true });

@@ -110,5 +110,5 @@ jobs:
     needs: [publish]
     steps:
       - name: Notify bot of updates
-        run: "curl --max-time 30 -H 'Authorization: Bearer ${{ secrets.RESTART_TOKEN }}' https://xpd-hooks.valk.sh/update/pastebot"
+        run: "curl --max-time 30 -H 'Authorization: Bearer ${{ secrets.RESTART_TOKEN }}' https://xpd-hooks.valk.sh/update/speederboard"
 

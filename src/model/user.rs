@@ -58,9 +58,14 @@ impl User {
         }
     }
     pub async fn from_db(state: &AppState, id: Id<UserMarker>) -> Result<User, Error> {
-        let record = query!("SELECT * FROM users WHERE id = $1", id.get())
-            .fetch_one(&state.postgres)
-            .await?;
+        let record = query!(
+            "SELECT id, username, has_stylesheet,
+            pfp_ext, banner_ext, biography, admin
+            FROM users WHERE id = $1",
+            id.get()
+        )
+        .fetch_one(&state.postgres)
+        .await?;
         let user = User {
             id: record.id.into(),
             username: record.username,
