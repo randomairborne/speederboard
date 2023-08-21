@@ -1,6 +1,6 @@
 export interface Env {
 	DEAR_GOD: R2Bucket;
-	// shasum adds a newline by default, if the output is wrong that is the problem
+	// echo adds a newline by default, if the output is wrong that is the problem
 	// can use echo -n "input" | shasum -a 256
 	SECRET_UPLOAD_KEY_SHA256: string;
 }

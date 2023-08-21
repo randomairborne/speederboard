@@ -12,6 +12,8 @@ CREATE TABLE users (
     pfp_ext VARCHAR(4)
 );
 
+CREATE INDEX users_name_index ON users(username);
+
 CREATE TABLE games (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL,
