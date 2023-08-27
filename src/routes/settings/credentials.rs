@@ -1,24 +1,30 @@
-use axum::{extract::State, response::Redirect, Form};
+use axum::{extract::State, response::Redirect};
 
-use crate::{model::User, AppState, Error};
+use crate::{model::User, util::ValidatedForm, AppState, Error};
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, garde::Validate)]
 pub struct UpdateEmailForm {
+    #[garde(skip)]
     old_email: String,
+    #[garde(email, length(min = crate::util::MIN_EMAIL_LEN, max = crate::util::MAX_EMAIL_LEN))]
     new_email: String,
+    #[garde(length(min = crate::util::MIN_PASSWORD_LEN))]
     password: String,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, garde::Validate)]
 pub struct UpdatePasswordForm {
+    #[garde(email, length(min = crate::util::MIN_EMAIL_LEN, max = crate::util::MAX_EMAIL_LEN))]
     email: String,
+    #[garde(skip)]
     old_password: String,
+    #[garde(length(min = crate::util::MIN_PASSWORD_LEN))]
     new_password: String,
 }
 
 pub async fn update_password(
     State(state): State<AppState>,
-    Form(form): Form<UpdatePasswordForm>,
+    ValidatedForm(form): ValidatedForm<UpdatePasswordForm>,
 ) -> Result<Redirect, Error> {
     let mut trans = state.postgres.begin().await?;
     let Ok(user) =
@@ -39,7 +45,7 @@ pub async fn update_password(
 
 pub async fn update_email(
     State(state): State<AppState>,
-    Form(form): Form<UpdateEmailForm>,
+    ValidatedForm(form): ValidatedForm<UpdateEmailForm>,
 ) -> Result<Redirect, Error> {
     let mut trans = state.postgres.begin().await?;
     let Ok(user) =

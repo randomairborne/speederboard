@@ -1,13 +1,12 @@
 use crate::{
     model::User,
     template::BaseRenderInfo,
-    util::{AUTHTOKEN_COOKIE, AUTHTOKEN_TTL},
+    util::{ValidatedForm, AUTHTOKEN_COOKIE, AUTHTOKEN_TTL},
     AppState, Error,
 };
 use axum::{
     extract::{Query, State},
     response::{Html, Redirect},
-    Form,
 };
 use axum_extra::extract::{cookie::Cookie, CookieJar};
 use rand::distributions::DistString;
@@ -32,9 +31,11 @@ pub struct LoginForm {
 }
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, garde::Validate)]
 pub struct LoginFormData {
+    #[garde(email, length(min = crate::util::MIN_EMAIL_LEN, max = crate::util::MAX_EMAIL_LEN))]
     pub email: String,
+    #[garde(length(min = crate::util::MIN_PASSWORD_LEN))]
     pub password: String,
 }
 
@@ -61,7 +62,7 @@ pub async fn get(
 pub async fn post(
     State(state): State<AppState>,
     cookies: CookieJar,
-    Form(form): Form<LoginFormData>,
+    ValidatedForm(form): ValidatedForm<LoginFormData>,
 ) -> Result<(CookieJar, Redirect), Error> {
     let Ok(user) = User::from_db_auth(&state, &state.postgres, form.email, form.password).await?
     else {

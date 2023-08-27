@@ -66,7 +66,20 @@ pub fn game_router(state: AppState) -> Router<AppState> {
         .route_with_tsr("/game/:gameslug", get(routes::game::index::get))
         .route_with_tsr(
             "/game/:gameslug/edit",
-            get(routes::game::settings::game::get).post(routes::game::settings::game::post),
+            get(routes::game::settings::game::get).post(routes::game::settings::game::edit),
+        )
+        .route_with_tsr(
+            "/game/:gameslug/edit/set-default-category/:catid",
+            post(routes::game::settings::game::set_default_category),
+        )
+        .route_with_tsr(
+            "/game/:gameslug/edit/delete-category/:catid",
+            get(routes::game::settings::category::confirm_delete)
+                .post(routes::game::settings::category::delete),
+        )
+        .route_with_tsr(
+            "/game/:gameslug/edit/set-default-category/:catid",
+            post(routes::game::settings::category::new),
         )
         .route_with_tsr(
             "/game/:gameslug/category/:catid",
@@ -74,7 +87,7 @@ pub fn game_router(state: AppState) -> Router<AppState> {
         )
         .route_with_tsr(
             "/game/:gameslug/category/:catid/edit",
-            get(routes::game::settings::category::get).post(routes::game::settings::category::post),
+            get(routes::game::settings::category::get).post(routes::game::settings::category::edit),
         )
         .route_with_tsr(
             "/game/:gameslug/category/:catid/run/new",

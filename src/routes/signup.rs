@@ -1,13 +1,12 @@
 use crate::{
     model::User,
     template::BaseRenderInfo,
-    util::{AUTHTOKEN_COOKIE, AUTHTOKEN_TTL},
+    util::{ValidatedForm, AUTHTOKEN_COOKIE, AUTHTOKEN_TTL},
     AppState, Error,
 };
 use axum::{
     extract::State,
     response::{Html, Redirect},
-    Form,
 };
 use axum_extra::extract::{cookie::Cookie, CookieJar};
 use rand::distributions::DistString;
@@ -28,10 +27,13 @@ pub struct SignUpForm {
     core: BaseRenderInfo,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, garde::Validate)]
 pub struct SignUpFormData {
+    #[garde(email, length(min = crate::util::MIN_EMAIL_LEN, max = crate::util::MAX_EMAIL_LEN))]
     email: String,
+    #[garde(length(min = crate::util::MIN_USERNAME_LEN, max = crate::util::MAX_USERNAME_LEN))]
     username: String,
+    #[garde(length(min = crate::util::MIN_PASSWORD_LEN))]
     password: String,
 }
 
@@ -48,7 +50,7 @@ pub async fn get(
 pub async fn post(
     State(state): State<AppState>,
     cookies: CookieJar,
-    Form(form): Form<SignUpFormData>,
+    ValidatedForm(form): ValidatedForm<SignUpFormData>,
 ) -> Result<(CookieJar, Redirect), Error> {
     let password_hash = state
         .spawn_rayon(move |state| {

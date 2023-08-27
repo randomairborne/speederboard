@@ -13,9 +13,9 @@
         <form action="/game/{{ game.slug }}/edit/set-default-category/{{ category.id }}" method="post">
         <button>make default</button>
         </form>
-        <form action="/game/{{ game.slug }}/edit/delete-category/{{ category.id }}" method="post">
+        <a href="/game/{{ game.slug }}/edit/delete-category/{{ category.id }}">
         <button>delete</button>
-        </form>
+        </a>
     {% endif %}
 {% endfor %}
 <h2>create new category</h2>

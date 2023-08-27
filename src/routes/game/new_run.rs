@@ -1,13 +1,14 @@
 use axum::{
     extract::{Path, State},
     response::{Html, Redirect},
-    Form,
 };
+use garde::Validate;
 
 use crate::{
     id::{CategoryMarker, Id},
     model::{Category, Game, User},
     template::BaseRenderInfo,
+    util::ValidatedForm,
     AppState, Error,
 };
 
@@ -20,11 +21,15 @@ pub struct GetRunCreatePage {
     category: Category,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Validate)]
 pub struct RunCreateForm {
+    #[garde(length(min = crate::util::MIN_RUN_VIDEO_LEN, max = crate::util::MAX_RUN_VIDEO_LEN))]
     video: String,
+    #[garde(length(min = crate::util::MIN_RUN_DESCRIPTION_LEN, max = crate::util::MAX_RUN_DESCRIPTION_LEN))]
     description: String,
+    #[garde(range(min = 0))]
     score: Option<i64>,
+    #[garde(range(min = 0))]
     time: Option<i64>,
 }
 
@@ -57,7 +62,7 @@ pub async fn create(
     State(state): State<AppState>,
     user: User,
     Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
-    Form(form): Form<RunCreateForm>,
+    ValidatedForm(form): ValidatedForm<RunCreateForm>,
 ) -> Result<Redirect, Error> {
     let game = Game::from_db_slug(&state, &game_slug).await?;
     let category = Category::from_db(&state, category_id)
@@ -68,15 +73,13 @@ pub async fn create(
     }
     if category.scoreboard {
         if form.score.is_none() {
-            return Err(Error::FormValidation(
-                "score",
-                "be filled when the leaderboard is a scoreboard",
+            return Err(Error::CustomFormValidation(
+                "score must be filled when the leaderboard is a scoreboard".to_string(),
             ));
         }
     } else if form.time.is_none() {
-        return Err(Error::FormValidation(
-            "time",
-            "be filled when the leaderboard is a speedrun",
+        return Err(Error::CustomFormValidation(
+            "time must be filled when the leaderboard is a speedrun".to_string(),
         ));
     }
     let (score, time) = (form.score.unwrap_or(0), form.time.unwrap_or(0));

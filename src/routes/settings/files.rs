@@ -2,6 +2,7 @@ use super::UPDATE_COMPLETE_URL;
 use crate::{model::User, state::DbUserUpdate, AppState, Error};
 use axum::{extract::State, response::Redirect};
 use axum_extra::extract::multipart::Multipart;
+
 pub async fn pfp(
     State(state): State<AppState>,
     user: User,
@@ -81,10 +82,9 @@ async fn multipart_into_s3(
             };
             let bytes = field.bytes().await?;
             if bytes.len() > SIZE_LIMIT {
-                return Err(Error::FormValidation(
-                    "file",
-                    "be smaller then 512 kilobytes",
-                ));
+                return Err(Error::CustomFormValidation(format!(
+                    "File was expected to be less then {SIZE_LIMIT} bytes",
+                )));
             }
             state
                 .put_r2_file(dest, reqwest::Body::from(bytes), &content_type)

@@ -5,6 +5,7 @@ use axum::{
     http::StatusCode,
     response::{Html, IntoResponse, Redirect},
 };
+
 pub static ERROR_STATE: OnceLock<AppState> = OnceLock::new();
 
 #[derive(Debug, thiserror::Error)]
@@ -37,8 +38,14 @@ pub enum Error {
     Format(#[from] std::fmt::Error),
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
-    #[error("Field {0} must {1}")]
-    FormValidation(&'static str, &'static str),
+    #[error("Failed to validate submission: {0}")]
+    FormValidation(#[from] garde::Error),
+    #[error("Failed to validate submission: {0}")]
+    MultiFormValidation(#[from] garde::Errors),
+    #[error("Form data invalid: {0}")]
+    FormRejection(#[from] axum::extract::rejection::FormRejection),
+    #[error("Failed to validate submission: {0}")]
+    CustomFormValidation(String),
     #[error("Username or password is incorrect")]
     InvalidPassword,
     #[error("Invalid auth cookie")]
@@ -78,7 +85,10 @@ impl IntoResponse for Error {
             | Self::TaskJoin(_)
             | Self::Io(_)
             | Self::Format(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::FormValidation(_, _)
+            Self::FormValidation(_)
+            | Self::CustomFormValidation(_)
+            | Self::FormRejection(_)
+            | Self::MultiFormValidation(_)
             | Self::Multipart(_)
             | Self::InvalidMultipart(_)
             | Self::TokenHasIdButIdIsUnkown

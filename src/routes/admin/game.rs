@@ -1,24 +1,31 @@
 use axum::{
     extract::State,
     response::{Html, Redirect},
-    Form,
 };
 
-use crate::{model::User, template::BaseRenderInfo, AppState, Error};
+use crate::{model::User, template::BaseRenderInfo, util::ValidatedForm, AppState, Error};
 
 fn default_false() -> bool {
     false
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, garde::Validate)]
 pub struct CreateGame {
+    #[garde(length(min = crate::util::MIN_GAME_NAME_LEN, max = crate::util::MAX_GAME_NAME_LEN))]
     name: String,
+    #[garde(length(min = crate::util::MIN_GAME_SLUG_LEN, max = crate::util::MAX_GAME_SLUG_LEN))]
     slug: String,
+    #[garde(url, length(min = crate::util::MIN_GAME_URL_LEN, max = crate::util::MAX_GAME_URL_LEN))]
     url: String,
+    #[garde(length(min = crate::util::MIN_GAME_DESCRIPTION_LEN, max = crate::util::MAX_GAME_DESCRIPTION_LEN))]
     description: String,
+    #[garde(length(min = crate::util::MIN_CATEGORY_NAME_LEN, max = crate::util::MAX_CATEGORY_NAME_LEN))]
     cat_name: String,
+    #[garde(length(min = crate::util::MIN_CATEGORY_DESCRIPTION_LEN, max = crate::util::MAX_CATEGORY_DESCRIPTION_LEN))]
     cat_description: String,
+    #[garde(length(min = crate::util::MIN_CATEGORY_RULES_LEN, max = crate::util::MAX_CATEGORY_RULES_LEN))]
     cat_rules: String,
+    #[garde(skip)]
     #[serde(default = "default_false")]
     scoreboard: bool,
 }
@@ -43,7 +50,7 @@ pub async fn get(
 
 pub async fn post(
     State(state): State<AppState>,
-    Form(newgame): Form<CreateGame>,
+    ValidatedForm(newgame): ValidatedForm<CreateGame>,
 ) -> Result<Redirect, Error> {
     let mut trans = state.postgres.begin().await?;
     let game_id = query!(
