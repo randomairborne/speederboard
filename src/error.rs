@@ -40,7 +40,7 @@ pub enum Error {
     Io(#[from] std::io::Error),
     #[error("Failed to validate submission: {0}")]
     FormValidation(#[from] garde::Error),
-    #[error("Failed to validate submission: {0}")]
+    #[error("Failed to validate submission: \n{0}")]
     MultiFormValidation(#[from] garde::Errors),
     #[error("Form data invalid: {0}")]
     FormRejection(#[from] axum::extract::rejection::FormRejection),
@@ -60,6 +60,10 @@ pub enum Error {
     InsufficientPermissions,
     #[error("That category isn't part of that game!")]
     InvalidGameCategoryPair,
+    #[error(
+        "You can't delete the default category for a game, change the default category first!!"
+    )]
+    CannotDeleteDefaultCategory,
 }
 
 impl From<Error> for std::io::Error {
@@ -92,7 +96,8 @@ impl IntoResponse for Error {
             | Self::Multipart(_)
             | Self::InvalidMultipart(_)
             | Self::TokenHasIdButIdIsUnkown
-            | Self::InvalidGameCategoryPair => StatusCode::BAD_REQUEST,
+            | Self::InvalidGameCategoryPair
+            | Self::CannotDeleteDefaultCategory => StatusCode::BAD_REQUEST,
             Self::InvalidPassword | Self::InsufficientPermissions => StatusCode::FORBIDDEN,
             Self::InvalidCookie => return Redirect::to("/login").into_response(),
             Self::NotFound => return crate::routes::notfound(state, core).into_response(),

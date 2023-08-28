@@ -41,7 +41,11 @@ impl Member {
             banner_ext: member.banner_ext,
             admin: member.admin,
         };
-        let perms = Permissions::new_opt(member.permissions);
+        let perms = if user.admin {
+            Permissions::ADMINISTRATOR
+        } else {
+            Permissions::new_opt(member.permissions)
+        };
         Ok(Some(Member { perms, user }))
     }
 }

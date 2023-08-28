@@ -3,21 +3,30 @@
 {% block title %}edit game{% endblock title %}
 {% block body %}
 <h2>{{ game.name }} game settings</h2>
-<h3>id {{ game.id }}, </h3>
+<h3>id {{ game.id }}</h3>
 <h3>categories</h3>
-{% for category in categories %}
+<table>
+    {% for category in categories %}
     {% if game.default_category == category.id %}
-        <strong>{{ category.name }} (default)</strong>
+    <tr>
+        <td><strong>{{ category.name }} (default)</strong></td>
+    </tr>
     {% else %}
-        {{ category.name }} <button>Make Default</button>
-        <form action="/game/{{ game.slug }}/edit/set-default-category/{{ category.id }}" method="post">
-        <button>make default</button>
-        </form>
-        <a href="/game/{{ game.slug }}/edit/delete-category/{{ category.id }}">
-        <button>delete</button>
-        </a>
+    <tr>
+        <td>
+            <form action="/game/{{ game.slug }}/category/{{ category.id }}/edit/makedefault" method="post">
+                {{ category.name }}
+                <button>make default</button>
+                <a href="/game/{{ game.slug }}/category/{{ category.id }}/edit"><button type="button">edit</button></a>
+                <a href="/game/{{ game.slug }}/category/{{ category.id }}/edit/delete">
+                    <button type="button">delete</button>
+                </a>
+            </form>
+        </td>
+    </tr>
     {% endif %}
-{% endfor %}
+    {% endfor %}
+</table>
 <h2>create new category</h2>
 <form action="/game/{{ game.slug }}/edit/new-category" method="post">
     <table>
@@ -27,15 +36,15 @@
         </tr>
         <tr>
             <td><label for="description">category description</label></td>
-            <td><textarea name="description" id="description" maxlength="4000"></textarea></td>
+            <td><textarea name="description" id="description" rows="10" cols="40" maxlength="4000"></textarea></td>
         </tr>
         <tr>
             <td><label for="rules">category rules</label></td>
-            <td><textarea name="rules" id="rules"></textarea></td>
+            <td><textarea name="rules" id="rules" rows="10" cols="40" maxlength="20000"></textarea></td>
         </tr>
         <tr>
             <td><label for="scoreboard">sort by score rather then time</label></td>
-            <td><input name="scoreboard" id="scoreboard" type="checkbox" value="true"/></td>
+            <td><input name="scoreboard" id="scoreboard" type="checkbox" value="true" /></td>
         </tr>
     </table>
     <button>submit!</button>

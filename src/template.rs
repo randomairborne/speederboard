@@ -38,6 +38,15 @@ impl FromRequestParts<AppState> for BaseRenderInfo {
     }
 }
 
+#[derive(serde::Serialize)]
+pub struct ConfirmContext {
+    #[serde(flatten)]
+    pub base: BaseRenderInfo,
+    pub action: String,
+    pub action_url: String,
+    pub return_to: String,
+}
+
 pub struct MarkdownFilter;
 
 impl tera::Filter for MarkdownFilter {

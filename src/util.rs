@@ -5,7 +5,7 @@ use rand::rngs::OsRng;
 use crate::{
     error::ArgonError,
     id::{Id, UserMarker},
-    model::User,
+    model::{Game, Member, Permissions, User},
 };
 
 pub const MIN_PASSWORD_LEN: usize = 8;
@@ -27,9 +27,9 @@ pub const MIN_GAME_DESCRIPTION_LEN: usize = 0;
 pub const MAX_CATEGORY_NAME_LEN: usize = 128;
 pub const MIN_CATEGORY_NAME_LEN: usize = 2;
 pub const MAX_CATEGORY_DESCRIPTION_LEN: usize = 4000;
-pub const MIN_CATEGORY_DESCRIPTION_LEN: usize = 100;
+pub const MIN_CATEGORY_DESCRIPTION_LEN: usize = 0;
 pub const MAX_CATEGORY_RULES_LEN: usize = 20_000;
-pub const MIN_CATEGORY_RULES_LEN: usize = 100;
+pub const MIN_CATEGORY_RULES_LEN: usize = 0;
 pub const MAX_RUN_VIDEO_LEN: usize = 256;
 pub const MIN_RUN_VIDEO_LEN: usize = 12;
 pub const MAX_RUN_DESCRIPTION_LEN: usize = 4000;
@@ -83,4 +83,41 @@ where
         req.validate(&())?;
         Ok(Self(req))
     }
+}
+
+pub async fn game_n_member(
+    state: &crate::AppState,
+    user: User,
+    game_slug: &str,
+) -> Result<(Game, Member), crate::Error> {
+    let data = query!(
+        "SELECT g.id, g.name, g.slug,
+        g.url, g.default_category, g.description,
+        g.has_stylesheet, g.banner_ext,
+        g.cover_art_ext, p.permissions
+        FROM games as g LEFT JOIN permissions as p
+        ON p.user_id = $1 AND p.game_id = g.id AND g.slug = $2",
+        user.id.get(),
+        game_slug
+    )
+    .fetch_one(&state.postgres)
+    .await?;
+    let perms = if user.admin {
+        Permissions::ADMINISTRATOR
+    } else {
+        Permissions::new_opt(data.permissions)
+    };
+    let member = Member { perms, user };
+    let game = Game {
+        id: data.id.into(),
+        name: data.name,
+        slug: data.slug,
+        url: data.url,
+        default_category: data.default_category.into(),
+        description: data.description,
+        has_stylesheet: data.has_stylesheet,
+        banner_ext: data.banner_ext,
+        cover_art_ext: data.cover_art_ext,
+    };
+    Ok((game, member))
 }

@@ -10,10 +10,14 @@ impl Permissions {
     pub const BLOCK_USERS: Self = Self(0b1 << 1);
     pub const MANAGE_CATEGORIES: Self = Self(0b1 << 2);
     pub fn new(input: i64) -> Self {
-        input.into()
+        Self(input)
     }
     pub fn new_opt(input: Option<i64>) -> Self {
-        input.into()
+        if let Some(input) = input {
+            Self::new(input)
+        } else {
+            Self::EMPTY
+        }
     }
     #[inline]
     pub fn get(self) -> i64 {
@@ -30,6 +34,14 @@ impl Permissions {
             return true;
         }
         (self & check) == check
+    }
+    #[inline]
+    pub fn check(self, check: Self) -> Result<(), crate::Error> {
+        if self.contains(check) {
+            Ok(())
+        } else {
+            Err(crate::Error::InsufficientPermissions)
+        }
     }
     #[inline]
     fn expand(self) -> PermissionsSerde {
@@ -70,17 +82,13 @@ impl BitAndAssign for Permissions {
 
 impl From<i64> for Permissions {
     fn from(value: i64) -> Self {
-        Self(value)
+        Self::new(value)
     }
 }
 
 impl From<Option<i64>> for Permissions {
     fn from(value: Option<i64>) -> Self {
-        if let Some(input) = value {
-            Self::new(input)
-        } else {
-            Self::EMPTY
-        }
+        Self::new_opt(value)
     }
 }
 

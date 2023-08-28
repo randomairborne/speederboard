@@ -4,9 +4,10 @@ use axum::{
 };
 
 use crate::{
-    model::{Category, Game, Member, Permissions, User},
+    id::{CategoryMarker, Id},
+    model::{Category, Game, Permissions, User},
     template::BaseRenderInfo,
-    util::ValidatedForm,
+    util::{self, ValidatedForm},
     AppState, Error,
 };
 
@@ -22,7 +23,7 @@ pub struct GameEditContext {
 pub struct GameEdit {
     #[garde(length(min = crate::util::MIN_GAME_NAME_LEN, max = crate::util::MAX_GAME_NAME_LEN))]
     name: String,
-    #[garde(length(min = crate::util::MIN_GAME_URL_LEN, max = crate::util::MAX_GAME_URL_LEN))]
+    #[garde(url, length(min = crate::util::MIN_GAME_URL_LEN, max = crate::util::MAX_GAME_URL_LEN))]
     url: String,
     #[garde(length(min = crate::util::MIN_GAME_DESCRIPTION_LEN, max = crate::util::MAX_GAME_DESCRIPTION_LEN))]
     description: String,
@@ -34,13 +35,8 @@ pub async fn get(
     user: User,
     base: BaseRenderInfo,
 ) -> Result<Html<String>, Error> {
-    let game = Game::from_db_slug(&state, &game_slug).await?;
-    let member = Member::from_db(&state, user.id, game.id)
-        .await?
-        .ok_or(Error::NotFound)?;
-    if !member.perms.contains(Permissions::ADMINISTRATOR) && !member.user.admin {
-        return Err(Error::InsufficientPermissions);
-    }
+    let (game, member) = util::game_n_member(&state, user, &game_slug).await?;
+    member.perms.check(Permissions::ADMINISTRATOR)?;
     let categories = query_as!(
         Category,
         "SELECT name, id, game, scoreboard, description,
@@ -64,14 +60,33 @@ pub async fn edit(
     user: User,
     ValidatedForm(form): ValidatedForm<GameEdit>,
 ) -> Result<Redirect, Error> {
-    let game = Game::from_db_slug(&state, &game_slug).await?;
-    let member = Member::from_db(&state, user.id, game.id)
-        .await?
-        .ok_or(Error::InsufficientPermissions)?;
-    if !member.perms.contains(Permissions::ADMINISTRATOR) && !member.user.admin {
-        return Err(Error::InsufficientPermissions);
-    }
+    let (game, member) = util::game_n_member(&state, user, &game_slug).await?;
+    member.perms.check(Permissions::ADMINISTRATOR)?;
+    query!(
+        "UPDATE games SET name = $1, url = $2, description = $3 WHERE id = $4",
+        form.name,
+        form.url,
+        form.description,
+        game.id.get()
+    )
+    .execute(&state.postgres)
+    .await?;
     Ok(Redirect::to(&format!("/game/{}/edit", game.slug)))
 }
 
-pub async fn set_default_category() {}
+pub async fn set_default_category(
+    State(state): State<AppState>,
+    Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
+    user: User,
+) -> Result<Redirect, Error> {
+    let (game, member) = util::game_n_member(&state, user, &game_slug).await?;
+    member.perms.check(Permissions::ADMINISTRATOR)?;
+    query!(
+        "UPDATE games SET default_category = $2 WHERE id = $1",
+        game.id.get(),
+        category_id.get()
+    )
+    .execute(&state.postgres)
+    .await?;
+    Ok(Redirect::to(&format!("/game/{game_slug}/edit")))
+}
