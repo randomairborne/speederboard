@@ -1,5 +1,5 @@
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
-use axum::extract::FromRequest;
+use axum::{extract::FromRequest, http::Request, middleware::Next, response::Response};
 use rand::rngs::OsRng;
 
 use crate::{
@@ -84,6 +84,17 @@ where
         Ok(Self(req))
     }
 }
+
+async fn is_it_cacheable<B>(request: Request<B>, next: Next<B>) -> Response {
+    let response = next.run(request).await;
+    let header = if let Some(ext) = response.extensions().get::<Cacheability>() {
+    
+    } else {
+    }
+    response
+}
+
+pub enum Cacheability {}
 
 pub async fn game_n_member(
     state: &crate::AppState,
