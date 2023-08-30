@@ -2,16 +2,17 @@
 {% block extraheaders %}{% endblock extraheaders %}
 {% block title %}speedruns and game leaderboards{% endblock title %}
 {% block body %}
-<h3>welcome. speederboard is a free and open-source project to create an improved speedrun and leaderboard tracking website.</h3>
+<h3>welcome. speederboard is a free and open-source project to create an improved speedrun and leaderboard tracking website.
+check out our current games below, or request a new one by emailing <a href="mailto:valk@randomairborne.dev">valk&commat;randomairborne.dev</a>.</h3>
 {% for game in games %}
 <div class="root-game-card">
-    <a href="{{ root_url }}/game/{{ game.slug }}">
+    <a href="{{ root_url }}/game/{{ game.slug }}" class="coverart-anchor">
         {% if game.cover_art_ext %}
-        <img src="{{ cdn_url }}/customfiles/games/{{ game.id }}/coverart.png" width="180" height="240" />
+        <img src="{{ cdn_url }}/customfiles/games/{{ game.id }}/coverart.png" width="180" height="240" class="coverart-img"/>
         {% else %}
-        <img src="{{ cdn_url }}/public/default-coverart.png" width="180" height="240" style="border: 2px solid #000;" />
+        <img src="{{ cdn_url }}/public/default-coverart.png" width="180" height="240" class="coverart-img" />
         {% endif %}
-        {{ game.name }}
+        <div class="coverart-tag">{{ game.name }}</div>
     </a>
 </div>
 {% endfor %}

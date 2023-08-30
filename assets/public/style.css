@@ -43,8 +43,37 @@ nav .right {
     padding-right: 1ch;
 }
 
+a {
+    color: #000;
+}
+
+a:visited {
+    color: #555;
+}
+
 .body {
     padding-right: 5ch;
     padding-left: 5ch;
     padding-top: 2ch;
+}
+
+.root-game-card {
+    padding-left: 1ch;
+    padding-right: 1ch;
+}
+
+.coverart-anchor {
+    display: flex;
+    flex-direction: column;
+    max-width: fit-content;
+    align-items: center;
+}
+
+.coverart-tag {
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+}
+
+.coverart-img {
+    border: 2px solid #000;
 }
