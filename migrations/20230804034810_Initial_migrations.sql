@@ -9,7 +9,8 @@ CREATE TABLE users (
     admin BOOL NOT NULL DEFAULT false,
     has_stylesheet BOOL NOT NULL,
     banner_ext VARCHAR(4),
-    pfp_ext VARCHAR(4)
+    pfp_ext VARCHAR(4),
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX users_name_index ON users(username);
@@ -54,5 +55,7 @@ CREATE TABLE runs (
     score BIGINT NOT NULL,
     time BIGINT NOT NULL,
     verifier BIGINT,
-    status SMALLINT NOT NULL
+    status SMALLINT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    verified_at TIMESTAMP
 );

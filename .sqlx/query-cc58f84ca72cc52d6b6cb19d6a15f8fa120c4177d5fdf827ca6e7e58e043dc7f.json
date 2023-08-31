@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM categories WHERE id = $1 AND game = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "cc58f84ca72cc52d6b6cb19d6a15f8fa120c4177d5fdf827ca6e7e58e043dc7f"
+}

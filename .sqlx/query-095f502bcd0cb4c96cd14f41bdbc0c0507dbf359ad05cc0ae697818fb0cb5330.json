@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, username, has_stylesheet,\n            pfp_ext, banner_ext, biography, admin\n            FROM users WHERE id = $1",
+  "query": "SELECT\n        id, username, has_stylesheet, pfp_ext, banner_ext,\n        biography, admin, created_at\n        FROM users WHERE username = $1",
   "describe": {
     "columns": [
       {
@@ -37,11 +37,16 @@
         "ordinal": 6,
         "name": "admin",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamp"
       }
     ],
     "parameters": {
       "Left": [
-        "Int8"
+        "Text"
       ]
     },
     "nullable": [
@@ -51,8 +56,9 @@
       true,
       true,
       false,
+      false,
       false
     ]
   },
-  "hash": "ecdad96726aea84197794b7d05d822107632f8b6a62ce6e2492836e377faab5e"
+  "hash": "095f502bcd0cb4c96cd14f41bdbc0c0507dbf359ad05cc0ae697818fb0cb5330"
 }

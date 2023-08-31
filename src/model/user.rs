@@ -22,6 +22,7 @@ pub struct User {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub banner_ext: Option<String>,
     pub admin: bool,
+    pub created_at: chrono::NaiveDateTime
 }
 
 const DEFAULT_PFP: &str = "/static/pfp/default.png";
@@ -59,8 +60,8 @@ impl User {
     }
     pub async fn from_db(state: &AppState, id: Id<UserMarker>) -> Result<User, Error> {
         let record = query!(
-            "SELECT id, username, has_stylesheet,
-            pfp_ext, banner_ext, biography, admin
+            "SELECT id, username, has_stylesheet, pfp_ext,
+            banner_ext, biography, admin, created_at
             FROM users WHERE id = $1",
             id.get()
         )
@@ -74,6 +75,7 @@ impl User {
             banner_ext: record.banner_ext,
             biography: record.biography,
             admin: record.admin,
+            created_at: record.created_at
         };
         Ok(user)
     }
@@ -103,6 +105,7 @@ impl User {
             banner_ext: record.banner_ext,
             biography: record.biography,
             admin: record.admin,
+            created_at: record.created_at
         };
         if let Err(argon2::password_hash::Error::Password) = password_result {
             return Ok(Err(()));

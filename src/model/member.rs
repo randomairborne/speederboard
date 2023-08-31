@@ -21,7 +21,7 @@ impl Member {
         let member_opt = query!(
             "SELECT u.id, u.username, u.has_stylesheet,
             u.pfp_ext, u.banner_ext, u.biography, u.admin,
-            p.permissions
+            u.created_at, p.permissions
             FROM users as u LEFT JOIN permissions as p
             ON p.user_id = $1 AND p.game_id = $2 AND u.id = $1",
             user.get(),
@@ -40,6 +40,7 @@ impl Member {
             pfp_ext: member.pfp_ext,
             banner_ext: member.banner_ext,
             admin: member.admin,
+            created_at: member.created_at
         };
         let perms = if user.admin {
             Permissions::ADMINISTRATOR

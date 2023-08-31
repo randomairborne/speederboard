@@ -41,7 +41,8 @@ pub async fn get(
 ) -> Result<Html<String>, Error> {
     let record = query!(
         "SELECT
-        id, username, has_stylesheet, pfp_ext, banner_ext, biography, email, admin
+        id, username, has_stylesheet, pfp_ext, banner_ext,
+        biography, email, admin, created_at
         FROM users WHERE id = $1",
         user.id.get()
     )
@@ -56,6 +57,7 @@ pub async fn get(
         pfp_ext: record.pfp_ext,
         banner_ext: record.banner_ext,
         admin: record.admin,
+        created_at: record.created_at
     };
     let private_user = PrivateUser {
         base: base_user,

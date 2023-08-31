@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT runs.id, runs.game, runs.category, runs.video,\n                runs.description, runs.score, runs.time, runs.status,\n                ver.id as \"ver_id?\", sub.id as sub_id,\n                ver.username as \"ver_name?\", sub.username as sub_name,\n                ver.has_stylesheet as \"ver_has_stylesheet?\",\n                sub.has_stylesheet as sub_has_stylesheet,\n                ver.biography as \"ver_bio?\", sub.biography as sub_bio,\n                ver.pfp_ext as ver_pfp_ext, sub.pfp_ext as sub_pfp_ext,\n                ver.banner_ext as ver_banner_ext,\n                sub.banner_ext as sub_banner_ext,\n                ver.admin as \"ver_admin?\", sub.admin as sub_admin,\n                cat.id as cat_id, cat.game as cat_game,\n                cat.name as cat_name, cat.description as cat_description,\n                cat.scoreboard as cat_scoreboard,\n                cat.rules as cat_rules, game.name as game_name,\n                game.description as game_description,\n                game.slug as game_slug, game.url as game_url,\n                game.has_stylesheet as game_has_stylesheet,\n                game.banner_ext as game_banner_ext, game.id as game_id,\n                game.cover_art_ext as game_cover_art_ext,\n                game.default_category as game_default_category\n                FROM runs\n                LEFT JOIN users as ver ON runs.verifier = ver.id\n                JOIN users as sub ON runs.submitter = sub.id\n                JOIN games as game ON game.id = runs.game\n                JOIN categories as cat ON cat.id = runs.category\n                WHERE runs.id = $1",
+  "query": "SELECT runs.id, runs.game, runs.category, runs.video,\n                runs.description, runs.score, runs.time, runs.status,\n                runs.created_at, runs.verified_at,\n                ver.id as \"ver_id?\", sub.id as sub_id,\n                ver.username as \"ver_name?\", sub.username as sub_name,\n                ver.has_stylesheet as \"ver_has_stylesheet?\",\n                sub.has_stylesheet as sub_has_stylesheet,\n                ver.biography as \"ver_bio?\", sub.biography as sub_bio,\n                ver.pfp_ext as ver_pfp_ext, sub.pfp_ext as sub_pfp_ext,\n                ver.banner_ext as ver_banner_ext,\n                sub.banner_ext as sub_banner_ext,\n                ver.created_at as \"ver_created_at?\",\n                sub.created_at as sub_created_at,\n                ver.admin as \"ver_admin?\", sub.admin as sub_admin,\n                cat.id as cat_id, cat.game as cat_game,\n                cat.name as cat_name, cat.description as cat_description,\n                cat.scoreboard as cat_scoreboard,\n                cat.rules as cat_rules,\n                game.name as game_name,\n                game.description as game_description,\n                game.slug as game_slug, game.url as game_url,\n                game.has_stylesheet as game_has_stylesheet,\n                game.banner_ext as game_banner_ext, game.id as game_id,\n                game.cover_art_ext as game_cover_art_ext,\n                game.default_category as game_default_category\n                FROM runs\n                LEFT JOIN users as ver ON runs.verifier = ver.id\n                JOIN users as sub ON runs.submitter = sub.id\n                JOIN games as game ON game.id = runs.game\n                JOIN categories as cat ON cat.id = runs.category\n                WHERE runs.id = $1",
   "describe": {
     "columns": [
       {
@@ -45,146 +45,166 @@
       },
       {
         "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 9,
+        "name": "verified_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 10,
         "name": "ver_id?",
         "type_info": "Int8"
       },
       {
-        "ordinal": 9,
+        "ordinal": 11,
         "name": "sub_id",
         "type_info": "Int8"
       },
       {
-        "ordinal": 10,
+        "ordinal": 12,
         "name": "ver_name?",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 11,
+        "ordinal": 13,
         "name": "sub_name",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 12,
+        "ordinal": 14,
         "name": "ver_has_stylesheet?",
         "type_info": "Bool"
       },
       {
-        "ordinal": 13,
+        "ordinal": 15,
         "name": "sub_has_stylesheet",
         "type_info": "Bool"
       },
       {
-        "ordinal": 14,
+        "ordinal": 16,
         "name": "ver_bio?",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 15,
+        "ordinal": 17,
         "name": "sub_bio",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 16,
+        "ordinal": 18,
         "name": "ver_pfp_ext",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 17,
+        "ordinal": 19,
         "name": "sub_pfp_ext",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 18,
+        "ordinal": 20,
         "name": "ver_banner_ext",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 19,
+        "ordinal": 21,
         "name": "sub_banner_ext",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 20,
+        "ordinal": 22,
+        "name": "ver_created_at?",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 23,
+        "name": "sub_created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 24,
         "name": "ver_admin?",
         "type_info": "Bool"
       },
       {
-        "ordinal": 21,
+        "ordinal": 25,
         "name": "sub_admin",
         "type_info": "Bool"
       },
       {
-        "ordinal": 22,
+        "ordinal": 26,
         "name": "cat_id",
         "type_info": "Int8"
       },
       {
-        "ordinal": 23,
+        "ordinal": 27,
         "name": "cat_game",
         "type_info": "Int8"
       },
       {
-        "ordinal": 24,
+        "ordinal": 28,
         "name": "cat_name",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 25,
+        "ordinal": 29,
         "name": "cat_description",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 26,
+        "ordinal": 30,
         "name": "cat_scoreboard",
         "type_info": "Bool"
       },
       {
-        "ordinal": 27,
+        "ordinal": 31,
         "name": "cat_rules",
         "type_info": "Text"
       },
       {
-        "ordinal": 28,
+        "ordinal": 32,
         "name": "game_name",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 29,
+        "ordinal": 33,
         "name": "game_description",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 30,
+        "ordinal": 34,
         "name": "game_slug",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 31,
+        "ordinal": 35,
         "name": "game_url",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 32,
+        "ordinal": 36,
         "name": "game_has_stylesheet",
         "type_info": "Bool"
       },
       {
-        "ordinal": 33,
+        "ordinal": 37,
         "name": "game_banner_ext",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 34,
+        "ordinal": 38,
         "name": "game_id",
         "type_info": "Int8"
       },
       {
-        "ordinal": 35,
+        "ordinal": 39,
         "name": "game_cover_art_ext",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 36,
+        "ordinal": 40,
         "name": "game_default_category",
         "type_info": "Int8"
       }
@@ -204,6 +224,8 @@
       false,
       false,
       false,
+      true,
+      false,
       false,
       false,
       false,
@@ -215,6 +237,8 @@
       true,
       true,
       true,
+      false,
+      false,
       false,
       false,
       false,
@@ -234,5 +258,5 @@
       false
     ]
   },
-  "hash": "0ae32931132dc12428ae792838ab443c03a8310030fe424f72baf7936ca4f375"
+  "hash": "8a2abd955f4b468959f3d70054521959f298b0f1b827c5294a906f2114c28f76"
 }

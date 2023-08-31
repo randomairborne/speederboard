@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT name, id, game, scoreboard\n        FROM categories WHERE game = $1",
+  "query": "SELECT name, id, game, scoreboard\n            FROM categories WHERE game = $1",
   "describe": {
     "columns": [
       {
@@ -36,5 +36,5 @@
       false
     ]
   },
-  "hash": "f2655bcf7348d751a8d7fbb825612497221dc8c586796de8e92138368c446aa8"
+  "hash": "7f1aeb9a9b79ab45cbf8ba3fdd3503a34e083921c181920d58b6234aa65f09dc"
 }

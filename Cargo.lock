@@ -372,14 +372,15 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chrono"
-version = "0.4.26"
+version = "0.4.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec837a71355b28f6556dbd569b37b3f363091c0bd4b2e735674521b4c5fd9bc5"
+checksum = "95ed24df0632f708f5f6d8082675bef2596f7084dee3dd55f632290bf35bfe0f"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
  "num-traits",
- "winapi",
+ "serde",
+ "windows-targets",
 ]
 
 [[package]]
@@ -2316,6 +2317,7 @@ dependencies = [
  "argon2",
  "axum",
  "axum-extra",
+ "chrono",
  "deadpool-redis",
  "dotenvy",
  "envy",
@@ -2396,6 +2398,7 @@ dependencies = [
  "atoi",
  "byteorder",
  "bytes",
+ "chrono",
  "crc",
  "crossbeam-queue",
  "dotenvy",
@@ -2479,6 +2482,7 @@ dependencies = [
  "bitflags 2.4.0",
  "byteorder",
  "bytes",
+ "chrono",
  "crc",
  "digest",
  "dotenvy",
@@ -2520,6 +2524,7 @@ dependencies = [
  "base64 0.21.2",
  "bitflags 2.4.0",
  "byteorder",
+ "chrono",
  "crc",
  "dotenvy",
  "etcetera",
@@ -2556,6 +2561,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be4c21bf34c7cae5b283efb3ac1bcc7670df7561124dc2f8bdc0b59be40f79a2"
 dependencies = [
  "atoi",
+ "chrono",
  "flume",
  "futures-channel",
  "futures-core",

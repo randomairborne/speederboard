@@ -55,7 +55,7 @@ impl InnerAppState {
                 admin = COALESCE($9, admin)
             WHERE id = $1
             RETURNING id, username, has_stylesheet,
-            pfp_ext, banner_ext, biography, admin",
+            pfp_ext, banner_ext, biography, admin, created_at",
             user.id.get(),
             user.username,
             user.has_stylesheet,

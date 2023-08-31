@@ -1,5 +1,7 @@
 use std::cmp::Ordering;
 
+use chrono::NaiveDateTime;
+
 use crate::{
     id::{CategoryMarker, GameMarker, Id, RunMarker, UserMarker},
     util::opt_user,
@@ -86,6 +88,8 @@ pub struct Run {
     pub score: i64,
     pub time: i64,
     pub status: RunStatus,
+    pub created_at: NaiveDateTime,
+    pub verified_at: Option<NaiveDateTime>
 }
 
 #[derive(serde::Serialize, Debug, PartialEq, Clone)]
@@ -101,6 +105,8 @@ pub struct ResolvedRunRef<'a> {
     pub score: i64,
     pub time: i64,
     pub status: RunStatus,
+    pub created_at: NaiveDateTime,
+    pub verified_at: Option<NaiveDateTime>
 }
 
 #[derive(serde::Serialize, Debug, PartialEq, Clone)]
@@ -116,6 +122,8 @@ pub struct ResolvedRun {
     pub score: i64,
     pub time: i64,
     pub status: RunStatus,
+    pub created_at: NaiveDateTime,
+    pub verified_at: Option<NaiveDateTime>
 }
 
 impl ResolvedRun {
@@ -126,6 +134,7 @@ impl ResolvedRun {
         let Some(rec) = query!(
             r#"SELECT runs.id, runs.game, runs.category, runs.video,
                 runs.description, runs.score, runs.time, runs.status,
+                runs.created_at, runs.verified_at,
                 ver.id as "ver_id?", sub.id as sub_id,
                 ver.username as "ver_name?", sub.username as sub_name,
                 ver.has_stylesheet as "ver_has_stylesheet?",
@@ -134,11 +143,14 @@ impl ResolvedRun {
                 ver.pfp_ext as ver_pfp_ext, sub.pfp_ext as sub_pfp_ext,
                 ver.banner_ext as ver_banner_ext,
                 sub.banner_ext as sub_banner_ext,
+                ver.created_at as "ver_created_at?",
+                sub.created_at as sub_created_at,
                 ver.admin as "ver_admin?", sub.admin as sub_admin,
                 cat.id as cat_id, cat.game as cat_game,
                 cat.name as cat_name, cat.description as cat_description,
                 cat.scoreboard as cat_scoreboard,
-                cat.rules as cat_rules, game.name as game_name,
+                cat.rules as cat_rules,
+                game.name as game_name,
                 game.description as game_description,
                 game.slug as game_slug, game.url as game_url,
                 game.has_stylesheet as game_has_stylesheet,
@@ -187,6 +199,7 @@ impl ResolvedRun {
                 pfp_ext: rec.sub_pfp_ext,
                 banner_ext: rec.sub_banner_ext,
                 admin: rec.sub_admin,
+                created_at: rec.sub_created_at
             },
             verifier: opt_user(
                 rec.ver_id.map(Into::into),
@@ -196,12 +209,15 @@ impl ResolvedRun {
                 rec.ver_pfp_ext,
                 rec.ver_banner_ext,
                 rec.ver_admin,
+                rec.ver_created_at
             ),
             video: rec.video,
             description: rec.description,
             score: rec.score,
             time: rec.time,
             status: RunStatus::from(rec.status),
+            created_at: rec.created_at,
+            verified_at: rec.verified_at
         }))
     }
 }

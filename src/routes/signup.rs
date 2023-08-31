@@ -60,9 +60,11 @@ pub async fn post(
     let user = query_as!(
         User,
         "INSERT INTO users
-        (username, email, password, has_stylesheet, pfp_ext, banner_ext, biography, admin)
-        VALUES ($1, $2, $3, false, NULL, NULL, '', false)
-        RETURNING id, username, has_stylesheet, pfp_ext, banner_ext, biography, admin",
+        (username, email, password, has_stylesheet,
+            pfp_ext, banner_ext, biography, admin, created_at)
+        VALUES ($1, $2, $3, false, NULL, NULL, '', false, NOW())
+        RETURNING id, username, has_stylesheet, pfp_ext,
+        banner_ext, biography, admin, created_at",
         form.username,
         form.email,
         password_hash.to_string()

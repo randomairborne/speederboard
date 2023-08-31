@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT runs.id, runs.game, runs.category, runs.video,\n            runs.description, runs.score, runs.time, runs.status,\n            ver.id as \"ver_id?\", sub.id as sub_id,\n            ver.username as \"ver_name?\", sub.username as sub_name,\n            ver.has_stylesheet as \"ver_has_stylesheet?\",\n            sub.has_stylesheet as sub_has_stylesheet,\n            ver.biography as \"ver_bio?\", sub.biography as sub_bio,\n            ver.pfp_ext as ver_pfp_ext, sub.pfp_ext as sub_pfp_ext,\n            ver.banner_ext as ver_banner_ext,\n            sub.banner_ext as sub_banner_ext,\n            ver.admin as \"ver_admin?\", sub.admin as sub_admin\n            FROM runs\n            LEFT JOIN users as ver ON runs.verifier = ver.id\n            JOIN users as sub ON runs.submitter = sub.id\n            WHERE game = $1 AND category = $2\n            ORDER BY score DESC LIMIT 51",
+  "query": "SELECT runs.id, runs.game, runs.category, runs.video,\n            runs.description, runs.score, runs.time, runs.status,\n            runs.created_at, runs.verified_at,\n            ver.id as \"ver_id?\", sub.id as sub_id,\n            ver.username as \"ver_name?\", sub.username as sub_name,\n            ver.has_stylesheet as \"ver_has_stylesheet?\",\n            sub.has_stylesheet as sub_has_stylesheet,\n            ver.biography as \"ver_bio?\", sub.biography as sub_bio,\n            ver.pfp_ext as ver_pfp_ext, sub.pfp_ext as sub_pfp_ext,\n            ver.banner_ext as ver_banner_ext,\n            sub.banner_ext as sub_banner_ext,\n            ver.admin as \"ver_admin?\", sub.admin as sub_admin,\n            ver.created_at as \"ver_created_at?\",\n            sub.created_at as sub_created_at\n            FROM runs\n            LEFT JOIN users as ver ON runs.verifier = ver.id\n            JOIN users as sub ON runs.submitter = sub.id\n            WHERE game = $1 AND category = $2 AND status >= 1\n            ORDER BY time ASC LIMIT 51",
   "describe": {
     "columns": [
       {
@@ -45,73 +45,93 @@
       },
       {
         "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 9,
+        "name": "verified_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 10,
         "name": "ver_id?",
         "type_info": "Int8"
       },
       {
-        "ordinal": 9,
+        "ordinal": 11,
         "name": "sub_id",
         "type_info": "Int8"
       },
       {
-        "ordinal": 10,
+        "ordinal": 12,
         "name": "ver_name?",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 11,
+        "ordinal": 13,
         "name": "sub_name",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 12,
+        "ordinal": 14,
         "name": "ver_has_stylesheet?",
         "type_info": "Bool"
       },
       {
-        "ordinal": 13,
+        "ordinal": 15,
         "name": "sub_has_stylesheet",
         "type_info": "Bool"
       },
       {
-        "ordinal": 14,
+        "ordinal": 16,
         "name": "ver_bio?",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 15,
+        "ordinal": 17,
         "name": "sub_bio",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 16,
+        "ordinal": 18,
         "name": "ver_pfp_ext",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 17,
+        "ordinal": 19,
         "name": "sub_pfp_ext",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 18,
+        "ordinal": 20,
         "name": "ver_banner_ext",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 19,
+        "ordinal": 21,
         "name": "sub_banner_ext",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 20,
+        "ordinal": 22,
         "name": "ver_admin?",
         "type_info": "Bool"
       },
       {
-        "ordinal": 21,
+        "ordinal": 23,
         "name": "sub_admin",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 24,
+        "name": "ver_created_at?",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 25,
+        "name": "sub_created_at",
+        "type_info": "Timestamp"
       }
     ],
     "parameters": {
@@ -130,6 +150,8 @@
       false,
       false,
       false,
+      true,
+      false,
       false,
       false,
       false,
@@ -141,9 +163,11 @@
       true,
       true,
       true,
+      false,
+      false,
       false,
       false
     ]
   },
-  "hash": "f3a989a4e86b9aeff0214992429b60aa6796d2041665ea010f55bf9e3817eb9b"
+  "hash": "9ec88b10ad4f1294b73467b02ebe1604ed0f5be30afc2f17ba27ec2ea44b9975"
 }
