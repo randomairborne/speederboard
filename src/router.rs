@@ -20,8 +20,11 @@ pub fn build(state: AppState) -> Router {
         .merge(game_router(state.clone()))
         .merge(settings_router(state.clone()))
         .merge(admin_router(state.clone()))
-        .layer(CompressionLayer::new())
-        .layer(DecompressionLayer::new())
+        .layer(
+            tower::ServiceBuilder::new()
+                .layer(CompressionLayer::new())
+                .layer(DecompressionLayer::new()),
+        )
         .fallback(routes::notfound_handler)
         .with_state(state)
 }
@@ -69,6 +72,10 @@ pub fn game_router(state: AppState) -> Router<AppState> {
             get(routes::game::settings::game::get).post(routes::game::settings::game::edit),
         )
         .route_with_tsr(
+            "/game/:gameslug/edit/new-category",
+            post(routes::game::settings::category::new),
+        )
+        .route_with_tsr(
             "/game/:gameslug/category/:catid/edit/makedefault",
             post(routes::game::settings::game::set_default_category),
         )
@@ -78,12 +85,12 @@ pub fn game_router(state: AppState) -> Router<AppState> {
                 .post(routes::game::settings::category::delete),
         )
         .route_with_tsr(
-            "/game/:gameslug/edit/new-category",
-            post(routes::game::settings::category::new),
-        )
-        .route_with_tsr(
             "/game/:gameslug/category/:catid",
             get(routes::game::category::get),
+        )
+        .route_with_tsr(
+            "/game/:gameslug/category/:catid/feed",
+            get(routes::game::modtools::feed::feed),
         )
         .route_with_tsr(
             "/game/:gameslug/category/:catid/edit",
@@ -97,6 +104,15 @@ pub fn game_router(state: AppState) -> Router<AppState> {
             "/game/:gameslug/category/:catid/run/:runid",
             get(routes::game::run::get),
         )
+        .route_with_tsr(
+            "/game/:gameslug/category/:catid/run/:runid/verify",
+            get(routes::game::modtools::run::fetch_verify)
+                .post(routes::game::modtools::run::verify_run),
+        )
+        .route_with_tsr(
+            "/game/:gameslug/category/:catid/run/:runid/reject",
+            post(routes::game::modtools::run::reject_run),
+        )
         .with_state(state)
 }
 
@@ -106,5 +122,6 @@ pub fn admin_router(state: AppState) -> Router<AppState> {
             "/admin/newgame",
             get(routes::admin::game::get).post(routes::admin::game::post),
         )
+        .route_with_tsr("/admin/inspect/user/:id", get(|| async {}))
         .with_state(state)
 }

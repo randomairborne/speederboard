@@ -51,7 +51,7 @@ pub(super) async fn get_game_category(
         query_as!(
             MiniCategory,
             "SELECT name, id, game, scoreboard
-        FROM categories WHERE game = $1",
+            FROM categories WHERE game = $1",
             game.id.get()
         )
         .fetch_all(&state2.postgres)
@@ -102,45 +102,14 @@ async fn get_scoreboard<'a>(
             FROM runs
             LEFT JOIN users as ver ON runs.verifier = ver.id
             JOIN users as sub ON runs.submitter = sub.id
-            WHERE game = $1 AND category = $2
+            WHERE game = $1 AND category = $2 AND status >= 1
             ORDER BY score DESC LIMIT 51"#,
         game.id.get(),
         category.id.get(),
     )
     .fetch_all(&state.postgres)
     .await?;
-    let mut data: Vec<ResolvedRunRef> = Vec::with_capacity(records.len());
-    for rec in records {
-        data.push(ResolvedRunRef {
-            id: Id::new(rec.id),
-            game,
-            category,
-            submitter: User {
-                id: rec.sub_id.into(),
-                username: rec.sub_name,
-                has_stylesheet: rec.sub_has_stylesheet,
-                biography: rec.sub_bio,
-                pfp_ext: rec.sub_pfp_ext,
-                banner_ext: rec.sub_banner_ext,
-                admin: rec.sub_admin,
-            },
-            verifier: opt_user(
-                rec.ver_id.map(Into::into),
-                rec.ver_name,
-                rec.ver_has_stylesheet,
-                rec.ver_bio,
-                rec.ver_pfp_ext,
-                rec.ver_banner_ext,
-                rec.ver_admin,
-            ),
-            video: rec.video,
-            description: rec.description,
-            score: rec.score,
-            time: rec.time,
-            status: RunStatus::from(rec.status),
-        });
-    }
-    Ok(data)
+    Ok(crate::build_resolved_run_refs!(records, game, category))
 }
 
 /// SO MUCH DUPLICATED CODE AHHHH
@@ -165,43 +134,52 @@ async fn get_speedrun<'a>(
             FROM runs
             LEFT JOIN users as ver ON runs.verifier = ver.id
             JOIN users as sub ON runs.submitter = sub.id
-            WHERE game = $1 AND category = $2
+            WHERE game = $1 AND category = $2 AND status >= 1
             ORDER BY time ASC LIMIT 51"#,
         game.id.get(),
         category.id.get(),
     )
     .fetch_all(&state.postgres)
     .await?;
-    let mut data: Vec<ResolvedRunRef> = Vec::with_capacity(records.len());
-    for rec in records {
-        data.push(ResolvedRunRef {
-            id: Id::new(rec.id),
-            game,
-            category,
-            submitter: User {
-                id: rec.sub_id.into(),
-                username: rec.sub_name,
-                has_stylesheet: rec.sub_has_stylesheet,
-                biography: rec.sub_bio,
-                pfp_ext: rec.sub_pfp_ext,
-                banner_ext: rec.sub_banner_ext,
-                admin: rec.sub_admin,
-            },
-            verifier: opt_user(
-                rec.ver_id.map(Into::into),
-                rec.ver_name,
-                rec.ver_has_stylesheet,
-                rec.ver_bio,
-                rec.ver_pfp_ext,
-                rec.ver_banner_ext,
-                rec.ver_admin,
-            ),
-            video: rec.video,
-            description: rec.description,
-            score: rec.score,
-            time: rec.time,
-            status: RunStatus::from(rec.status),
-        });
-    }
-    Ok(data)
+    Ok(crate::build_resolved_run_refs!(records, game, category))
+}
+
+#[macro_export]
+macro_rules! build_resolved_run_refs {
+    ($records:ident, $game:ident, $category:ident) => {
+        {
+            let mut data: Vec<ResolvedRunRef> = Vec::with_capacity($records.len());
+            for rec in $records {
+                data.push(ResolvedRunRef {
+                    id: Id::new(rec.id),
+                    game: $game,
+                    category: $category,
+                    submitter: User {
+                        id: rec.sub_id.into(),
+                        username: rec.sub_name,
+                        has_stylesheet: rec.sub_has_stylesheet,
+                        biography: rec.sub_bio,
+                        pfp_ext: rec.sub_pfp_ext,
+                        banner_ext: rec.sub_banner_ext,
+                        admin: rec.sub_admin,
+                    },
+                    verifier: opt_user(
+                        rec.ver_id.map(Into::into),
+                        rec.ver_name,
+                        rec.ver_has_stylesheet,
+                        rec.ver_bio,
+                        rec.ver_pfp_ext,
+                        rec.ver_banner_ext,
+                        rec.ver_admin,
+                    ),
+                    video: rec.video,
+                    description: rec.description,
+                    score: rec.score,
+                    time: rec.time,
+                    status: RunStatus::from(rec.status),
+                });
+            }
+        data
+        }
+    };
 }

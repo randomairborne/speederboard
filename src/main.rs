@@ -95,7 +95,7 @@ async fn main() {
 
 async fn shutdown_signal() {
     #[cfg(not(target_family = "unix"))]
-    compile_error!("WASM and windows are not supported platforms, please use WSL if on windows!");
+    compile_error!("WASM and windows are not supported platforms, please use WSL if on windows! MacOS, Linux, and FreeBSD are the supported platforms.");
     #[cfg(target_family = "unix")]
     {
         use tokio::signal::unix::{signal, SignalKind};

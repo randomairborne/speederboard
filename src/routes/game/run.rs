@@ -21,7 +21,6 @@ pub struct RunPage<'a> {
     base: BaseRenderInfo,
 }
 
-#[allow(clippy::unused_async)]
 pub async fn get(
     State(state): State<AppState>,
     Path((game_slug, category_id, run_id)): Path<(String, Id<CategoryMarker>, Id<RunMarker>)>,
