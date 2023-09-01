@@ -13,23 +13,26 @@
             <td><label for="description">description of this run</label></td>
             <td><textarea name="description" id="description" maxlength="4000"></textarea></td>
         </tr>
+        {% if category.scoreboard %}
+        <tr>
+            <td><label for="score">game score</label></td>
+            <td><input name="score" id="score" type="number" required/></td>
+        </tr>
+        {% else %}
         <tr>
             <td><label>time</label></td>
             <td>
-            <input name="hours" id="hours" type="number" />
+            <input name="hours" id="hours" type="number" value="0" required/>
             <label for="hours">h</label>
-            <input name="minutes" id="minutes" type="number" max="60"/>
+            <input name="minutes" id="minutes" type="number" max="60" value="0" required/>
             <label for="minutes">m</label>
-            <input name="seconds" id="seconds" type="number" max="60"/>
+            <input name="seconds" id="seconds" type="number" max="60" value="0" required/>
             <label for="seconds">s</label>
-            <input name="milliseconds" id="milliseconds" type="number" max="1000"/>
+            <input name="milliseconds" id="milliseconds" type="number" max="1000" value="0" required/>
             <label for="milliseconds">ms</label>
             </td>
         </tr>
-        <tr>
-            <td><label for="score">game score</label></td>
-            <td><input name="score" id="score" type="number"/></td>
-        </tr>
+        {% endif %}
     </table>
     <button>submit!</button>
 </form>
