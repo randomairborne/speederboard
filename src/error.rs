@@ -108,7 +108,7 @@ impl IntoResponse for Error {
             | Self::TokenHasIdButIdIsUnkown
             | Self::InvalidGameCategoryPair
             | Self::CannotDeleteDefaultCategory => StatusCode::BAD_REQUEST,
-            Self::InvalidPassword | Self::InsufficientPermissions => StatusCode::FORBIDDEN,
+            Self::InvalidPassword | Self::InsufficientPermissions => StatusCode::UNAUTHORIZED,
             Self::InvalidCookie => return Redirect::to("/login").into_response(),
             Self::NotFound => return crate::routes::notfound(state, core).into_response(),
         };
