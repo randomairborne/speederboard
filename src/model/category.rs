@@ -14,17 +14,15 @@ pub struct Category {
 }
 
 impl Category {
-    pub async fn from_db(
-        state: &AppState,
-        id: Id<CategoryMarker>,
-    ) -> Result<Option<Category>, Error> {
-        Ok(query_as!(
+    pub async fn from_db(state: AppState, id: Id<CategoryMarker>) -> Result<Category, Error> {
+        query_as!(
             Category,
             "SELECT id, game, name, description, rules, scoreboard FROM categories WHERE id = $1",
             id.get()
         )
         .fetch_optional(&state.postgres)
-        .await?)
+        .await?
+        .ok_or(Error::NotFound)
     }
 }
 

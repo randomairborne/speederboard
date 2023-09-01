@@ -30,6 +30,8 @@ pub enum Error {
     Multipart(#[from] axum_extra::extract::multipart::MultipartError),
     #[error("dependency tokio task panicked: {0}")]
     TaskJoin(#[from] tokio::task::JoinError),
+    #[error("integer out of range (this is a bug): {0}")]
+    TryFromInt(#[from] std::num::TryFromIntError),
     #[error("format error: {0}")]
     InvalidMultipart(&'static str),
     #[error("This should be impossible. {0}")]
@@ -64,6 +66,12 @@ pub enum Error {
         "You can't delete the default category for a game, change the default category first!!"
     )]
     CannotDeleteDefaultCategory,
+    #[error(
+        "in src/model/run.rs, in method ResolvedRun::row_to_rcat, \
+        the game passed to the function does not match the parent game \
+        ID of the record returned from the database. This is a bug."
+    )]
+    RowDoesNotMatchInputGame,
 }
 
 impl From<Error> for std::io::Error {
@@ -88,7 +96,9 @@ impl IntoResponse for Error {
             | Self::Impossible(_)
             | Self::TaskJoin(_)
             | Self::Io(_)
-            | Self::Format(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            | Self::Format(_)
+            | Self::TryFromInt(_)
+            | Self::RowDoesNotMatchInputGame => StatusCode::INTERNAL_SERVER_ERROR,
             Self::FormValidation(_)
             | Self::CustomFormValidation(_)
             | Self::FormRejection(_)

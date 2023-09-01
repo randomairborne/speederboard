@@ -9,5 +9,5 @@ pub use category::{Category, MiniCategory};
 pub use game::Game;
 pub use member::Member;
 pub use permissions::Permissions;
-pub use run::{ResolvedRun, ResolvedRunRef, Run, RunStatus};
+pub use run::{DateSort, ResolvedRun, Run, RunStatus, SortBy};
 pub use user::User;

@@ -136,9 +136,7 @@ pub async fn get(
 ) -> Result<Html<String>, Error> {
     let (game, member) = util::game_n_member(&state, user, &game_slug).await?;
     member.perms.check(Permissions::ADMINISTRATOR)?;
-    let category = Category::from_db(&state, category_id)
-        .await?
-        .ok_or(Error::NotFound)?;
+    let category = Category::from_db(state.clone(), category_id).await?;
     let cat_ctx = GetCategoryContext {
         base,
         category,

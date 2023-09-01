@@ -41,9 +41,7 @@ pub async fn get(
     Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
 ) -> Result<Html<String>, Error> {
     let game = Game::from_db_slug(&state, &game_slug).await?;
-    let category = Category::from_db(&state, category_id)
-        .await?
-        .ok_or(Error::NotFound)?;
+    let category = Category::from_db(state.clone(), category_id).await?;
     if category.game != game.id {
         return Err(Error::InvalidGameCategoryPair);
     }
@@ -65,9 +63,7 @@ pub async fn create(
     ValidatedForm(form): ValidatedForm<RunCreateForm>,
 ) -> Result<Redirect, Error> {
     let game = Game::from_db_slug(&state, &game_slug).await?;
-    let category = Category::from_db(&state, category_id)
-        .await?
-        .ok_or(Error::NotFound)?;
+    let category = Category::from_db(state.clone(), category_id).await?;
     if category.game != game.id {
         return Err(Error::InvalidGameCategoryPair);
     }

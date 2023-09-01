@@ -46,6 +46,7 @@ pub fn hash_password(password: &[u8], argon: &Argon2) -> Result<String, ArgonErr
         .map(|v| v.to_string())
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn opt_user(
     id: Option<Id<UserMarker>>,
     name: Option<String>,

@@ -25,6 +25,11 @@ nav * a {
     height: 100%;
 }
 
+nav * a:visited {
+    color: white;
+    height: 100%;
+}
+
 nav .left {
     justify-content: left;
     width: 50%;
@@ -48,7 +53,7 @@ a {
 }
 
 a:visited {
-    color: #555;
+    color: #444;
 }
 
 .body {
