@@ -21,16 +21,43 @@ pub struct GetRunCreatePage {
     category: Category,
 }
 
+fn ret_0() -> i64 {
+    0
+}
+
 #[derive(serde::Deserialize, Validate)]
 pub struct RunCreateForm {
     #[garde(length(min = crate::util::MIN_RUN_VIDEO_LEN, max = crate::util::MAX_RUN_VIDEO_LEN))]
     video: String,
     #[garde(length(min = crate::util::MIN_RUN_DESCRIPTION_LEN, max = crate::util::MAX_RUN_DESCRIPTION_LEN))]
     description: String,
+    #[serde(default = "ret_0")]
     #[garde(range(min = 0))]
-    score: Option<i64>,
+    score: i64,
+    #[serde(default = "ret_0")]
     #[garde(range(min = 0))]
-    time: Option<i64>,
+    hours: i64,
+    #[serde(default = "ret_0")]
+    #[garde(range(min = 0, max = 60))]
+    minutes: i64,
+    #[serde(default = "ret_0")]
+    #[garde(range(min = 0, max = 60))]
+    seconds: i64,
+    #[serde(default = "ret_0")]
+    #[garde(range(min = 0, max = 1000))]
+    milliseconds: i64,
+}
+
+impl RunCreateForm {
+    const MS_PER_HOUR: i64 = 3_600_000;
+    const MS_PER_MINUTE: i64 = 60_000;
+    const MS_PER_SECOND: i64 = 1000;
+    pub fn consolidate_times(&self) -> i64 {
+        (self.hours * Self::MS_PER_HOUR)
+            + (self.minutes * Self::MS_PER_MINUTE)
+            + (self.seconds * Self::MS_PER_SECOND)
+            + self.milliseconds
+    }
 }
 
 #[allow(clippy::unused_async)]
@@ -68,17 +95,17 @@ pub async fn create(
         return Err(Error::InvalidGameCategoryPair);
     }
     if category.scoreboard {
-        if form.score.is_none() {
+        if form.score == 0 {
             return Err(Error::CustomFormValidation(
                 "score must be filled when the leaderboard is a scoreboard".to_string(),
             ));
         }
-    } else if form.time.is_none() {
+    } else if form.consolidate_times() == 0 {
         return Err(Error::CustomFormValidation(
             "time must be filled when the leaderboard is a speedrun".to_string(),
         ));
     }
-    let (score, time) = (form.score.unwrap_or(0), form.time.unwrap_or(0));
+    let (score, time) = (form.score, form.consolidate_times());
     let run_id = query!(
         "INSERT INTO runs
         (

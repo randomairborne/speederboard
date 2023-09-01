@@ -40,7 +40,7 @@ impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> std::fmt::Display for I
 
 impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> sqlx::Type<Postgres> for Id<T> {
     fn type_info() -> <Postgres as sqlx::Database>::TypeInfo {
-        PgTypeInfo::with_name("BIGINT")
+        PgTypeInfo::with_name("INT8")
     }
 }
 

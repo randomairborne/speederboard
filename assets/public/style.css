@@ -48,6 +48,10 @@ nav .right {
     padding-right: 1ch;
 }
 
+code {
+    font-family: monospace;
+}
+
 a {
     color: #000;
 }

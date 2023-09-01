@@ -290,7 +290,7 @@ impl ResolvedRun {
         let description: String = v.try_get("description")?;
         let score: i64 = v.try_get("score")?;
         let time: i64 = v.try_get("time")?;
-        let status_num: i64 = v.try_get("status")?;
+        let status_num: i16 = v.try_get("status")?;
         let created_at: NaiveDateTime = v.try_get("created_at")?;
         let verified_at: Option<NaiveDateTime> = v.try_get("verified_at")?;
 
