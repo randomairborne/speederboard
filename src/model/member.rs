@@ -40,7 +40,7 @@ impl Member {
             pfp_ext: member.pfp_ext,
             banner_ext: member.banner_ext,
             admin: member.admin,
-            created_at: member.created_at
+            created_at: member.created_at,
         };
         let perms = if user.admin {
             Permissions::ADMINISTRATOR

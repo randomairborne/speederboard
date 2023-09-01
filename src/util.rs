@@ -54,7 +54,7 @@ pub fn opt_user(
     pfp_ext: Option<String>,
     banner_ext: Option<String>,
     admin: Option<bool>,
-    created_at: Option<chrono::NaiveDateTime>
+    created_at: Option<chrono::NaiveDateTime>,
 ) -> Option<User> {
     Some(User {
         id: id?,
@@ -64,7 +64,7 @@ pub fn opt_user(
         pfp_ext,
         banner_ext,
         admin: admin?,
-        created_at: created_at?
+        created_at: created_at?,
     })
 }
 

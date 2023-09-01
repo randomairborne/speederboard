@@ -77,7 +77,7 @@ async fn set_verify(
     user: User,
     value: i16,
 ) -> Result<Redirect, Error> {
-    let (game, member) = game_n_member(&state, user, &game_slug).await?;
+    let (game, member) = game_n_member(state, user, &game_slug).await?;
     if !member.perms.contains(Permissions::VERIFY_RUNS) {
         return Err(Error::InsufficientPermissions);
     }

@@ -76,6 +76,10 @@ pub fn game_router(state: AppState) -> Router<AppState> {
             post(routes::game::settings::category::new),
         )
         .route_with_tsr(
+            "/game/:gameslug/feed",
+            get(routes::game::modtools::feed::game_feed),
+        )
+        .route_with_tsr(
             "/game/:gameslug/category/:catid/edit/makedefault",
             post(routes::game::settings::game::set_default_category),
         )
@@ -90,7 +94,7 @@ pub fn game_router(state: AppState) -> Router<AppState> {
         )
         .route_with_tsr(
             "/game/:gameslug/category/:catid/feed",
-            get(routes::game::modtools::feed::feed),
+            get(routes::game::modtools::feed::category_feed),
         )
         .route_with_tsr(
             "/game/:gameslug/category/:catid/edit",

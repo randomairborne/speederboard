@@ -22,7 +22,7 @@ pub struct User {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub banner_ext: Option<String>,
     pub admin: bool,
-    pub created_at: chrono::NaiveDateTime
+    pub created_at: chrono::NaiveDateTime,
 }
 
 const DEFAULT_PFP: &str = "/static/pfp/default.png";
@@ -75,7 +75,7 @@ impl User {
             banner_ext: record.banner_ext,
             biography: record.biography,
             admin: record.admin,
-            created_at: record.created_at
+            created_at: record.created_at,
         };
         Ok(user)
     }
@@ -105,7 +105,7 @@ impl User {
             banner_ext: record.banner_ext,
             biography: record.biography,
             admin: record.admin,
-            created_at: record.created_at
+            created_at: record.created_at,
         };
         if let Err(argon2::password_hash::Error::Password) = password_result {
             return Ok(Err(()));

@@ -57,7 +57,7 @@ pub async fn get(
         pfp_ext: record.pfp_ext,
         banner_ext: record.banner_ext,
         admin: record.admin,
-        created_at: record.created_at
+        created_at: record.created_at,
     };
     let private_user = PrivateUser {
         base: base_user,

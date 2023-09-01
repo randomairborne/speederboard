@@ -27,3 +27,11 @@ impl Category {
         .await?)
     }
 }
+
+#[derive(serde::Serialize)]
+pub struct MiniCategory {
+    pub name: String,
+    pub id: Id<CategoryMarker>,
+    pub game: Id<GameMarker>,
+    pub scoreboard: bool,
+}
