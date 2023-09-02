@@ -25,8 +25,7 @@
         {% else %}
         <td>{{ run.time | duration }}</td>
         {% endif %}
-        </td>
-        <td><a href="{{ run.video }}">{{ run.video }}</a></td>
+        <td><a href="{{ root_url }}/game/{{ game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}">view</a></td>
     </tr>
     {% endfor %}
 </table>

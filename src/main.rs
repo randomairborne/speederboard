@@ -59,6 +59,7 @@ async fn main() {
     tera.register_filter("markdown", crate::template::MarkdownFilter);
     tera.register_filter("long_format_duration", crate::template::HumanizeDuration);
     tera.register_filter("duration", crate::template::Duration);
+    tera.register_filter("video_embed", crate::template::VideoEmbedder);
     tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
     let rayon = Arc::new(ThreadPoolBuilder::new().num_threads(8).build().unwrap());
     let argon = Argon2::new(

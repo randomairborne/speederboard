@@ -20,10 +20,12 @@ impl Permissions {
         }
     }
     #[inline]
+    #[allow(dead_code)]
     pub fn get(self) -> i64 {
         self.0
     }
     #[inline]
+    #[allow(dead_code)]
     pub fn is_empty(self) -> bool {
         self == Self::EMPTY
     }

@@ -48,6 +48,10 @@ pub enum Error {
     FormRejection(#[from] axum::extract::rejection::FormRejection),
     #[error("Failed to validate submission: {0}")]
     CustomFormValidation(String),
+    #[error("Failed to parse URL: {0}")]
+    UrlParse(#[from] url::ParseError),
+    #[error("URL missing query pair {0}")]
+    MissingQueryPair(&'static str),
     #[error("Username or password is incorrect")]
     InvalidPassword,
     #[error("Invalid auth cookie")]
@@ -66,6 +70,8 @@ pub enum Error {
         "You can't delete the default category for a game, change the default category first!!"
     )]
     CannotDeleteDefaultCategory,
+    #[error("URL being parsed does not have a domain!")]
+    NoDomainInUrl,
     #[error(
         "in src/model/run.rs, in method ResolvedRun::row_to_rcat, \
         the game passed to the function does not match the parent game \
@@ -98,7 +104,10 @@ impl IntoResponse for Error {
             | Self::Io(_)
             | Self::Format(_)
             | Self::TryFromInt(_)
-            | Self::RowDoesNotMatchInputGame => StatusCode::INTERNAL_SERVER_ERROR,
+            | Self::UrlParse(_)
+            | Self::RowDoesNotMatchInputGame
+            | Self::MissingQueryPair(_)
+            | Self::NoDomainInUrl => StatusCode::INTERNAL_SERVER_ERROR,
             Self::FormValidation(_)
             | Self::CustomFormValidation(_)
             | Self::FormRejection(_)

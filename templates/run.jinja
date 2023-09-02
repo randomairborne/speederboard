@@ -3,7 +3,7 @@
 {% block title %}run{% endblock title %}
 {% block body %}
 <h1>{{ user.username }}&apos;s run of {{ game.name }}</h1>
-<a href="{{ run.video }}">{{ run.video }}</a>
+{{ run.video | video_embed }}
 {% if run.time %}
 <h2>
 time: {{ run.time | duration }}
@@ -15,4 +15,11 @@ score: {{ run.score }}
 </h2>
 {% endif %}
 {{ run.description | markdown }}
+{% if run.status == 1 %}
+run approved
+{% elif run.status == 0 %}
+run pending verification
+{% else %}
+run denied.
+{% endif %}
 {% endblock body %}

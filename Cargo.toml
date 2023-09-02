@@ -45,6 +45,7 @@ tera = "1.19"
 envy = "0.4"
 rand = "0.8"
 rayon = "1"
+url = "2.4.1"
 
 [profile.dev.package.argon2]
 opt-level = 3

@@ -2,7 +2,7 @@ use axum::{extract::FromRequestParts, http::request::Parts};
 
 use std::fmt::Write;
 
-use crate::{model::User, AppState};
+use crate::{model::User, AppState, Error};
 
 #[derive(serde::Serialize)]
 pub struct BaseRenderInfo {
@@ -62,6 +62,59 @@ impl tera::Filter for MarkdownFilter {
     fn is_safe(&self) -> bool {
         true
     }
+}
+
+pub struct VideoEmbedder;
+
+impl tera::Filter for VideoEmbedder {
+    fn filter(
+        &self,
+        value: &tera::Value,
+        _args: &std::collections::HashMap<String, tera::Value>,
+    ) -> tera::Result<tera::Value> {
+        let tera::Value::String(input) = value else {
+            return Ok(value.clone());
+        };
+        let sanitized_link = tera::escape_html(input);
+        let data = convert_link(input).unwrap_or(sanitized_link);
+        Ok(tera::Value::String(data))
+    }
+    fn is_safe(&self) -> bool {
+        true
+    }
+}
+
+fn convert_link(input: &str) -> Result<String, Error> {
+    let url = url::Url::parse(input)?;
+    let Some(domain) = url.domain().map(str::to_ascii_lowercase) else {
+        return Err(Error::NoDomainInUrl);
+    };
+    match domain.as_str() {
+        "youtube.com" | "www.youtube.com" => {
+            let mut query = url.query_pairs();
+            let maybe_id = query.find_map(|v| if v.0 == "v" { Some(v.1) } else { None });
+            if let Some(id) = maybe_id {
+                Ok(get_yt_embed_iframe(&id))
+            } else {
+                Ok(simple_a(input))
+            }
+        }
+        _ => Ok(simple_a(input)),
+    }
+}
+
+fn simple_a(safe_link: &str) -> String {
+    format!(r#"<a href="{safe_link}" target="_blank" rel="noopener noreferrer">{safe_link}</a>"#)
+}
+
+fn get_yt_embed_iframe(dangerous_video_id: &str) -> String {
+    let clean_data = tera::escape_html(dangerous_video_id);
+
+    format!(
+        r#"<iframe width="560" height="315" src="https://www.youtube.com/embed/{clean_data}"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+            frameborder="0" allowfullscreen></iframe>"#
+    )
 }
 
 pub struct HumanizeDuration;
