@@ -19,7 +19,7 @@ score: {{ run.score }}
 run approved
 {% elif run.status == 0 %}
 run pending verification
-{% else %}
+{% elif run.status == -1 %}
 run denied.
 {% endif %}
 {% endblock body %}
