@@ -3,11 +3,11 @@ use crate::{
     model::{Category, Game, Permissions, User},
     template::{BaseRenderInfo, ConfirmContext},
     util::{self, ValidatedForm},
-    AppState, Error,
+    AppState, Error, HandlerResult,
 };
 use axum::{
     extract::{Path, State},
-    response::{Html, Redirect},
+    response::Redirect,
 };
 
 #[derive(serde::Serialize)]
@@ -67,17 +67,16 @@ pub async fn confirm_delete(
     user: User,
     base: BaseRenderInfo,
     Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     let (_game, member) = util::game_n_member(&state, user, &game_slug).await?;
     member.perms.check(Permissions::ADMINISTRATOR)?;
-    let confirm = ConfirmContext {
+    let ctx = ConfirmContext {
         base,
         action: "delete this category".to_string(),
         action_url: format!("/game/{game_slug}/delete-category/{category_id}",),
         return_to: format!("/game/{game_slug}/edit"),
     };
-    let confirm_ctx = tera::Context::from_serialize(confirm)?;
-    Ok(Html(state.tera.render("confirm.jinja", &confirm_ctx)?))
+    state.render("confirm.jinja", ctx)
 }
 
 pub async fn delete(
@@ -133,17 +132,14 @@ pub async fn get(
     Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
     base: BaseRenderInfo,
     user: User,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     let (game, member) = util::game_n_member(&state, user, &game_slug).await?;
     member.perms.check(Permissions::ADMINISTRATOR)?;
     let category = Category::from_db(state.clone(), category_id).await?;
-    let cat_ctx = GetCategoryContext {
+    let ctx = GetCategoryContext {
         base,
         category,
         game,
     };
-    let cat_tera_ctx = tera::Context::from_serialize(cat_ctx)?;
-    Ok(Html(
-        state.tera.render("edit_category.jinja", &cat_tera_ctx)?,
-    ))
+    state.render("edit_category.jinja", ctx)
 }

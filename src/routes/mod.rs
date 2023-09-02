@@ -1,5 +1,5 @@
-use crate::{template::BaseRenderInfo, AppState, Error};
-use axum::{extract::State, http::StatusCode, response::Html};
+use crate::{template::BaseRenderInfo, AppState, HandlerResult};
+use axum::{extract::State, http::StatusCode};
 
 pub mod admin;
 pub mod game;
@@ -13,17 +13,10 @@ pub mod user;
 pub async fn notfound_handler(
     State(state): State<AppState>,
     core: BaseRenderInfo,
-) -> Result<(StatusCode, Html<String>), Error> {
+) -> (StatusCode, HandlerResult) {
     notfound(&state, core)
 }
 
-pub fn notfound(
-    state: &AppState,
-    core: BaseRenderInfo,
-) -> Result<(StatusCode, Html<String>), Error> {
-    let context_ser = tera::Context::from_serialize(core)?;
-    Ok((
-        StatusCode::NOT_FOUND,
-        Html(state.tera.render("404.jinja", &context_ser)?),
-    ))
+pub fn notfound(state: &AppState, core: BaseRenderInfo) -> (StatusCode, HandlerResult) {
+    (StatusCode::NOT_FOUND, state.render("404.jinja", core))
 }

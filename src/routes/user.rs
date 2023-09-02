@@ -1,9 +1,5 @@
-use crate::{model::User, template::BaseRenderInfo, AppState, Error};
-use axum::{
-    extract::{Path, State},
-    response::Html,
-};
-use tera::Context;
+use crate::{model::User, template::BaseRenderInfo, AppState, Error, HandlerResult};
+use axum::extract::{Path, State};
 
 #[derive(serde::Serialize)]
 pub struct UserPage {
@@ -17,7 +13,7 @@ pub async fn get(
     State(state): State<AppState>,
     Path(username): Path<String>,
     core: BaseRenderInfo,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     let user = query_as!(
         User,
         "SELECT
@@ -30,6 +26,5 @@ pub async fn get(
     .await?
     .ok_or(Error::NotFound)?;
     let ctx = UserPage { core, user };
-    let context_ser = Context::from_serialize(ctx)?;
-    Ok(Html(state.tera.render("user.jinja", &context_ser)?))
+    state.render("user.jinja", ctx)
 }

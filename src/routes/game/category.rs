@@ -1,16 +1,12 @@
 use std::sync::Arc;
 
-use axum::{
-    extract::{Path, Query, State},
-    response::Html,
-};
-use tera::Context;
+use axum::extract::{Path, Query, State};
 
 use crate::{
     id::{CategoryMarker, Id},
     model::{Category, Game, MiniCategory, ResolvedRun, RunStatus, SortBy},
     template::BaseRenderInfo,
-    AppState, Error,
+    AppState, Error, HandlerResult,
 };
 
 fn ret_0() -> usize {
@@ -39,7 +35,7 @@ pub async fn get(
     Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
     Query(query): Query<GetCategoryQuery>,
     core: BaseRenderInfo,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     get_game_category(&state, core, game_slug, Some(category_id), query.page).await
 }
 
@@ -51,7 +47,7 @@ pub(super) async fn get_game_category(
     game_slug: String,
     maybe_category_id: Option<Id<CategoryMarker>>,
     page: usize,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     let game = Arc::new(Game::from_db_slug(state, &game_slug).await?);
     let category_id = maybe_category_id.unwrap_or(game.default_category);
     let state2 = state.clone();
@@ -90,7 +86,7 @@ pub(super) async fn get_game_category(
     )
     .await?;
     let categories = spawned_getcats.await??;
-    let get_game_ctx = GetGameContext {
+    let ctx = GetGameContext {
         core,
         categories,
         category,
@@ -98,6 +94,5 @@ pub(super) async fn get_game_category(
         runs: resolution.resolveds(),
         game,
     };
-    let ctx = Context::from_serialize(get_game_ctx)?;
-    Ok(Html(state.tera.render("category.jinja", &ctx)?))
+    state.render("category.jinja", ctx)
 }

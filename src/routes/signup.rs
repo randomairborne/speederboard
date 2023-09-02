@@ -2,16 +2,12 @@ use crate::{
     model::User,
     template::BaseRenderInfo,
     util::{ValidatedForm, AUTHTOKEN_COOKIE, AUTHTOKEN_TTL},
-    AppState, Error,
+    AppState, Error, HandlerResult,
 };
-use axum::{
-    extract::State,
-    response::{Html, Redirect},
-};
+use axum::{extract::State, response::Redirect};
 use axum_extra::extract::{cookie::Cookie, CookieJar};
 use rand::distributions::DistString;
 use redis::AsyncCommands;
-use tera::Context;
 
 #[derive(serde::Serialize)]
 pub struct SignUpPage {
@@ -38,13 +34,9 @@ pub struct SignUpFormData {
 }
 
 #[allow(clippy::unused_async)]
-pub async fn get(
-    State(state): State<AppState>,
-    core: BaseRenderInfo,
-) -> Result<Html<String>, Error> {
+pub async fn get<'a>(State(state): State<AppState>, core: BaseRenderInfo) -> HandlerResult {
     let ctx = SignUpPage { core };
-    let context_ser = Context::from_serialize(ctx)?;
-    Ok(Html(state.tera.render("signup.jinja", &context_ser)?))
+    state.render("signup.jinja", ctx)
 }
 
 pub async fn post(

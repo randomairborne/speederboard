@@ -1,9 +1,6 @@
-use axum::{
-    extract::{Path, Query, State},
-    response::Html,
-};
+use axum::extract::{Path, Query, State};
 
-use crate::{template::BaseRenderInfo, AppState, Error};
+use crate::{template::BaseRenderInfo, AppState, HandlerResult};
 
 use super::category::{get_game_category, GetCategoryQuery};
 
@@ -12,6 +9,6 @@ pub async fn get(
     Path(game_slug): Path<String>,
     Query(query): Query<GetCategoryQuery>,
     core: BaseRenderInfo,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     get_game_category(&state, core, game_slug, None, query.page).await
 }

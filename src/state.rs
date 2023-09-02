@@ -14,18 +14,43 @@ use tera::Tera;
 
 pub type AppState = Arc<InnerAppState>;
 
+#[cfg(feature = "dev")]
+pub type InnerTera = Arc<std::sync::RwLock<Tera>>;
+
+#[cfg(not(feature = "dev"))]
+pub type InnerTera = Tera;
+
 #[derive(Clone)]
 pub struct InnerAppState {
     pub config: Config,
-    pub tera: Tera,
+    tera: InnerTera,
     pub redis: RedisPool,
     pub postgres: PgPool,
-    pub rayon: Arc<ThreadPool>,
+    rayon: Arc<ThreadPool>,
     pub argon: Argon2<'static>,
     pub http: reqwest::Client,
 }
 
 impl InnerAppState {
+    pub fn new(
+        config: Config,
+        tera: InnerTera,
+        redis: RedisPool,
+        postgres: PgPool,
+        rayon: Arc<ThreadPool>,
+        argon: Argon2<'static>,
+        http: reqwest::Client,
+    ) -> Self {
+        Self {
+            config,
+            tera,
+            redis,
+            postgres,
+            rayon,
+            argon,
+            http,
+        }
+    }
     /// # Errors
     /// If somehow the channel hangs up, this can error.
     pub async fn spawn_rayon<O, F>(
@@ -107,6 +132,37 @@ impl InnerAppState {
             .error_for_status()?;
         trace!(?resp, "got response on deletion");
         Ok(())
+    }
+    pub fn render<T: serde::Serialize>(
+        &self,
+        template_name: &str,
+        data: T,
+    ) -> Result<axum::response::Html<String>, Error> {
+        let context = tera::Context::from_serialize(data)?;
+        self.render_ctx(template_name, &context)
+    }
+    pub fn render_ctx(
+        &self,
+        template_name: &str,
+        context: &tera::Context,
+    ) -> Result<axum::response::Html<String>, Error> {
+        #[cfg(feature = "dev")]
+        let tera = self
+            .tera
+            .read()
+            .expect("Tera read lock poisoned, check logs for previous panics");
+        #[cfg(not(feature = "dev"))]
+        let tera = &self.tera;
+        let html_text = tera.render(template_name, context)?;
+        Ok(axum::response::Html(html_text))
+    }
+    #[cfg(feature = "dev")]
+    pub fn reload_tera(&self) {
+        self.tera
+            .write()
+            .expect("Tera write lock poisoned, check logs for previous panics!")
+            .full_reload()
+            .expect("full reload failed");
     }
 }
 

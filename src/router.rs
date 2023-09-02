@@ -22,6 +22,10 @@ pub fn build(state: AppState) -> Router {
         .merge(admin_router(state.clone()))
         .layer(
             tower::ServiceBuilder::new()
+                .layer(axum::middleware::from_fn_with_state(
+                    state.clone(),
+                    crate::error::error_middleware,
+                ))
                 .layer(CompressionLayer::new())
                 .layer(DecompressionLayer::new()),
         )

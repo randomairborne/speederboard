@@ -1,6 +1,6 @@
 use axum::{
     extract::{Path, State},
-    response::{Html, Redirect},
+    response::Redirect,
 };
 
 use crate::{
@@ -8,7 +8,7 @@ use crate::{
     model::{Category, Game, Permissions, User},
     template::BaseRenderInfo,
     util::{self, ValidatedForm},
-    AppState, Error,
+    AppState, Error, HandlerResult,
 };
 
 #[derive(serde::Serialize)]
@@ -34,7 +34,7 @@ pub async fn get(
     Path(game_slug): Path<String>,
     user: User,
     base: BaseRenderInfo,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     let (game, member) = util::game_n_member(&state, user, &game_slug).await?;
     member.perms.check(Permissions::ADMINISTRATOR)?;
     let categories = query_as!(
@@ -50,8 +50,7 @@ pub async fn get(
         categories,
         base,
     };
-    let ctx = tera::Context::from_serialize(context)?;
-    Ok(Html(state.tera.render("edit_game.jinja", &ctx)?))
+    state.render("edit_game.jinja", context)
 }
 
 pub async fn edit(

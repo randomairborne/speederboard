@@ -1,12 +1,13 @@
-use std::{fmt::Display, sync::OnceLock};
+use std::fmt::Display;
 
 use crate::{template::BaseRenderInfo, AppState};
 use axum::{
+    extract::State,
+    http::Request,
     http::StatusCode,
-    response::{Html, IntoResponse, Redirect},
+    middleware::Next,
+    response::{IntoResponse, Redirect, Response},
 };
-
-pub static ERROR_STATE: OnceLock<AppState> = OnceLock::new();
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -72,6 +73,10 @@ pub enum Error {
     CannotDeleteDefaultCategory,
     #[error("URL being parsed does not have a domain!")]
     NoDomainInUrl,
+    #[error("URL being parsed has `..`, which could indicate a directory traversal attack!")]
+    DoubleDotInPath,
+    #[error("Hit root directory while parsing path!")]
+    PathHasNoParent,
     #[error(
         "in src/model/run.rs, in method ResolvedRun::row_to_rcat, \
         the game passed to the function does not match the parent game \
@@ -88,64 +93,76 @@ impl From<Error> for std::io::Error {
 
 impl IntoResponse for Error {
     fn into_response(self) -> axum::response::Response {
-        let state = ERROR_STATE.get().unwrap();
-        let core = BaseRenderInfo::new(state.config.root_url.clone(), state.config.cdn_url.clone());
-        let status = match &self {
-            Self::Sqlx(_)
-            | Self::DeadpoolRedis(_)
-            | Self::Redis(_)
-            | Self::Tera(_)
-            | Self::Argon2(_)
-            | Self::OneshotRecv(_)
-            | Self::SerdeJson(_)
-            | Self::Reqwest(_)
-            | Self::Impossible(_)
-            | Self::TaskJoin(_)
-            | Self::Io(_)
-            | Self::Format(_)
-            | Self::TryFromInt(_)
-            | Self::UrlParse(_)
-            | Self::RowDoesNotMatchInputGame
-            | Self::MissingQueryPair(_)
-            | Self::NoDomainInUrl => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::FormValidation(_)
-            | Self::CustomFormValidation(_)
-            | Self::FormRejection(_)
-            | Self::MultiFormValidation(_)
-            | Self::Multipart(_)
-            | Self::InvalidMultipart(_)
-            | Self::TokenHasIdButIdIsUnkown
-            | Self::InvalidGameCategoryPair
-            | Self::CannotDeleteDefaultCategory => StatusCode::BAD_REQUEST,
-            Self::InvalidPassword | Self::InsufficientPermissions => StatusCode::UNAUTHORIZED,
-            Self::InvalidCookie => return Redirect::to("/login").into_response(),
-            Self::NotFound => return crate::routes::notfound(state, core).into_response(),
-        };
-        if status == StatusCode::INTERNAL_SERVER_ERROR {
-            error!(?self, "failed to handle request");
-        }
-        let self_as_string = self.to_string();
-        let mut ctx = match tera::Context::from_serialize(core) {
-            Ok(v) => v,
-            Err(source) => {
-                return (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    format_raw_error(&self_as_string, &source.to_string()),
-                )
-                    .into_response()
-            }
-        };
-        ctx.insert("error", &self_as_string);
-        let content = state
-            .tera
-            .render("error.jinja", &ctx)
-            .map(Html)
-            .map_err(|source| {
-                error!(?source, "failed to render error");
-                format_raw_error(&self_as_string, &source.to_string())
-            });
-        (status, content).into_response()
+        let mut resp = Response::default();
+        resp.extensions_mut().insert(self);
+        resp
     }
+}
+pub async fn error_middleware<B>(
+    State(state): State<AppState>,
+    request: Request<B>,
+    next: Next<B>,
+) -> Response {
+    let response = next.run(request).await;
+    let error: &Error = if let Some(v) = response.extensions().get() {
+        v
+    } else {
+        return response;
+    };
+    let core = BaseRenderInfo::new(state.config.root_url.clone(), state.config.cdn_url.clone());
+    let status = match &error {
+        Error::Sqlx(_)
+        | Error::DeadpoolRedis(_)
+        | Error::Redis(_)
+        | Error::Tera(_)
+        | Error::Argon2(_)
+        | Error::OneshotRecv(_)
+        | Error::SerdeJson(_)
+        | Error::Reqwest(_)
+        | Error::Impossible(_)
+        | Error::TaskJoin(_)
+        | Error::Io(_)
+        | Error::Format(_)
+        | Error::TryFromInt(_)
+        | Error::UrlParse(_)
+        | Error::RowDoesNotMatchInputGame
+        | Error::MissingQueryPair(_)
+        | Error::NoDomainInUrl
+        | Error::PathHasNoParent => StatusCode::INTERNAL_SERVER_ERROR,
+        Error::FormValidation(_)
+        | Error::CustomFormValidation(_)
+        | Error::FormRejection(_)
+        | Error::MultiFormValidation(_)
+        | Error::Multipart(_)
+        | Error::InvalidMultipart(_)
+        | Error::TokenHasIdButIdIsUnkown
+        | Error::InvalidGameCategoryPair
+        | Error::CannotDeleteDefaultCategory
+        | Error::DoubleDotInPath => StatusCode::BAD_REQUEST,
+        Error::InvalidPassword | Error::InsufficientPermissions => StatusCode::UNAUTHORIZED,
+        Error::InvalidCookie => return Redirect::to("/login").into_response(),
+        Error::NotFound => return crate::routes::notfound(&state, core).into_response(),
+    };
+    if status == StatusCode::INTERNAL_SERVER_ERROR {
+        error!(?error, "failed to handle request");
+    }
+    let error_as_string = error.to_string();
+    let mut ctx = match tera::Context::from_serialize(core) {
+        Ok(v) => v,
+        Err(source) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format_raw_error(&error_as_string, &source.to_string()),
+            )
+                .into_response()
+        }
+    };
+    ctx.insert("error", &error_as_string);
+    let content = state.render_ctx("error.jinja", &ctx).map_err(|source| {
+        error!(?source, "failed to render error");
+        format_raw_error(&error_as_string, &source.to_string())
+    });
+    (status, content).into_response()
 }
 
 fn format_raw_error(original: &str, tera: &str) -> String {

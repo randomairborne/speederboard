@@ -1,6 +1,6 @@
 use axum::{
     extract::{Path, State},
-    response::{Html, Redirect},
+    response::Redirect,
 };
 use garde::Validate;
 
@@ -9,7 +9,7 @@ use crate::{
     model::{Category, Game, User},
     template::BaseRenderInfo,
     util::ValidatedForm,
-    AppState, Error,
+    AppState, Error, HandlerResult,
 };
 
 #[derive(serde::Serialize)]
@@ -66,20 +66,19 @@ pub async fn get(
     user: User,
     base: BaseRenderInfo,
     Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     let game = Game::from_db_slug(&state, &game_slug).await?;
     let category = Category::from_db(state.clone(), category_id).await?;
     if category.game != game.id {
         return Err(Error::InvalidGameCategoryPair);
     }
-    let struct_context = GetRunCreatePage {
+    let context = GetRunCreatePage {
         base,
         user,
         game,
         category,
     };
-    let ctx = tera::Context::from_serialize(struct_context)?;
-    Ok(Html(state.tera.render("create_run.jinja", &ctx)?))
+    state.render("create_run.jinja", context)
 }
 
 #[allow(clippy::unused_async)]

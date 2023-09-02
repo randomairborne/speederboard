@@ -8,10 +8,6 @@ updates:
     directory: "/cdn-upload-worker/"
     schedule:
       interval: "monthly"
-  - package-ecosystem: "npm"
-    directory: "/dev-cdn/"
-    schedule:
-      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

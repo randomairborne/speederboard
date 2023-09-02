@@ -1,13 +1,10 @@
-use axum::{
-    extract::{Path, State},
-    response::Html,
-};
+use axum::extract::{Path, State};
 
 use crate::{
     id::{CategoryMarker, Id, RunMarker},
     model::{Category, Game, ResolvedRun, User},
     template::BaseRenderInfo,
-    AppState, Error,
+    AppState, Error, HandlerResult,
 };
 
 #[derive(serde::Serialize)]
@@ -25,7 +22,7 @@ pub async fn get(
     State(state): State<AppState>,
     Path((game_slug, category_id, run_id)): Path<(String, Id<CategoryMarker>, Id<RunMarker>)>,
     base: BaseRenderInfo,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     let run = ResolvedRun::from_db(&state, run_id)
         .await?
         .ok_or(Error::NotFound)?;
@@ -40,6 +37,5 @@ pub async fn get(
         run: &run,
         base,
     };
-    let context_ser = tera::Context::from_serialize(ctx)?;
-    Ok(Html(state.tera.render("run.jinja", &context_ser)?))
+    state.render("run.jinja", ctx)
 }

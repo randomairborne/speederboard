@@ -1,6 +1,5 @@
-use crate::{model::Game, template::BaseRenderInfo, AppState, Error};
-use axum::{extract::State, response::Html};
-use tera::Context;
+use crate::{model::Game, template::BaseRenderInfo, AppState, HandlerResult};
+use axum::extract::State;
 
 #[derive(serde::Serialize)]
 struct RootContext {
@@ -10,13 +9,10 @@ struct RootContext {
 }
 
 #[allow(clippy::unused_async)]
-pub async fn get(
-    State(state): State<AppState>,
-    base: BaseRenderInfo,
-) -> Result<Html<String>, Error> {
+pub async fn get(State(state): State<AppState>, base: BaseRenderInfo) -> HandlerResult {
     let games = query_as!(Game, "SELECT * FROM games")
         .fetch_all(&state.postgres)
         .await?;
-    let context_ser = Context::from_serialize(RootContext { games, base })?;
-    Ok(Html(state.tera.render("index.jinja", &context_ser)?))
+    let ctx = RootContext { games, base };
+    state.render("index.jinja", ctx)
 }

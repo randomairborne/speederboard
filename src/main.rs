@@ -11,16 +11,21 @@ mod state;
 mod template;
 mod util;
 
+#[cfg(feature = "dev")]
+mod dev;
+
 use argon2::Argon2;
+use axum::response::Html;
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
 use rayon::ThreadPoolBuilder;
 use sqlx::postgres::PgPoolOptions;
 use std::{sync::Arc, time::Duration};
-use tera::Tera;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 
 use crate::{config::Config, state::InnerAppState};
 pub use crate::{error::Error, state::AppState};
+
+pub type HandlerResult = Result<Html<String>, Error>;
 
 #[macro_use]
 extern crate tracing;
@@ -55,12 +60,7 @@ async fn main() {
         .runtime(Runtime::Tokio1)
         .build()
         .unwrap();
-    let mut tera = Tera::new("./templates/**/*").expect("Failed to build templates");
-    tera.register_filter("markdown", crate::template::MarkdownFilter);
-    tera.register_filter("long_format_duration", crate::template::HumanizeDuration);
-    tera.register_filter("duration", crate::template::Duration);
-    tera.register_filter("video_embed", crate::template::VideoEmbedder);
-    tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
+    let tera = template::tera();
     let rayon = Arc::new(ThreadPoolBuilder::new().num_threads(8).build().unwrap());
     let argon = Argon2::new(
         argon2::Algorithm::Argon2id,
@@ -68,35 +68,39 @@ async fn main() {
         argon2::Params::new(16384, 192, 8, Some(64)).unwrap(),
     );
     let http = reqwest::ClientBuilder::new()
-        .user_agent("speederboard http")
+        .user_agent("speederboard/http")
         .timeout(Duration::from_secs(10))
         .build()
         .unwrap();
-    let state = InnerAppState {
-        config: config.clone(),
+    let state = Arc::new(InnerAppState::new(
+        config.clone(),
         tera,
         redis,
         postgres,
         rayon,
         argon,
         http,
-    };
-    let state = Arc::new(state);
-    assert!(
-        error::ERROR_STATE.set(state.clone()).is_ok(),
-        "Could not set error state, this should be impossible"
-    );
+    ));
+    #[cfg(feature = "dev")]
+    crate::dev::reload_tera(state.clone());
+    #[cfg(feature = "dev")]
+    let cdn_jh = tokio::spawn(crate::dev::cdn());
+    #[cfg(feature = "dev")]
+    let fakes3_jh = tokio::spawn(crate::dev::fakes3());
     info!("Starting server on http://localhost:{}", config.port);
     axum::Server::bind(&([0, 0, 0, 0], config.port).into())
         .serve(router::build(state).into_make_service())
         .with_graceful_shutdown(shutdown_signal())
         .await
         .unwrap();
+    #[cfg(feature = "dev")]
+    {
+        cdn_jh.await.unwrap();
+        fakes3_jh.await.unwrap();
+    }
 }
 
 async fn shutdown_signal() {
-    #[cfg(not(target_family = "unix"))]
-    compile_error!("WASM and windows are not supported platforms, please use WSL if on windows! MacOS, Linux, and FreeBSD are the supported platforms.");
     #[cfg(target_family = "unix")]
     {
         use tokio::signal::unix::{signal, SignalKind};
@@ -110,4 +114,8 @@ async fn shutdown_signal() {
             _ = terminate.recv() => {}
         }
     }
+    #[cfg(not(target_family = "unix"))]
+    tokio::signal::ctrl_c()
+        .await
+        .expect("Failed to listen to ctrl+c");
 }

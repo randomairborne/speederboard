@@ -1,16 +1,13 @@
 use std::sync::Arc;
 
-use axum::{
-    extract::{Path, Query, State},
-    response::Html,
-};
+use axum::extract::{Path, Query, State};
 
 use crate::{
     id::{CategoryMarker, Id},
     model::{Category, DateSort, Game, Permissions, ResolvedRun, RunStatus, User},
     template::BaseRenderInfo,
     util::game_n_member,
-    AppState, Error,
+    AppState, Error, HandlerResult,
 };
 
 const MOD_FEED_PER_PAGE: usize = 100;
@@ -48,7 +45,7 @@ pub async fn game_feed(
 
     Path(game_slug): Path<String>,
     Query(query): Query<ModFeedQuery>,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     feed_maybe_cat(&state, core, game_slug, None, user, query).await
 }
 
@@ -59,7 +56,7 @@ pub async fn category_feed(
 
     Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
     Query(query): Query<ModFeedQuery>,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     feed_maybe_cat(&state, core, game_slug, Some(category_id), user, query).await
 }
 
@@ -70,7 +67,7 @@ async fn feed_maybe_cat(
     maybe_category_id: Option<Id<CategoryMarker>>,
     user: User,
     query: ModFeedQuery,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     let (game, member) = game_n_member(state, user, &game_slug).await?;
     if !member.perms.contains(Permissions::VERIFY_RUNS) {
         return Err(Error::InsufficientPermissions);
@@ -101,13 +98,12 @@ async fn feed_maybe_cat(
     } else {
         None
     };
-    let mod_feed_ctx = ModFeedContext {
+    let ctx = ModFeedContext {
         core,
         has_next: leaderboard.has_next(),
         category,
         submissions: leaderboard.resolveds(),
         game,
     };
-    let ctx = tera::Context::from_serialize(mod_feed_ctx)?;
-    Ok(Html(state.tera.render("moderation_feed.jinja", &ctx)?))
+    state.render("moderation_feed.jinja", ctx)
 }

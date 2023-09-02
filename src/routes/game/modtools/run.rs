@@ -1,6 +1,6 @@
 use axum::{
     extract::{Path, State},
-    response::{Html, Redirect},
+    response::Redirect,
 };
 
 use crate::{
@@ -8,7 +8,7 @@ use crate::{
     model::{Category, Game, Member, Permissions, ResolvedRun, User},
     template::BaseRenderInfo,
     util::game_n_member,
-    AppState, Error,
+    AppState, Error, HandlerResult,
 };
 
 #[derive(serde::Serialize)]
@@ -27,7 +27,7 @@ pub async fn fetch_verify(
     Path((game_slug, category_id, run_id)): Path<(String, Id<CategoryMarker>, Id<RunMarker>)>,
     user: User,
     base: BaseRenderInfo,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     let run = ResolvedRun::from_db(&state, run_id)
         .await?
         .ok_or(Error::NotFound)?;
@@ -49,8 +49,7 @@ pub async fn fetch_verify(
         run: &run,
         base,
     };
-    let context_ser = tera::Context::from_serialize(ctx)?;
-    Ok(Html(state.tera.render("verify_run.jinja", &context_ser)?))
+    state.render("verify_run.jinja", ctx)
 }
 
 pub async fn verify_run(

@@ -1,9 +1,8 @@
-use axum::{
-    extract::State,
-    response::{Html, Redirect},
-};
+use axum::{extract::State, response::Redirect};
 
-use crate::{model::User, template::BaseRenderInfo, util::ValidatedForm, AppState, Error};
+use crate::{
+    model::User, template::BaseRenderInfo, util::ValidatedForm, AppState, Error, HandlerResult,
+};
 
 fn default_false() -> bool {
     false
@@ -38,14 +37,9 @@ pub struct GetGameCreatePageContext {
 }
 
 #[allow(clippy::unused_async)]
-pub async fn get(
-    State(state): State<AppState>,
-    user: User,
-    base: BaseRenderInfo,
-) -> Result<Html<String>, Error> {
-    let struct_context = GetGameCreatePageContext { base, user };
-    let ctx = tera::Context::from_serialize(struct_context)?;
-    Ok(Html(state.tera.render("create_game.jinja", &ctx)?))
+pub async fn get(State(state): State<AppState>, user: User, base: BaseRenderInfo) -> HandlerResult {
+    let ctx = GetGameCreatePageContext { base, user };
+    state.render("create_game.jinja", ctx)
 }
 
 pub async fn post(

@@ -2,16 +2,15 @@ use crate::{
     model::User,
     template::BaseRenderInfo,
     util::{ValidatedForm, AUTHTOKEN_COOKIE, AUTHTOKEN_TTL},
-    AppState, Error,
+    AppState, Error, HandlerResult,
 };
 use axum::{
     extract::{Query, State},
-    response::{Html, Redirect},
+    response::Redirect,
 };
 use axum_extra::extract::{cookie::Cookie, CookieJar};
 use rand::distributions::DistString;
 use redis::AsyncCommands;
-use tera::Context;
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(serde::Serialize)]
@@ -42,7 +41,12 @@ pub struct LoginFormData {
 #[allow(clippy::module_name_repetitions)]
 #[derive(serde::Deserialize)]
 pub struct LoginQuery {
-    pub incorrect: Option<bool>,
+    #[serde(default = "return_false")]
+    pub incorrect: bool,
+}
+
+fn return_false() -> bool {
+    false
 }
 
 #[allow(clippy::unused_async)]
@@ -50,13 +54,12 @@ pub async fn get(
     State(state): State<AppState>,
     Query(query): Query<LoginQuery>,
     core: BaseRenderInfo,
-) -> Result<Html<String>, Error> {
+) -> HandlerResult {
     let ctx = LoginPage {
         core,
-        incorrect: query.incorrect.unwrap_or(false),
+        incorrect: query.incorrect,
     };
-    let context_ser = Context::from_serialize(ctx)?;
-    Ok(Html(state.tera.render("login.jinja", &context_ser)?))
+    state.render("login.jinja", ctx)
 }
 
 pub async fn post(

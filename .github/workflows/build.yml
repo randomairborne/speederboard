@@ -54,7 +54,7 @@ jobs:
           TARGET_CC: ${{ github.workspace }}/${{ matrix.arch }}-linux-musl-cross/bin/${{ matrix.arch }}-linux-musl-cc
           TARGET_AR: ${{ github.workspace }}/${{ matrix.arch }}-linux-musl-cross/bin/${{ matrix.arch }}-linux-musl-ar
           RUSTFLAGS: -C linker=${{ github.workspace }}/${{ matrix.arch }}-linux-musl-cross/bin/${{ matrix.arch }}-linux-musl-cc
-        run: cargo b --release --target ${{ matrix.arch }}-unknown-linux-musl
+        run: cargo b --release --target ${{ matrix.arch }}-unknown-linux-musl --no-default-features
 
       - name: Upload executables
         uses: actions/upload-artifact@v3

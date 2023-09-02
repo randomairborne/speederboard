@@ -26,8 +26,11 @@ jobs:
       - name: Check formatting
         run: cargo fmt --check
 
-      - name: Check build
+      - name: Check dev build
         run: cargo clippy
+
+      - name: Check prod build
+        run: cargo clippy --no-default-features
 
       - name: Run tests
         run: cargo test

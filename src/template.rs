@@ -1,8 +1,30 @@
 use axum::{extract::FromRequestParts, http::request::Parts};
-
 use std::fmt::Write;
+#[cfg(feature = "dev")]
+use std::sync::{Arc, RwLock};
+use tera::Tera;
 
 use crate::{model::User, AppState, Error};
+
+fn real_tera() -> tera::Tera {
+    let mut tera = tera::Tera::new("./templates/**/*").expect("Failed to build templates");
+    tera.register_filter("markdown", MarkdownFilter);
+    tera.register_filter("long_format_duration", HumanizeDuration);
+    tera.register_filter("duration", Duration);
+    tera.register_filter("video_embed", VideoEmbedder);
+    tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
+    tera
+}
+
+#[cfg(feature = "dev")]
+pub fn tera() -> Arc<RwLock<Tera>> {
+    Arc::new(RwLock::new(real_tera()))
+}
+
+#[cfg(not(feature = "dev"))]
+pub fn tera() -> Tera {
+    real_tera()
+}
 
 #[derive(serde::Serialize)]
 pub struct BaseRenderInfo {
@@ -47,7 +69,7 @@ pub struct ConfirmContext {
     pub return_to: String,
 }
 
-pub struct MarkdownFilter;
+struct MarkdownFilter;
 
 impl tera::Filter for MarkdownFilter {
     fn filter(
@@ -64,7 +86,7 @@ impl tera::Filter for MarkdownFilter {
     }
 }
 
-pub struct VideoEmbedder;
+struct VideoEmbedder;
 
 impl tera::Filter for VideoEmbedder {
     fn filter(
@@ -117,7 +139,7 @@ fn get_yt_embed_iframe(dangerous_video_id: &str) -> String {
     )
 }
 
-pub struct HumanizeDuration;
+struct HumanizeDuration;
 
 impl tera::Filter for HumanizeDuration {
     fn filter(
@@ -138,7 +160,7 @@ impl tera::Filter for HumanizeDuration {
     }
 }
 
-pub struct Duration;
+struct Duration;
 
 impl tera::Filter for Duration {
     fn filter(

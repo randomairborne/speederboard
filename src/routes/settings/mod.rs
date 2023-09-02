@@ -2,12 +2,9 @@ pub mod credentials;
 pub mod files;
 use crate::{
     id::Id, model::User, state::DbUserUpdate, template::BaseRenderInfo, util::ValidatedForm,
-    AppState, Error,
+    AppState, Error, HandlerResult,
 };
-use axum::{
-    extract::State,
-    response::{Html, Redirect},
-};
+use axum::{extract::State, response::Redirect};
 
 #[derive(serde::Serialize)]
 pub struct SettingsUserContext {
@@ -34,11 +31,7 @@ pub struct UserUpdate {
 const UPDATE_COMPLETE_URL: &str = "/settings";
 
 #[allow(clippy::unused_async)]
-pub async fn get(
-    State(state): State<AppState>,
-    user: User,
-    base: BaseRenderInfo,
-) -> Result<Html<String>, Error> {
+pub async fn get(State(state): State<AppState>, user: User, base: BaseRenderInfo) -> HandlerResult {
     let record = query!(
         "SELECT
         id, username, has_stylesheet, pfp_ext, banner_ext,
@@ -67,8 +60,7 @@ pub async fn get(
         base,
         user: private_user,
     };
-    let context_ser = tera::Context::from_serialize(ctx)?;
-    Ok(Html(state.tera.render("settings.jinja", &context_ser)?))
+    state.render("settings.jinja", ctx)
 }
 
 pub async fn profile(
