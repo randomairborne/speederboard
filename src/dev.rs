@@ -12,6 +12,7 @@ pub fn reload_tera(state: AppState) {
                 return;
             }
             let superstate = state.clone();
+            info!("reloading templates");
             std::thread::spawn(move || superstate.reload_tera());
         }
     })
@@ -23,8 +24,12 @@ pub fn reload_tera(state: AppState) {
 
 pub async fn cdn() {
     let router = axum::Router::new()
-        .route_service("/", tower_http::services::ServeDir::new("./assets/public/"))
+        .nest_service(
+            "/",
+            tower_http::services::ServeDir::new("./assets/")
+        )
         .layer(tower_http::cors::CorsLayer::permissive());
+    info!("Starting CDN on http://localhost:8000");
     axum::Server::bind(&([0, 0, 0, 0], 8000).into())
         .serve(router.into_make_service())
         .with_graceful_shutdown(crate::shutdown_signal())
@@ -33,7 +38,8 @@ pub async fn cdn() {
 }
 
 pub async fn fakes3() {
-    let router = axum::Router::new().route("/*", axum::routing::put(put).delete(delete));
+    let router = axum::Router::new().route("/*unused", axum::routing::put(put).delete(delete));
+    info!("Starting FakeS3 on http://localhost:8001");
     axum::Server::bind(&([0, 0, 0, 0], 8001).into())
         .serve(router.into_make_service())
         .with_graceful_shutdown(crate::shutdown_signal())
@@ -46,9 +52,13 @@ async fn put(uri: Uri, body: Bytes) -> Result<(), Error> {
     if uri_path.contains("..") {
         return Err(Error::DoubleDotInPath);
     }
-    let path = Path::new(&format!("./assets/public{uri_path}")).canonicalize()?;
-    tokio::fs::create_dir_all(path.parent().ok_or(Error::PathHasNoParent)?).await?;
-    tokio::fs::write(path, body).await?;
+    let path_string = format!("./assets{uri_path}");
+    let path = Path::new(&path_string);
+    let parent = path.parent().ok_or(Error::PathHasNoParent)?;
+    trace!("Got request to {uri_path} (updated to {path_string})");
+    tokio::fs::create_dir_all(parent).await?;
+    tokio::fs::write(&path, body).await?;
+    trace!("Created file {}", path.to_string_lossy());
     Ok(())
 }
 
@@ -57,7 +67,10 @@ async fn delete(uri: Uri) -> Result<(), Error> {
     if uri_path.contains("..") {
         return Err(Error::DoubleDotInPath);
     }
-    let path = Path::new(&format!("./assets/public{uri_path}")).canonicalize()?;
-    tokio::fs::remove_file(path).await?;
+    let path_string = format!("./assets{uri_path}");
+    let path = Path::new(&path_string);
+    trace!("Got request to {uri_path} (updated to {path_string})");
+    tokio::fs::remove_file(&path).await?;
+    trace!("Removed file {}", path.to_string_lossy());
     Ok(())
 }

@@ -11,6 +11,7 @@ dev = ["tower-http/fs", "tower-http/cors", "dep:notify"]
 tower-http = { version = "0.4", default-features = false, features = [
     "compression-full",
     "decompression-full",
+    "tracing"
 ] }
 reqwest = { version = "0.11.18", features = [
     "rustls-tls",

@@ -8,7 +8,7 @@ contributions would be greatly appreciated, especially with CSS and HTML. Please
 suggested dev command:
 
 ```bash
-cargo watch -x r -w ./templates -w ./src
+cargo watch -x r
 ```
 
 this command will near-instantly update templates and public, and update src within about 2 seconds, depending on how big your changes are.

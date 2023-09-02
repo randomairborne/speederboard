@@ -8,6 +8,7 @@ pub mod login;
 pub mod settings;
 pub mod signup;
 pub mod user;
+pub mod forum;
 
 #[allow(clippy::unused_async)]
 pub async fn notfound_handler(

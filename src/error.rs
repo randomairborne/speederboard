@@ -93,7 +93,8 @@ impl From<Error> for std::io::Error {
 
 impl IntoResponse for Error {
     fn into_response(self) -> axum::response::Response {
-        let mut resp = Response::default();
+        let mut resp = (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response();
+        trace!(?self, "Converting error into response");
         resp.extensions_mut().insert(self);
         resp
     }
