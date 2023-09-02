@@ -82,11 +82,13 @@ async fn main() {
         http,
     ));
     #[cfg(feature = "dev")]
-    crate::dev::reload_tera(state.clone());
-    #[cfg(feature = "dev")]
-    let cdn_jh = tokio::spawn(crate::dev::cdn());
-    #[cfg(feature = "dev")]
-    let fakes3_jh = tokio::spawn(crate::dev::fakes3());
+    let (tera_jh, cdn_jh, fakes3_jh) = {
+        let s2 = state.clone();
+        let tera_jh = std::thread::spawn(move || crate::dev::reload_tera(s2));
+        let cdn_jh = tokio::spawn(crate::dev::cdn());
+        let fakes3_jh = tokio::spawn(crate::dev::fakes3());
+        (tera_jh, cdn_jh, fakes3_jh)
+    };
     info!("Starting server on http://localhost:{}", config.port);
     axum::Server::bind(&([0, 0, 0, 0], config.port).into())
         .serve(router::build(state).into_make_service())
@@ -97,6 +99,7 @@ async fn main() {
     {
         cdn_jh.await.unwrap();
         fakes3_jh.await.unwrap();
+        tera_jh.join().unwrap();
     }
 }
 
