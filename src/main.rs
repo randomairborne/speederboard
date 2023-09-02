@@ -84,7 +84,7 @@ async fn main() {
     #[cfg(feature = "dev")]
     let (tera_jh, cdn_jh, fakes3_jh) = {
         let s2 = state.clone();
-        let tera_jh = std::thread::spawn(move || crate::dev::reload_tera(s2));
+        let tera_jh = tokio::spawn(crate::dev::reload_tera(s2));
         let cdn_jh = tokio::spawn(crate::dev::cdn());
         let fakes3_jh = tokio::spawn(crate::dev::fakes3());
         (tera_jh, cdn_jh, fakes3_jh)
@@ -99,7 +99,7 @@ async fn main() {
     {
         cdn_jh.await.unwrap();
         fakes3_jh.await.unwrap();
-        tera_jh.join().unwrap();
+        tera_jh.await.unwrap();
     }
 }
 

@@ -2,13 +2,13 @@ use crate::{template::BaseRenderInfo, AppState, HandlerResult};
 use axum::{extract::State, http::StatusCode};
 
 pub mod admin;
+pub mod forum;
 pub mod game;
 pub mod index;
 pub mod login;
 pub mod settings;
 pub mod signup;
 pub mod user;
-pub mod forum;
 
 #[allow(clippy::unused_async)]
 pub async fn notfound_handler(

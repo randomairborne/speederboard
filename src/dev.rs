@@ -5,9 +5,8 @@ use notify::{Event, Watcher};
 
 use crate::{AppState, Error};
 
-pub fn reload_tera(state: AppState) {
+pub async fn reload_tera(state: AppState) {
     let mut watcher = notify::recommended_watcher(move |res: Result<Event, notify::Error>| {
-        trace!(?res, "got watch notification");
         if let Ok(event) = res {
             if !event.kind.is_modify() || !event.kind.is_remove() || !event.kind.is_create() {
                 return;
@@ -21,14 +20,12 @@ pub fn reload_tera(state: AppState) {
     watcher
         .watch(Path::new("./templates/"), notify::RecursiveMode::Recursive)
         .expect("Failed to watch for template changes");
+    crate::shutdown_signal().await;
 }
 
 pub async fn cdn() {
     let router = axum::Router::new()
-        .nest_service(
-            "/",
-            tower_http::services::ServeDir::new("./assets/")
-        )
+        .nest_service("/", tower_http::services::ServeDir::new("./assets/"))
         .layer(tower_http::cors::CorsLayer::permissive());
     info!("Starting CDN on http://localhost:8000");
     axum::Server::bind(&([0, 0, 0, 0], 8000).into())
