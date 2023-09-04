@@ -42,9 +42,14 @@ pub const DEV_MODE: bool = false;
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();
+    let env_filter = tracing_subscriber::EnvFilter::builder()
+        .with_default_directive(concat!(env!("CARGO_PKG_NAME"), "=info").parse().unwrap())
+        .with_env_var("LOG")
+        .from_env()
+        .expect("failed to parse env");
     tracing_subscriber::registry()
         .with(tracing_subscriber::fmt::layer())
-        .with(tracing_subscriber::EnvFilter::from_default_env())
+        .with(env_filter)
         .init();
     let config: Config = envy::from_env().expect("Failed to read config");
     let root_url = config.root_url.trim_end_matches('/').to_string();

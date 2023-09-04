@@ -158,11 +158,18 @@ impl InnerAppState {
     }
     #[cfg(feature = "dev")]
     pub fn reload_tera(&self) {
-        self.tera
+        if let Err(source) = self
+            .tera
             .write()
             .expect("Tera write lock poisoned, check logs for previous panics!")
             .full_reload()
-            .expect("full reload failed");
+        {
+            if let tera::ErrorKind::Msg(msg) = &source.kind {
+                error!("Failed to reload templates: {msg}");
+            } else {
+                error!(?source, "Failed to reload templates");
+            }
+        }
     }
 }
 
