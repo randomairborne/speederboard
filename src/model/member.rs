@@ -18,7 +18,7 @@ impl Member {
         user: Id<UserMarker>,
         game: Id<GameMarker>,
     ) -> Result<Option<Self>, Error> {
-        let member_opt = query!(
+        let Some(member) = query!(
             "SELECT u.id, u.username, u.has_stylesheet,
             u.pfp_ext, u.banner_ext, u.biography, u.admin,
             u.created_at, p.permissions
@@ -28,8 +28,8 @@ impl Member {
             game.get()
         )
         .fetch_optional(&state.postgres)
-        .await?;
-        let Some(member) = member_opt else {
+        .await?
+        else {
             return Ok(None);
         };
         let user = User {
