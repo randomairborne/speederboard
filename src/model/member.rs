@@ -5,7 +5,7 @@ use crate::{
 
 use super::{Permissions, User};
 
-#[derive(serde::Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
 pub struct Member {
     pub perms: Permissions,
     #[serde(flatten)]

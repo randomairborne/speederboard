@@ -4,7 +4,7 @@ use crate::{
     model::User, template::BaseRenderInfo, util::ValidatedForm, AppState, Error, HandlerResult,
 };
 
-#[derive(serde::Deserialize, garde::Validate)]
+#[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
 pub struct CreateGame {
     #[garde(length(min = crate::util::MIN_GAME_NAME_LEN, max = crate::util::MAX_GAME_NAME_LEN))]
     name: String,
@@ -25,7 +25,7 @@ pub struct CreateGame {
     scoreboard: bool,
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct GetGameCreatePageContext {
     #[serde(flatten)]
     base: BaseRenderInfo,

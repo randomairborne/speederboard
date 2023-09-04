@@ -12,20 +12,20 @@ use axum_extra::extract::{cookie::Cookie, CookieJar};
 use rand::distributions::DistString;
 use redis::AsyncCommands;
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct SignUpPage {
     return_to: String,
     #[serde(flatten)]
     core: BaseRenderInfo,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Debug, Clone)]
 pub struct SignUpQuery {
     #[serde(default = "crate::util::default_return_to")]
     return_to: String,
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct SignUpForm {
     username: String,
     email: String,
@@ -33,7 +33,7 @@ pub struct SignUpForm {
     core: BaseRenderInfo,
 }
 
-#[derive(serde::Deserialize, garde::Validate)]
+#[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
 pub struct SignUpFormData {
     #[garde(email, length(min = crate::util::MIN_EMAIL_LEN, max = crate::util::MAX_EMAIL_LEN))]
     email: String,

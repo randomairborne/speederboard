@@ -1,6 +1,6 @@
 use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, sqlx::Type)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, sqlx::Type)]
 pub struct Permissions(i64);
 
 impl Permissions {

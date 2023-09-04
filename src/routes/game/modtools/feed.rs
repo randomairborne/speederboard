@@ -12,7 +12,7 @@ use crate::{
 
 const MOD_FEED_PER_PAGE: usize = 100;
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Debug, Clone)]
 pub struct ModFeedQuery {
     #[serde(default = "crate::util::return_0_usize")]
     pub page: usize,
@@ -20,7 +20,7 @@ pub struct ModFeedQuery {
     pub newest: bool,
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 struct ModFeedContext {
     has_next: bool,
     submissions: Vec<ResolvedRun>,

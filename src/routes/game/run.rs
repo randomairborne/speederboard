@@ -7,7 +7,7 @@ use crate::{
     AppState, Error, HandlerResult,
 };
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct RunPage<'a> {
     user: &'a User,
     game: &'a Game,

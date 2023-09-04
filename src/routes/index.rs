@@ -1,7 +1,7 @@
 use crate::{model::Game, template::BaseRenderInfo, AppState, HandlerResult};
 use axum::extract::State;
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 struct RootContext {
     games: Vec<Game>,
     #[serde(flatten)]

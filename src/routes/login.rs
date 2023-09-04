@@ -13,7 +13,7 @@ use rand::distributions::DistString;
 use redis::AsyncCommands;
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct LoginPage {
     #[serde(flatten)]
     core: BaseRenderInfo,
@@ -22,7 +22,7 @@ pub struct LoginPage {
 }
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct LoginForm {
     username: String,
     email: String,
@@ -31,7 +31,7 @@ pub struct LoginForm {
 }
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Deserialize, garde::Validate)]
+#[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
 pub struct LoginFormData {
     #[garde(email, length(min = crate::util::MIN_EMAIL_LEN, max = crate::util::MAX_EMAIL_LEN))]
     pub email: String,
@@ -40,7 +40,7 @@ pub struct LoginFormData {
 }
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Debug, Clone)]
 pub struct LoginQuery {
     #[serde(default = "crate::util::default_return_to")]
     pub return_to: String,

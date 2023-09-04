@@ -6,21 +6,21 @@ use crate::{
 };
 use axum::{extract::State, response::Redirect};
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct SettingsUserContext {
     #[serde(flatten)]
     base: BaseRenderInfo,
     user: PrivateUser,
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct PrivateUser {
     #[serde(flatten)]
     base: User,
     email: String,
 }
 
-#[derive(serde::Deserialize, garde::Validate)]
+#[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
 pub struct UserUpdate {
     #[garde(length(min = crate::util::MIN_USERNAME_LEN, max = crate::util::MAX_USERNAME_LEN))]
     pub username: String,

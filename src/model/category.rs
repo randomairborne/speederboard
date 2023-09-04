@@ -26,7 +26,7 @@ impl Category {
     }
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Encode, Hash, PartialEq, Eq, Clone)]
 pub struct MiniCategory {
     pub name: String,
     pub id: Id<CategoryMarker>,

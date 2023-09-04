@@ -11,7 +11,7 @@ use crate::{
     AppState, Error, HandlerResult,
 };
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct GameEditContext {
     game: Game,
     categories: Vec<Category>,
@@ -19,7 +19,7 @@ pub struct GameEditContext {
     base: BaseRenderInfo,
 }
 
-#[derive(serde::Deserialize, garde::Validate)]
+#[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
 pub struct GameEdit {
     #[garde(length(min = crate::util::MIN_GAME_NAME_LEN, max = crate::util::MAX_GAME_NAME_LEN))]
     name: String,

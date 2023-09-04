@@ -2,7 +2,7 @@ use axum::{extract::State, response::Redirect};
 
 use crate::{model::User, util::ValidatedForm, AppState, Error};
 
-#[derive(serde::Deserialize, garde::Validate)]
+#[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
 pub struct UpdateEmailForm {
     #[garde(skip)]
     old_email: String,
@@ -12,7 +12,7 @@ pub struct UpdateEmailForm {
     password: String,
 }
 
-#[derive(serde::Deserialize, garde::Validate)]
+#[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
 pub struct UpdatePasswordForm {
     #[garde(email, length(min = crate::util::MIN_EMAIL_LEN, max = crate::util::MAX_EMAIL_LEN))]
     email: String,

@@ -77,7 +77,7 @@ impl From<RunStatus> for i64 {
     }
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Encode, Hash, PartialEq, Eq, Clone)]
 pub struct Run {
     pub id: Id<RunMarker>,
     pub game: Id<GameMarker>,
@@ -94,7 +94,7 @@ pub struct Run {
     pub verified_at: Option<NaiveDateTime>,
 }
 
-#[derive(serde::Serialize, Debug, PartialEq, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
 pub struct ResolvedRun {
     pub id: Id<RunMarker>,
     pub game: Arc<Game>,

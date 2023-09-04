@@ -61,6 +61,7 @@ impl InnerAppState {
         O: Send + 'static,
         F: FnOnce(InnerAppState) -> O + Send + 'static,
     {
+        trace!("spawning blocking task on rayon threadpool");
         let state = self.clone();
         let (tx, rx) = tokio::sync::oneshot::channel();
         self.rayon.spawn(move || {
@@ -69,6 +70,7 @@ impl InnerAppState {
         rx.await
     }
     pub async fn update_user(&self, user: DbUserUpdate) -> Result<User, Error> {
+        trace!(?user, "updating user with data");
         let new_db_user = query_as!(
             User,
             "UPDATE users SET
@@ -93,6 +95,7 @@ impl InnerAppState {
         )
         .fetch_one(&self.postgres)
         .await?;
+        trace!(?new_db_user, "updated user with data, adding to redis");
         self.redis
             .get()
             .await?
@@ -110,6 +113,7 @@ impl InnerAppState {
         file: reqwest::Body,
         content_type: &str,
     ) -> Result<(), Error> {
+        trace!(location, content_type, "creating R2 file");
         let resp = self
             .http
             .put(format!("{}{}", self.config.fakes3_endpoint, location))
@@ -123,6 +127,7 @@ impl InnerAppState {
         Ok(())
     }
     pub async fn delete_r2_file(&self, location: &str) -> Result<(), Error> {
+        trace!(location, "deleting R2 file");
         let resp = self
             .http
             .delete(format!("{}{}", self.config.fakes3_endpoint, location))
@@ -146,6 +151,7 @@ impl InnerAppState {
         template_name: &str,
         context: &tera::Context,
     ) -> Result<axum::response::Html<String>, Error> {
+        trace!(?context, ?template_name, "rendering template");
         #[cfg(feature = "dev")]
         let tera = self
             .tera
@@ -173,7 +179,7 @@ impl InnerAppState {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct DbUserUpdate {
     id: Id<UserMarker>,
     username: Option<String>,
@@ -234,7 +240,7 @@ impl DbUserUpdate {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum MaybeNullUpdate<T: Clone> {
     Null,
     None,

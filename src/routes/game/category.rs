@@ -9,13 +9,13 @@ use crate::{
     AppState, Error, HandlerResult,
 };
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Debug, Clone)]
 pub struct GetCategoryQuery {
     #[serde(default = "crate::util::return_0_usize")]
     pub page: usize,
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct GetGameContext {
     #[serde(flatten)]
     core: BaseRenderInfo,

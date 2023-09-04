@@ -58,13 +58,13 @@ async fn put(uri: Uri, body: Bytes) -> Result<(), Error> {
     if uri_path.contains("..") {
         return Err(Error::DoubleDotInPath);
     }
-    let path_string = format!("./assets{uri_path}");
-    let path = Path::new(&path_string);
+    let dest_path = format!("./assets{uri_path}");
+    let path = Path::new(&dest_path);
     let parent = path.parent().ok_or(Error::PathHasNoParent)?;
-    trace!("Got request to {uri_path} (updated to {path_string})");
+    trace!(uri_path = ?uri_path, dest_path, "Got fakes3 create request");
     tokio::fs::create_dir_all(parent).await?;
     tokio::fs::write(&path, body).await?;
-    trace!("Created file {}", path.to_string_lossy());
+    trace!(?path, "Created file");
     Ok(())
 }
 
@@ -73,10 +73,10 @@ async fn delete(uri: Uri) -> Result<(), Error> {
     if uri_path.contains("..") {
         return Err(Error::DoubleDotInPath);
     }
-    let path_string = format!("./assets{uri_path}");
-    let path = Path::new(&path_string);
-    trace!("Got request to {uri_path} (updated to {path_string})");
+    let dest_path = format!("./assets{uri_path}");
+    let path = Path::new(&dest_path);
+    trace!(uri_path = ?uri_path, dest_path, "Got fakes3 delete request");
     tokio::fs::remove_file(&path).await?;
-    trace!("Removed file {}", path.to_string_lossy());
+    trace!(?path, "Removed file");
     Ok(())
 }

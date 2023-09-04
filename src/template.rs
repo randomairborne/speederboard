@@ -27,7 +27,7 @@ pub fn tera() -> Tera {
     real_tera()
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct BaseRenderInfo {
     pub root_url: String,
     pub cdn_url: String,
@@ -70,6 +70,7 @@ pub struct ConfirmContext {
     pub return_to: String,
 }
 
+#[derive(Debug, Clone, Copy)]
 struct DevModeFunction;
 
 impl tera::Function for DevModeFunction {
@@ -84,6 +85,7 @@ impl tera::Function for DevModeFunction {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 struct MarkdownFilter;
 
 impl tera::Filter for MarkdownFilter {
@@ -101,9 +103,11 @@ impl tera::Filter for MarkdownFilter {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 struct VideoEmbedder;
 
 impl tera::Filter for VideoEmbedder {
+    #[tracing::instrument(name = "embed_video", level = tracing::Level::TRACE, skip(_args))]
     fn filter(
         &self,
         value: &tera::Value,
@@ -113,30 +117,42 @@ impl tera::Filter for VideoEmbedder {
             return Ok(value.clone());
         };
         let sanitized_link = tera::escape_html(input);
-        let data = convert_link(input).unwrap_or(sanitized_link);
+        trace!(sanitized_link, input, "sanitized link");
+        let data = convert_link(input).unwrap_or_else(|_| simple_a(&sanitized_link));
+        trace!(data, input, "converted to clickable");
         Ok(tera::Value::String(data))
     }
     fn is_safe(&self) -> bool {
         true
     }
 }
-
+#[tracing::instrument(name = "convert_link", level = tracing::Level::TRACE)]
 fn convert_link(input: &str) -> Result<String, Error> {
     let url = url::Url::parse(input)?;
+    trace!(?url, input, "parsed URL");
     let Some(domain) = url.domain().map(str::to_ascii_lowercase) else {
         return Err(Error::NoDomainInUrl);
     };
     match domain.as_str() {
         "youtube.com" | "www.youtube.com" => {
+            trace!(?url, "converting YouTube URL");
             let mut query = url.query_pairs();
             let maybe_id = query.find_map(|v| if v.0 == "v" { Some(v.1) } else { None });
             if let Some(id) = maybe_id {
                 Ok(get_yt_embed_iframe(&id))
             } else {
-                Ok(simple_a(input))
+                Ok(simple_a(url.as_str()))
             }
         }
-        _ => Ok(simple_a(input)),
+        "youtu.be" | "www.youtu.be" => {
+            trace!(?url, "converting YouTu.be URL");
+            if let Some(Some(id)) = url.path_segments().map(|mut v| v.next()) {
+                Ok(get_yt_embed_iframe(id))
+            } else {
+                Ok(simple_a(url.as_str()))
+            }
+        }
+        _ => Ok(simple_a(url.as_str())),
     }
 }
 

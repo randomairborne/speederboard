@@ -2,7 +2,6 @@ use axum::{
     extract::{Path, State},
     response::Redirect,
 };
-use garde::Validate;
 
 use crate::{
     id::{CategoryMarker, Id},
@@ -12,7 +11,7 @@ use crate::{
     AppState, Error, HandlerResult,
 };
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct GetRunCreatePage {
     #[serde(flatten)]
     base: BaseRenderInfo,
@@ -21,7 +20,7 @@ pub struct GetRunCreatePage {
     category: Category,
 }
 
-#[derive(serde::Deserialize, Validate)]
+#[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
 pub struct RunCreateForm {
     #[garde(length(min = crate::util::MIN_RUN_VIDEO_LEN, max = crate::util::MAX_RUN_VIDEO_LEN))]
     video: String,

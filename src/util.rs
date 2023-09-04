@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use axum::extract::FromRequest;
 use rand::rngs::OsRng;
@@ -55,6 +57,7 @@ pub fn return_0_usize() -> usize {
 }
 
 pub fn hash_password(password: &[u8], argon: &Argon2) -> Result<String, ArgonError> {
+    trace!("hashing password");
     let salt = SaltString::generate(&mut OsRng);
     argon
         .hash_password(password, &salt)
@@ -90,7 +93,7 @@ pub struct ValidatedForm<T>(pub T);
 #[axum::async_trait]
 impl<S, B, T> FromRequest<S, B> for ValidatedForm<T>
 where
-    T: serde::de::DeserializeOwned + garde::Validate<Context = ()>,
+    T: serde::de::DeserializeOwned + garde::Validate<Context = ()> + Debug,
     B: axum::body::HttpBody + Send + 'static,
     B::Data: Send,
     B::Error: Into<axum::BoxError>,
@@ -98,9 +101,10 @@ where
 {
     type Rejection = crate::Error;
     async fn from_request(req: axum::http::Request<B>, state: &S) -> Result<Self, Self::Rejection> {
-        let req: T = axum::Form::from_request(req, state).await?.0;
-        req.validate(&())?;
-        Ok(Self(req))
+        let form: T = axum::Form::from_request(req, state).await?.0;
+        trace!(data = ?form, "deserialized form-data, validating");
+        form.validate(&())?;
+        Ok(Self(form))
     }
 }
 
@@ -109,6 +113,7 @@ pub async fn game_n_member(
     user: User,
     game_slug: &str,
 ) -> Result<(Game, Member), crate::Error> {
+    trace!(userid = ?user.id, username = user.username, game_slug, "fetching user permissions for game");
     let data = query!(
         "SELECT g.id, g.name, g.slug,
         g.url, g.default_category, g.description,
@@ -122,6 +127,14 @@ pub async fn game_n_member(
     .fetch_one(&state.postgres)
     .await?;
     let perms = if user.admin {
+        trace!(
+            user.username = user.username,
+            user.id = ?user.id,
+            game.id = data.id,
+            game.name = data.name,
+            game.slug = data.slug,
+            "user has admin, overriding member permissions"
+        );
         Permissions::ADMINISTRATOR
     } else {
         Permissions::new_opt(data.permissions)

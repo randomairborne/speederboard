@@ -10,7 +10,7 @@ use axum::{
     response::Redirect,
 };
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct GetCategoryContext {
     #[serde(flatten)]
     base: BaseRenderInfo,

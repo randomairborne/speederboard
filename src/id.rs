@@ -28,13 +28,13 @@ impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> Id<T> {
 
 impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> std::fmt::Debug for Id<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self.inner)
+        self.inner.fmt(f)
     }
 }
 
 impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> std::fmt::Display for Id<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.inner)
+        self.inner.fmt(f)
     }
 }
 
