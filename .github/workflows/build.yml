@@ -31,7 +31,7 @@ jobs:
         arch: [aarch64, x86_64]
     steps:
       - name: Check out code into the proper directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install cargo
         uses: dtolnay/rust-toolchain@stable
@@ -71,7 +71,7 @@ jobs:
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
 
       - name: Check out code into the proper directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download ARM executables
         uses: actions/download-artifact@v3

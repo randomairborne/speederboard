@@ -22,7 +22,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out code into the proper directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install cargo
         uses: dtolnay/rust-toolchain@stable
