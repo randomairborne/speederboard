@@ -86,3 +86,11 @@ a:visited {
 .coverart-img {
     border: 2px solid #000;
 }
+
+.codeblock {
+    background-color: #DDD;
+    font-family: monospace;
+    padding: 1ch;
+    border-radius: 10px;
+    white-space: pre-wrap;
+}

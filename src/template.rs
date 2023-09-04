@@ -12,6 +12,7 @@ fn real_tera() -> tera::Tera {
     tera.register_filter("long_format_duration", HumanizeDuration);
     tera.register_filter("duration", Duration);
     tera.register_filter("video_embed", VideoEmbedder);
+    tera.register_function("devmode", DevModeFunction);
     tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
     tera
 }
@@ -67,6 +68,20 @@ pub struct ConfirmContext {
     pub action: String,
     pub action_url: String,
     pub return_to: String,
+}
+
+struct DevModeFunction;
+
+impl tera::Function for DevModeFunction {
+    fn call(
+        &self,
+        _args: &std::collections::HashMap<String, tera::Value>,
+    ) -> tera::Result<tera::Value> {
+        Ok(tera::Value::Bool(crate::DEV_MODE))
+    }
+    fn is_safe(&self) -> bool {
+        true
+    }
 }
 
 struct MarkdownFilter;

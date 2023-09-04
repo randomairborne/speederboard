@@ -12,19 +12,11 @@ use crate::{
 
 const MOD_FEED_PER_PAGE: usize = 100;
 
-fn ret_0() -> usize {
-    0
-}
-
-fn ret_false() -> bool {
-    false
-}
-
 #[derive(serde::Deserialize)]
 pub struct ModFeedQuery {
-    #[serde(default = "ret_0")]
+    #[serde(default = "crate::util::return_0_usize")]
     pub page: usize,
-    #[serde(default = "ret_false")]
+    #[serde(default = "crate::util::return_false")]
     pub newest: bool,
 }
 

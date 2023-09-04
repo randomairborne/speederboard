@@ -4,15 +4,25 @@ use crate::{
     util::{ValidatedForm, AUTHTOKEN_COOKIE, AUTHTOKEN_TTL},
     AppState, Error, HandlerResult,
 };
-use axum::{extract::State, response::Redirect};
+use axum::{
+    extract::{Query, State},
+    response::Redirect,
+};
 use axum_extra::extract::{cookie::Cookie, CookieJar};
 use rand::distributions::DistString;
 use redis::AsyncCommands;
 
 #[derive(serde::Serialize)]
 pub struct SignUpPage {
+    return_to: String,
     #[serde(flatten)]
     core: BaseRenderInfo,
+}
+
+#[derive(serde::Deserialize)]
+pub struct SignUpQuery {
+    #[serde(default = "crate::util::default_return_to")]
+    return_to: String,
 }
 
 #[derive(serde::Serialize)]
@@ -34,8 +44,15 @@ pub struct SignUpFormData {
 }
 
 #[allow(clippy::unused_async)]
-pub async fn get<'a>(State(state): State<AppState>, core: BaseRenderInfo) -> HandlerResult {
-    let ctx = SignUpPage { core };
+pub async fn get(
+    State(state): State<AppState>,
+    Query(query): Query<SignUpQuery>,
+    core: BaseRenderInfo,
+) -> HandlerResult {
+    let ctx = SignUpPage {
+        core,
+        return_to: query.return_to,
+    };
     state.render("signup.jinja", ctx)
 }
 

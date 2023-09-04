@@ -26,13 +26,9 @@ pub struct NewCategory {
     description: String,
     #[garde(length(min = crate::util::MIN_CATEGORY_RULES_LEN, max = crate::util::MAX_CATEGORY_RULES_LEN))]
     rules: String,
-    #[serde(default = "return_false")]
+    #[serde(default = "crate::util::return_false")]
     #[garde(skip)]
     scoreboard: bool,
-}
-
-fn return_false() -> bool {
-    false
 }
 
 pub async fn new(

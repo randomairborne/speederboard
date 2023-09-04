@@ -18,19 +18,25 @@
 <body>
     <nav>
         <div class="left">
-        <a href="{{ root_url }}" class="pad-left-1ch">home</a>
+            <a href="{{ root_url }}" class="pad-left-1ch">home</a>
         </div>
         <div class="right">
-        {% if logged_in_user %}
-        <a href="{{ root_url }}/logout" class="pad-right-1ch">logout</a>
-        <a href="{{ root_url }}/settings" class="pad-right-1ch">settings</a>
-        {% else %}
-        <a href="{{ root_url }}/login" class="pad-right-1ch">login</a>
-        <a href="{{ root_url }}/signup" class="pad-right-1ch">signup</a>
-        {% endif %}
+            {% if logged_in_user %}
+            <a href="{{ root_url }}/logout" class="pad-right-1ch">logout</a>
+            <a href="{{ root_url }}/settings" class="pad-right-1ch">settings</a>
+            {% else %}
+            <a href="{{ root_url }}/login" class="pad-right-1ch">login</a>
+            <a href="{{ root_url }}/signup" class="pad-right-1ch">signup</a>
+            {% endif %}
         </div>
     </nav>
     <div class="body">
+        {% if devmode() %}
+        <details open>
+            <summary>tera context</summary>
+            <div class="codeblock">{{ __tera_context }}</div>
+        </details>
+        {% endif %}
         {% block body %}{% endblock body %}
     </div>
 </body>

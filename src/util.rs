@@ -38,6 +38,22 @@ pub const MIN_RUN_DESCRIPTION_LEN: usize = 0;
 pub const AUTHTOKEN_COOKIE: &str = "token";
 pub const AUTHTOKEN_TTL: usize = 24 * 60 * 60;
 
+pub fn default_return_to() -> String {
+    String::from('/')
+}
+
+pub fn return_false() -> bool {
+    false
+}
+
+pub fn return_0_i64() -> i64 {
+    0
+}
+
+pub fn return_0_usize() -> usize {
+    0
+}
+
 pub fn hash_password(password: &[u8], argon: &Argon2) -> Result<String, ArgonError> {
     let salt = SaltString::generate(&mut OsRng);
     argon

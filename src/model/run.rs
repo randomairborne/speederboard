@@ -14,6 +14,7 @@ use super::{Category, Game, User};
 #[derive(
     serde::Serialize, serde::Deserialize, Debug, Hash, PartialEq, Eq, Clone, Copy, sqlx::Type,
 )]
+#[repr(i8)]
 pub enum RunStatus {
     Verified = 1,
     Rejected = -1,

@@ -4,10 +4,6 @@ use crate::{
     model::User, template::BaseRenderInfo, util::ValidatedForm, AppState, Error, HandlerResult,
 };
 
-fn default_false() -> bool {
-    false
-}
-
 #[derive(serde::Deserialize, garde::Validate)]
 pub struct CreateGame {
     #[garde(length(min = crate::util::MIN_GAME_NAME_LEN, max = crate::util::MAX_GAME_NAME_LEN))]
@@ -25,7 +21,7 @@ pub struct CreateGame {
     #[garde(length(min = crate::util::MIN_CATEGORY_RULES_LEN, max = crate::util::MAX_CATEGORY_RULES_LEN))]
     cat_rules: String,
     #[garde(skip)]
-    #[serde(default = "default_false")]
+    #[serde(default = "crate::util::return_false")]
     scoreboard: bool,
 }
 

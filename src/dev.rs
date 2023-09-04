@@ -7,13 +7,13 @@ use crate::{AppState, Error};
 
 pub async fn reload_tera(state: AppState) {
     let mut watcher = notify::recommended_watcher(move |res: Result<Event, notify::Error>| {
+        trace!(?res, "got notify event");
         if let Ok(event) = res {
-            if !event.kind.is_modify() || !event.kind.is_remove() || !event.kind.is_create() {
-                return;
+            if event.kind.is_modify() || event.kind.is_remove() || event.kind.is_create() {
+                let superstate = state.clone();
+                info!("reloading templates");
+                std::thread::spawn(move || superstate.reload_tera());
             }
-            let superstate = state.clone();
-            debug!("reloading templates");
-            std::thread::spawn(move || superstate.reload_tera());
         }
     })
     .expect("failed to create watcher");

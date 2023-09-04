@@ -33,6 +33,12 @@ extern crate tracing;
 #[macro_use]
 extern crate sqlx;
 
+#[cfg(feature = "dev")]
+pub const DEV_MODE: bool = true;
+
+#[cfg(not(feature = "dev"))]
+pub const DEV_MODE: bool = false;
+
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();

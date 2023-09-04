@@ -126,11 +126,14 @@ impl FromRequestParts<AppState> for User {
     ) -> Result<Self, Self::Rejection> {
         let mut redis = state.redis.get().await?;
         let jar = CookieJar::from_request_parts(parts, state).await?;
-        let cookie = jar.get(AUTHTOKEN_COOKIE).ok_or(Error::InvalidCookie)?;
+        let cookie = jar
+            .get(AUTHTOKEN_COOKIE)
+            .ok_or_else(|| Error::NeedsLogin(parts.uri.path().to_owned()))?;
 
         let maybe_user_id: Option<String> =
             redis.get(format!("token:user:{}", cookie.value())).await?;
-        let user_id = maybe_user_id.ok_or(Error::InvalidCookie)?;
+        let user_id =
+            maybe_user_id.ok_or_else(|| Error::NeedsLogin(parts.uri.path().to_owned()))?;
 
         let maybe_user: Option<String> = redis.get(format!("user:{user_id}")).await?;
         let user = maybe_user.ok_or(Error::TokenHasIdButIdIsUnkown)?;

@@ -53,6 +53,8 @@ pub enum Error {
     UrlParse(#[from] url::ParseError),
     #[error("URL missing query pair {0}")]
     MissingQueryPair(&'static str),
+    #[error("This endpoint needs authorization")]
+    NeedsLogin(String),
     #[error("Username or password is incorrect")]
     InvalidPassword,
     #[error("Invalid auth cookie")]
@@ -142,6 +144,9 @@ pub async fn error_middleware<B>(
         | Error::DoubleDotInPath => StatusCode::BAD_REQUEST,
         Error::InvalidPassword | Error::InsufficientPermissions => StatusCode::UNAUTHORIZED,
         Error::InvalidCookie => return Redirect::to("/login").into_response(),
+        Error::NeedsLogin(return_to) => {
+            return Redirect::to(&format!("/login?return_to={return_to}")).into_response()
+        }
         Error::NotFound => return crate::routes::notfound(&state, core).into_response(),
     };
     if status == StatusCode::INTERNAL_SERVER_ERROR {

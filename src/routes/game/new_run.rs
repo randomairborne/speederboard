@@ -21,29 +21,25 @@ pub struct GetRunCreatePage {
     category: Category,
 }
 
-fn ret_0() -> i64 {
-    0
-}
-
 #[derive(serde::Deserialize, Validate)]
 pub struct RunCreateForm {
     #[garde(length(min = crate::util::MIN_RUN_VIDEO_LEN, max = crate::util::MAX_RUN_VIDEO_LEN))]
     video: String,
     #[garde(length(min = crate::util::MIN_RUN_DESCRIPTION_LEN, max = crate::util::MAX_RUN_DESCRIPTION_LEN))]
     description: String,
-    #[serde(default = "ret_0")]
+    #[serde(default = "crate::util::return_0_i64")]
     #[garde(range(min = 0))]
     score: i64,
-    #[serde(default = "ret_0")]
+    #[serde(default = "crate::util::return_0_i64")]
     #[garde(range(min = 0))]
     hours: i64,
-    #[serde(default = "ret_0")]
+    #[serde(default = "crate::util::return_0_i64")]
     #[garde(range(min = 0, max = 60))]
     minutes: i64,
-    #[serde(default = "ret_0")]
+    #[serde(default = "crate::util::return_0_i64")]
     #[garde(range(min = 0, max = 60))]
     seconds: i64,
-    #[serde(default = "ret_0")]
+    #[serde(default = "crate::util::return_0_i64")]
     #[garde(range(min = 0, max = 1000))]
     milliseconds: i64,
 }

@@ -18,6 +18,7 @@ pub struct LoginPage {
     #[serde(flatten)]
     core: BaseRenderInfo,
     incorrect: bool,
+    return_to: String,
 }
 
 #[allow(clippy::module_name_repetitions)]
@@ -41,12 +42,8 @@ pub struct LoginFormData {
 #[allow(clippy::module_name_repetitions)]
 #[derive(serde::Deserialize)]
 pub struct LoginQuery {
-    #[serde(default = "return_false")]
-    pub incorrect: bool,
-}
-
-fn return_false() -> bool {
-    false
+    #[serde(default = "crate::util::default_return_to")]
+    pub return_to: String,
 }
 
 #[allow(clippy::unused_async)]
@@ -57,7 +54,8 @@ pub async fn get(
 ) -> HandlerResult {
     let ctx = LoginPage {
         core,
-        incorrect: query.incorrect,
+        return_to: query.return_to,
+        incorrect: false,
     };
     state.render("login.jinja", ctx)
 }
@@ -65,11 +63,18 @@ pub async fn get(
 pub async fn post(
     State(state): State<AppState>,
     cookies: CookieJar,
+    core: BaseRenderInfo,
+    Query(query): Query<LoginQuery>,
     ValidatedForm(form): ValidatedForm<LoginFormData>,
-) -> Result<(CookieJar, Redirect), Error> {
+) -> Result<Result<(CookieJar, Redirect), HandlerResult>, Error> {
     let Ok(user) = User::from_db_auth(&state, &state.postgres, form.email, form.password).await?
     else {
-        return Ok((cookies, Redirect::to("?incorrect=true")));
+        let ctx = LoginPage {
+            core,
+            return_to: query.return_to,
+            incorrect: true,
+        };
+        return Ok(Err(state.render("login.jinja", ctx)));
     };
     let token = rand::distributions::Alphanumeric.sample_string(&mut rand::thread_rng(), 64);
     state
@@ -88,10 +93,10 @@ pub async fn post(
             AUTHTOKEN_TTL,
         )
         .await?;
-    Ok((
+    Ok(Ok((
         cookies.add(Cookie::new(AUTHTOKEN_COOKIE, token)),
-        Redirect::to(&state.config.root_url),
-    ))
+        Redirect::to(&format!("{}{}", state.config.root_url, query.return_to)),
+    )))
 }
 
 pub async fn logout(

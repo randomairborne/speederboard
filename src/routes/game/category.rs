@@ -9,13 +9,9 @@ use crate::{
     AppState, Error, HandlerResult,
 };
 
-fn ret_0() -> usize {
-    0
-}
-
 #[derive(serde::Deserialize)]
 pub struct GetCategoryQuery {
-    #[serde(default = "ret_0")]
+    #[serde(default = "crate::util::return_0_usize")]
     pub page: usize,
 }
 
