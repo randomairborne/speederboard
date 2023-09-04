@@ -3,6 +3,9 @@ name: Deploy docs
 on:
   push:
     branches: ["main"]
+    paths:
+      - docs/**
+      - .github/**
   workflow_dispatch:
 
 permissions:
