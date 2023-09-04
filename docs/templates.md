@@ -4,8 +4,9 @@ Hello potentially template developing friend! I'm valkyrie, and today we'll be l
 
 At the top of every template is its input struct. it looks like this:
 
+{% raw %}
+
 ```jinja2
-{%- raw %}
 {#
     struct Input {
         cdn_url: string, // documentation
@@ -16,13 +17,18 @@ At the top of every template is its input struct. it looks like this:
         id: int,
         name: string
     }
-#}{%- endraw -%}
+#}
 ```
+
+{% endraw %}
 
 this defines the tree of variables that can be referenced within tempates, like so
 
+{% raw %}
+
 ```jinja2
-{%- raw %}
 {{ variable }}
-{{ struct.variable }}{% endraw -%}
+{{ struct.variable }}
 ```
+
+{% endraw %}
