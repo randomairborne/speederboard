@@ -6,7 +6,7 @@ At the top of every template is its input struct. it looks like this:
 
 ```jinja2
 {%- raw -%}
-    {#
+{#
     struct Input {
         cdn_url: string, // documentation
         root_url: string, // more documentation
@@ -16,7 +16,7 @@ At the top of every template is its input struct. it looks like this:
         id: int,
         name: string
     }
-    #}
+#}
 {%- endraw -%}
 ```
 
