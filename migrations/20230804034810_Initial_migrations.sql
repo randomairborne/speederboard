@@ -59,3 +59,11 @@ CREATE TABLE runs (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     verified_at TIMESTAMP
 );
+
+CREATE TABLE forum_posts (
+    id BIGSERIAL PRIMARY KEY,
+    game BIGINT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    parent BIGINT REFERENCES forum_posts(id) ON DELETE CASCADE,
+    author BIGINT NOT NULL REFERENCES users(id),
+    content VARCHAR(4000) NOT NULL
+);

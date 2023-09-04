@@ -227,31 +227,18 @@ impl ResolvedRun {
             r#"SELECT runs.id, runs.game, runs.category, runs.video,
             runs.description, runs.score, runs.time, runs.status,
             runs.created_at, runs.verified_at,
-            ver.id as ver_id,
-            ver.username as ver_name,
-            ver.has_stylesheet as ver_has_stylesheet,
-            ver.biography as ver_bio,
-            ver.pfp_ext as ver_pfp_ext,
-            ver.banner_ext as ver_banner_ext,
-            ver.admin as ver_admin,
-            ver.created_at as ver_created_at,
-            sub.id as sub_id,
-            sub.username as sub_name,
-            sub.has_stylesheet as sub_has_stylesheet,
-            sub.biography as sub_bio,
-            sub.pfp_ext as sub_pfp_ext,
-            sub.banner_ext as sub_banner_ext,
-            sub.admin as sub_admin,
-            sub.created_at as sub_created_at,
-            cat.game as cat_game,
-            cat.name as cat_name,
-            cat.description as cat_description,
-            cat.rules as cat_rules,
-            cat.scoreboard as cat_scoreboard
+            verifier.id, verifier.username, verifier.has_stylesheet,
+            verifier.biography, verifier.pfp_ext, verifier.banner_ext,
+            verifier.admin, verifier.created_at,
+            submitter.id, submitter.username, submitter.has_stylesheet,
+            submitter.biography, submitter.pfp_ext, submitter.banner_ext,
+            submitter.admin, submitter.created_at,
+            category.game,category.name, category.description,
+            category.rules, category.scoreboard
             FROM runs
-            LEFT JOIN users as ver ON runs.verifier = ver.id
-            JOIN users as sub ON runs.submitter = sub.id
-            JOIN categories as cat ON runs.category = cat.id
+            LEFT JOIN users as verifier ON runs.verifier = verifier.id
+            JOIN users as submitter ON runs.submitter = submitter.id
+            JOIN categories as category ON runs.category = category.id
             WHERE runs.game = "#,
         );
         query.push_bind(game.id.get());
@@ -283,74 +270,74 @@ impl ResolvedRun {
             has_next,
         })
     }
-    fn row_to_rcat(v: &PgRow, game: &Arc<Game>) -> Result<ResolvedRun, Error> {
-        let id: Id<RunMarker> = v.try_get("id")?;
-        let game_id: Id<GameMarker> = v.try_get("game")?;
-        let category_id: Id<CategoryMarker> = v.try_get("category")?;
-        let video: String = v.try_get("video")?;
-        let description: String = v.try_get("description")?;
-        let score: i64 = v.try_get("score")?;
-        let time: i64 = v.try_get("time")?;
-        let status_num: i16 = v.try_get("status")?;
-        let created_at: NaiveDateTime = v.try_get("created_at")?;
-        let verified_at: Option<NaiveDateTime> = v.try_get("verified_at")?;
+    fn row_to_rcat(row: &PgRow, game: &Arc<Game>) -> Result<ResolvedRun, Error> {
+        let id: Id<RunMarker> = row.try_get("id")?;
+        let game_id: Id<GameMarker> = row.try_get("game")?;
+        let category_id: Id<CategoryMarker> = row.try_get("category")?;
+        let video: String = row.try_get("video")?;
+        let description: String = row.try_get("description")?;
+        let score: i64 = row.try_get("score")?;
+        let time: i64 = row.try_get("time")?;
+        let status_num: i16 = row.try_get("status")?;
+        let created_at: NaiveDateTime = row.try_get("created_at")?;
+        let verified_at: Option<NaiveDateTime> = row.try_get("verified_at")?;
 
         let status = RunStatus::from(status_num);
         if game_id != game.id {
             return Err(Error::RowDoesNotMatchInputGame);
         }
 
-        let ver_id: Option<Id<UserMarker>> = v.try_get("ver_id")?;
-        let ver_name: Option<String> = v.try_get("ver_name")?;
-        let ver_has_stylesheet: Option<bool> = v.try_get("ver_has_stylesheet")?;
-        let ver_bio: Option<String> = v.try_get("ver_bio")?;
-        let ver_pfp_ext: Option<String> = v.try_get("ver_pfp_ext")?;
-        let ver_banner_ext: Option<String> = v.try_get("ver_banner_ext")?;
-        let ver_admin: Option<bool> = v.try_get("ver_admin")?;
-        let ver_created_at: Option<NaiveDateTime> = v.try_get("ver_created_at")?;
+        let verifier_id: Option<Id<UserMarker>> = row.try_get("verifier.id")?;
+        let verifier_name: Option<String> = row.try_get("verifier,name")?;
+        let verifier_has_stylesheet: Option<bool> = row.try_get("verifier.has_stylesheet")?;
+        let verifier_bio: Option<String> = row.try_get("verifier.biography")?;
+        let verifier_pfp_ext: Option<String> = row.try_get("verifier.pfp_ext")?;
+        let verifier_banner_ext: Option<String> = row.try_get("verifier.banner_ext")?;
+        let verifier_admin: Option<bool> = row.try_get("verifier.admin")?;
+        let verifier_created_at: Option<NaiveDateTime> = row.try_get("verifier.created_at")?;
 
-        let sub_id: Id<UserMarker> = v.try_get("sub_id")?;
-        let sub_name: String = v.try_get("sub_name")?;
-        let sub_has_stylesheet: bool = v.try_get("sub_has_stylesheet")?;
-        let sub_bio: String = v.try_get("sub_bio")?;
-        let sub_pfp_ext: Option<String> = v.try_get("sub_pfp_ext")?;
-        let sub_banner_ext: Option<String> = v.try_get("sub_banner_ext")?;
-        let sub_admin: bool = v.try_get("sub_admin")?;
-        let sub_created_at: NaiveDateTime = v.try_get("sub_created_at")?;
+        let submitter_id: Id<UserMarker> = row.try_get("submitter.id")?;
+        let submitter_name: String = row.try_get("submitter.name")?;
+        let submitter_has_stylesheet: bool = row.try_get("submitter.has_stylesheet")?;
+        let submitter_bio: String = row.try_get("submitter.biography")?;
+        let submitter_pfp_ext: Option<String> = row.try_get("submitter.pfp_ext")?;
+        let submitter_banner_ext: Option<String> = row.try_get("submitter.banner_ext")?;
+        let submitter_admin: bool = row.try_get("submitter.admin")?;
+        let submitter_created_at: NaiveDateTime = row.try_get("submitter.created_at")?;
 
-        let cat_game_id: Id<GameMarker> = v.try_get("cat_game")?;
-        let cat_name: String = v.try_get("cat_name")?;
-        let cat_description: String = v.try_get("cat_description")?;
-        let cat_rules: String = v.try_get("cat_rules")?;
-        let cat_scoreboard: bool = v.try_get("cat_scoreboard")?;
+        let category_game_id: Id<GameMarker> = row.try_get("category.game")?;
+        let category_name: String = row.try_get("category.name")?;
+        let category_description: String = row.try_get("category.description")?;
+        let category_rules: String = row.try_get("category.rules")?;
+        let category_scoreboard: bool = row.try_get("category.scoreboard")?;
 
         let verifier = opt_user(
-            ver_id,
-            ver_name,
-            ver_has_stylesheet,
-            ver_bio,
-            ver_pfp_ext,
-            ver_banner_ext,
-            ver_admin,
-            ver_created_at,
+            verifier_id,
+            verifier_name,
+            verifier_has_stylesheet,
+            verifier_bio,
+            verifier_pfp_ext,
+            verifier_banner_ext,
+            verifier_admin,
+            verifier_created_at,
         );
         let submitter = User {
-            id: sub_id,
-            username: sub_name,
-            has_stylesheet: sub_has_stylesheet,
-            biography: sub_bio,
-            pfp_ext: sub_pfp_ext,
-            banner_ext: sub_banner_ext,
-            admin: sub_admin,
-            created_at: sub_created_at,
+            id: submitter_id,
+            username: submitter_name,
+            has_stylesheet: submitter_has_stylesheet,
+            biography: submitter_bio,
+            pfp_ext: submitter_pfp_ext,
+            banner_ext: submitter_banner_ext,
+            admin: submitter_admin,
+            created_at: submitter_created_at,
         };
         let category = Category {
             id: category_id,
-            game: cat_game_id,
-            name: cat_name,
-            description: cat_description,
-            rules: cat_rules,
-            scoreboard: cat_scoreboard,
+            game: category_game_id,
+            name: category_name,
+            description: category_description,
+            rules: category_rules,
+            scoreboard: category_scoreboard,
         };
         let rr = ResolvedRun {
             id,
