@@ -20,7 +20,6 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
-    needs: [check]
     steps:
       - name: Check out code into the proper directory
         uses: actions/checkout@v3
