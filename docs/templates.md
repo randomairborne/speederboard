@@ -16,8 +16,7 @@ At the top of every template is its input struct. it looks like this:
         id: int,
         name: string
     }
-#}
-{%- endraw -%}
+#}{%- endraw -%}
 ```
 
 this defines the tree of variables that can be referenced within tempates, like so
@@ -25,6 +24,5 @@ this defines the tree of variables that can be referenced within tempates, like 
 ```jinja2
 {%- raw %}
 {{ variable }}
-{{ struct.variable }}
-{%- endraw -%}
+{{ struct.variable }}{% endraw -%}
 ```
