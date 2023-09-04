@@ -46,4 +46,4 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: r2 put -f target/release/speederboard.exe speederboard/executables/speederboard.exe
+          command: r2 object put -f target/release/speederboard.exe speederboard/executables/speederboard.exe
