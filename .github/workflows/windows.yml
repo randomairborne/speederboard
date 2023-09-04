@@ -37,9 +37,15 @@ jobs:
       - name: Build executable
         run: cargo build --release
 
-      - name: Upload executable
+      - name: Upload executable artifact
         uses: actions/upload-artifact@v3
         with:
           name: windows-build
           path: |
             target/release/speederboard.exe
+
+      - name: Upload executable to CDN
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          command: r2 put -f target/release/speederboard.exe speederboard/executables/speederboard.exe
