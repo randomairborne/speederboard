@@ -22,6 +22,8 @@ jobs:
 
       - name: Cache Packages
         uses: Swatinem/rust-cache@v2
+        with:
+          key: "check"
 
       - name: Check formatting
         run: cargo fmt --check

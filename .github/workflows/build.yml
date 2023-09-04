@@ -41,7 +41,7 @@ jobs:
       - name: Cache rust
         uses: Swatinem/rust-cache@v2
         with:
-          key: ${{ matrix.arch }}
+          key: ${{ matrix.arch }}-build
 
       - name: Download musl development toolchain for ${{ matrix.arch }}
         run: curl -fsSl https://musl.cc/${{ matrix.arch }}-linux-musl-cross.tgz --output ${{ matrix.arch }}-linux-musl-cross.tgz

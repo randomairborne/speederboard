@@ -18,9 +18,6 @@ permissions:
   contents: read
 
 jobs:
-  check:
-    uses: ./.github/workflows/check.yml
-
   build:
     runs-on: windows-latest
     needs: [check]
@@ -33,6 +30,8 @@ jobs:
 
       - name: Cache rust
         uses: Swatinem/rust-cache@v2
+        with:
+          key: "windows"
 
       - name: Build executable
         run: cargo build --release
