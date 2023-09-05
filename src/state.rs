@@ -51,6 +51,7 @@ impl InnerAppState {
             http,
         }
     }
+
     /// # Errors
     /// If somehow the channel hangs up, this can error.
     pub async fn spawn_rayon<O, F>(
@@ -69,6 +70,7 @@ impl InnerAppState {
         });
         rx.await
     }
+
     pub async fn update_user(&self, user: DbUserUpdate) -> Result<User, Error> {
         trace!(?user, "updating user with data");
         let new_db_user = query_as!(
@@ -107,6 +109,7 @@ impl InnerAppState {
             .await?;
         Ok(new_db_user)
     }
+
     pub async fn put_r2_file(
         &self,
         location: &str,
@@ -126,6 +129,7 @@ impl InnerAppState {
         trace!(?resp, "got response on creation");
         Ok(())
     }
+
     pub async fn delete_r2_file(&self, location: &str) -> Result<(), Error> {
         trace!(location, "deleting R2 file");
         let resp = self
@@ -138,6 +142,7 @@ impl InnerAppState {
         trace!(?resp, "got response on deletion");
         Ok(())
     }
+
     pub fn render<T: serde::Serialize>(
         &self,
         template_name: &str,
@@ -146,6 +151,7 @@ impl InnerAppState {
         let context = tera::Context::from_serialize(data)?;
         self.render_ctx(template_name, &context)
     }
+
     pub fn render_ctx(
         &self,
         template_name: &str,
@@ -162,6 +168,7 @@ impl InnerAppState {
         let html_text = tera.render(template_name, context)?;
         Ok(axum::response::Html(html_text))
     }
+
     #[cfg(feature = "dev")]
     pub fn reload_tera(&self) {
         if let Err(source) = self
@@ -202,36 +209,42 @@ impl DbUserUpdate {
             admin: None,
         }
     }
+
     pub fn username(self, username: String) -> Self {
         Self {
             username: Some(username),
             ..self
         }
     }
+
     pub fn has_stylesheet(self, has_stylesheet: bool) -> Self {
         Self {
             has_stylesheet: Some(has_stylesheet),
             ..self
         }
     }
+
     pub fn biography(self, biography: String) -> Self {
         Self {
             biography: Some(biography),
             ..self
         }
     }
+
     pub fn pfp_ext(self, pfp_ext: Option<String>) -> Self {
         Self {
             pfp_ext: pfp_ext.into(),
             ..self
         }
     }
+
     pub fn banner_ext(self, banner_ext: Option<String>) -> Self {
         Self {
             banner_ext: banner_ext.into(),
             ..self
         }
     }
+
     pub fn admin(self, is_admin: bool) -> Self {
         Self {
             admin: Some(is_admin),
@@ -251,6 +264,7 @@ impl<T: Clone> MaybeNullUpdate<T> {
     pub fn is_null(&self) -> bool {
         matches!(self, Self::Null)
     }
+
     pub fn into_option(self) -> Option<T> {
         self.into()
     }

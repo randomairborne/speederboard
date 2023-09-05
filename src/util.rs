@@ -100,6 +100,7 @@ where
     S: Send + Sync,
 {
     type Rejection = crate::Error;
+
     async fn from_request(req: axum::http::Request<B>, state: &S) -> Result<Self, Self::Rejection> {
         let form: T = axum::Form::from_request(req, state).await?.0;
         trace!(data = ?form, "deserialized form-data, validating");

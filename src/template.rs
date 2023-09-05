@@ -47,6 +47,7 @@ impl BaseRenderInfo {
 #[axum::async_trait]
 impl FromRequestParts<AppState> for BaseRenderInfo {
     type Rejection = crate::Error;
+
     async fn from_request_parts(
         parts: &mut Parts,
         state: &AppState,
@@ -80,6 +81,7 @@ impl tera::Function for DevModeFunction {
     ) -> tera::Result<tera::Value> {
         Ok(tera::Value::Bool(crate::DEV_MODE))
     }
+
     fn is_safe(&self) -> bool {
         true
     }
@@ -98,6 +100,7 @@ impl tera::Filter for MarkdownFilter {
             value.as_str().unwrap_or(""),
         )))
     }
+
     fn is_safe(&self) -> bool {
         true
     }
@@ -122,6 +125,7 @@ impl tera::Filter for VideoEmbedder {
         trace!(data, input, "converted to clickable");
         Ok(tera::Value::String(data))
     }
+
     fn is_safe(&self) -> bool {
         true
     }
@@ -186,6 +190,7 @@ impl tera::Filter for HumanizeDuration {
             .map_err(|v| tera::Error::msg(format!("Failed formatting string: {v:?}")))?;
         Ok(tera::Value::String(output))
     }
+
     fn is_safe(&self) -> bool {
         false
     }
@@ -207,6 +212,7 @@ impl tera::Filter for Duration {
             .map_err(|v| tera::Error::msg(format!("Failed formatting string: {v:?}")))?;
         Ok(tera::Value::String(output))
     }
+
     fn is_safe(&self) -> bool {
         false
     }

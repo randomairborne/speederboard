@@ -55,6 +55,8 @@ pub enum Error {
     MissingQueryPair(&'static str),
     #[error("This endpoint needs authorization")]
     NeedsLogin(String),
+    #[error("Query expected to return {0} rows returned {1}")]
+    TooManyRows(usize, usize),
     #[error("Username or password is incorrect")]
     InvalidPassword,
     #[error("Invalid auth cookie")]
@@ -128,8 +130,9 @@ pub async fn error_middleware<B>(
         | Error::Format(_)
         | Error::TryFromInt(_)
         | Error::UrlParse(_)
-        | Error::RowDoesNotMatchInputGame
         | Error::MissingQueryPair(_)
+        | Error::TooManyRows(_, _)
+        | Error::RowDoesNotMatchInputGame
         | Error::NoDomainInUrl
         | Error::PathHasNoParent => StatusCode::INTERNAL_SERVER_ERROR,
         Error::FormValidation(_)

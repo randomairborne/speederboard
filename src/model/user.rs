@@ -31,12 +31,15 @@ impl User {
     pub fn banner_dest_path(&self) -> String {
         format!("/customfiles/users/{}/banner.png", self.id)
     }
+
     pub fn pfp_dest_path(&self) -> String {
         format!("/customfiles/users/{}/pfp.png", self.id)
     }
+
     pub fn stylesheet_dest_path(&self) -> String {
         format!("/customfiles/users/{}/style.css", self.id)
     }
+
     pub fn stylesheet(&self) -> Option<String> {
         if self.has_stylesheet {
             Some(self.stylesheet_dest_path())
@@ -44,6 +47,7 @@ impl User {
             None
         }
     }
+
     pub fn pfp_path(&self) -> String {
         if self.pfp_ext.is_some() {
             self.pfp_dest_path()
@@ -51,6 +55,7 @@ impl User {
             DEFAULT_PFP.to_string()
         }
     }
+
     pub fn banner_path(&self) -> Option<String> {
         if self.has_stylesheet {
             Some(self.banner_dest_path())
@@ -58,6 +63,7 @@ impl User {
             None
         }
     }
+
     pub async fn from_db(state: &AppState, id: Id<UserMarker>) -> Result<User, Error> {
         let record = query!(
             "SELECT id, username, has_stylesheet, pfp_ext,
@@ -79,6 +85,7 @@ impl User {
         };
         Ok(user)
     }
+
     pub async fn from_db_auth(
         state: &AppState,
         db: impl sqlx::PgExecutor<'_>,
@@ -120,6 +127,7 @@ impl User {
 #[axum::async_trait]
 impl FromRequestParts<AppState> for User {
     type Rejection = Error;
+
     async fn from_request_parts(
         parts: &mut Parts,
         state: &AppState,
@@ -153,6 +161,7 @@ impl AsRef<User> for Admin {
 #[axum::async_trait]
 impl FromRequestParts<AppState> for Admin {
     type Rejection = Error;
+
     async fn from_request_parts(
         parts: &mut Parts,
         state: &AppState,

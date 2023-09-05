@@ -47,6 +47,7 @@ impl RunCreateForm {
     const MS_PER_HOUR: i64 = 3_600_000;
     const MS_PER_MINUTE: i64 = 60_000;
     const MS_PER_SECOND: i64 = 1000;
+
     pub fn consolidate_times(&self) -> i64 {
         (self.hours * Self::MS_PER_HOUR)
             + (self.minutes * Self::MS_PER_MINUTE)

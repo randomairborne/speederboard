@@ -15,9 +15,11 @@ impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> Id<T> {
     pub fn new(data: i64) -> Self {
         data.into()
     }
+
     pub fn get(self) -> i64 {
         self.inner
     }
+
     pub fn cast<O: IdMarker + Clone + Copy + PartialEq + Eq + Hash>(self) -> Id<O> {
         Id {
             inner: self.inner,
@@ -58,15 +60,18 @@ where
     {
         sqlx::Encode::<DB>::encode(self.inner, buf)
     }
+
     fn encode_by_ref(
         &self,
         buf: &mut <DB as sqlx::database::HasArguments<'q>>::ArgumentBuffer,
     ) -> sqlx::encode::IsNull {
         sqlx::Encode::<DB>::encode_by_ref(&self.inner, buf)
     }
+
     fn produces(&self) -> Option<<DB as sqlx::Database>::TypeInfo> {
         sqlx::Encode::<DB>::produces(&self.inner)
     }
+
     fn size_hint(&self) -> usize {
         sqlx::Encode::<DB>::size_hint(&self.inner)
     }
