@@ -268,6 +268,7 @@ impl ResolvedRun {
     /// If `optional_game` is set, it will use the passed-in game. Otherwise,
     /// it will try to get it from the `game.*` fields
     fn row_to_rcat(row: &PgRow, optional_game: Option<Arc<Game>>) -> Result<ResolvedRun, Error> {
+        trace!("columns {:#?}", row.columns());
         let game = match optional_game {
             Some(v) => v,
             None => Self::get_game_from_row(row)?,
