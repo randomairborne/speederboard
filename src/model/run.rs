@@ -244,9 +244,11 @@ impl ResolvedRun {
                 SortBy::Score => query.push(" ORDER BY score DESC "),
                 SortBy::Time => query.push(" ORDER BY time ASC "),
                 SortBy::SubmissionDate(DateSort::Newest) => {
-                    query.push(" ORDER BY created_at DESC ")
+                    query.push(" ORDER BY runs.created_at DESC ")
                 }
-                SortBy::SubmissionDate(DateSort::Oldest) => query.push(" ORDER BY created_at ASC "),
+                SortBy::SubmissionDate(DateSort::Oldest) => {
+                    query.push(" ORDER BY runs.created_at ASC ")
+                }
             };
             query.push(" LIMIT ");
             query.push_bind(s_limit + 1);
@@ -273,45 +275,45 @@ impl ResolvedRun {
             Some(v) => v,
             None => Self::get_game_from_row(row)?,
         };
-        let id: Id<RunMarker> = row.try_get("id")?;
-        let game_id: Id<GameMarker> = row.try_get("game")?;
-        let category_id: Id<CategoryMarker> = row.try_get("category")?;
-        let video: String = row.try_get("video")?;
-        let description: String = row.try_get("description")?;
-        let score: i64 = row.try_get("score")?;
-        let time: i64 = row.try_get("time")?;
-        let status_num: i16 = row.try_get("status")?;
-        let created_at: NaiveDateTime = row.try_get("created_at")?;
-        let verified_at: Option<NaiveDateTime> = row.try_get("verified_at")?;
+        let id: Id<RunMarker> = row.try_get(0)?;
+        let game_id: Id<GameMarker> = row.try_get(1)?;
+        let category_id: Id<CategoryMarker> = row.try_get(2)?;
+        let video: String = row.try_get(3)?;
+        let description: String = row.try_get(4)?;
+        let score: i64 = row.try_get(5)?;
+        let time: i64 = row.try_get(6)?;
+        let status_num: i16 = row.try_get(7)?;
+        let created_at: NaiveDateTime = row.try_get(8)?;
+        let verified_at: Option<NaiveDateTime> = row.try_get(9)?;
 
         let status = RunStatus::from(status_num);
         if game_id != game.id {
             return Err(Error::RowDoesNotMatchInputGame);
         }
 
-        let verifier_id: Option<Id<UserMarker>> = row.try_get("verifier.id")?;
-        let verifier_name: Option<String> = row.try_get("verifier.name")?;
-        let verifier_has_stylesheet: Option<bool> = row.try_get("verifier.has_stylesheet")?;
-        let verifier_bio: Option<String> = row.try_get("verifier.biography")?;
-        let verifier_pfp_ext: Option<String> = row.try_get("verifier.pfp_ext")?;
-        let verifier_banner_ext: Option<String> = row.try_get("verifier.banner_ext")?;
-        let verifier_admin: Option<bool> = row.try_get("verifier.admin")?;
-        let verifier_created_at: Option<NaiveDateTime> = row.try_get("verifier.created_at")?;
+        let verifier_id: Option<Id<UserMarker>> = row.try_get(10)?;
+        let verifier_name: Option<String> = row.try_get(11)?;
+        let verifier_has_stylesheet: Option<bool> = row.try_get(12)?;
+        let verifier_bio: Option<String> = row.try_get(13)?;
+        let verifier_pfp_ext: Option<String> = row.try_get(14)?;
+        let verifier_banner_ext: Option<String> = row.try_get(15)?;
+        let verifier_admin: Option<bool> = row.try_get(16)?;
+        let verifier_created_at: Option<NaiveDateTime> = row.try_get(17)?;
 
-        let submitter_id: Id<UserMarker> = row.try_get("submitter.id")?;
-        let submitter_name: String = row.try_get("submitter.name")?;
-        let submitter_has_stylesheet: bool = row.try_get("submitter.has_stylesheet")?;
-        let submitter_bio: String = row.try_get("submitter.biography")?;
-        let submitter_pfp_ext: Option<String> = row.try_get("submitter.pfp_ext")?;
-        let submitter_banner_ext: Option<String> = row.try_get("submitter.banner_ext")?;
-        let submitter_admin: bool = row.try_get("submitter.admin")?;
-        let submitter_created_at: NaiveDateTime = row.try_get("submitter.created_at")?;
+        let submitter_id: Id<UserMarker> = row.try_get(18)?;
+        let submitter_name: String = row.try_get(19)?;
+        let submitter_has_stylesheet: bool = row.try_get(20)?;
+        let submitter_bio: String = row.try_get(21)?;
+        let submitter_pfp_ext: Option<String> = row.try_get(22)?;
+        let submitter_banner_ext: Option<String> = row.try_get(23)?;
+        let submitter_admin: bool = row.try_get(24)?;
+        let submitter_created_at: NaiveDateTime = row.try_get(25)?;
 
-        let category_game_id: Id<GameMarker> = row.try_get("category.game")?;
-        let category_name: String = row.try_get("category.name")?;
-        let category_description: String = row.try_get("category.description")?;
-        let category_rules: String = row.try_get("category.rules")?;
-        let category_scoreboard: bool = row.try_get("category.scoreboard")?;
+        let category_game_id: Id<GameMarker> = row.try_get(26)?;
+        let category_name: String = row.try_get(27)?;
+        let category_description: String = row.try_get(28)?;
+        let category_rules: String = row.try_get(29)?;
+        let category_scoreboard: bool = row.try_get(30)?;
 
         let verifier = opt_user(
             verifier_id,
@@ -359,15 +361,15 @@ impl ResolvedRun {
     }
 
     fn get_game_from_row(row: &PgRow) -> Result<Arc<Game>, Error> {
-        let id: Id<GameMarker> = row.try_get("game.id")?;
-        let name: String = row.try_get("game.name")?;
-        let description: String = row.try_get("game.description")?;
-        let slug: String = row.try_get("game.slug")?;
-        let url: String = row.try_get("game.url")?;
-        let has_stylesheet: bool = row.try_get("game.has_stylesheet")?;
-        let banner_ext: Option<String> = row.try_get("game.banner_ext")?;
-        let cover_art_ext: Option<String> = row.try_get("game.cover_art_ext")?;
-        let default_category: Id<CategoryMarker> = row.try_get("game.default_category")?;
+        let id: Id<GameMarker> = row.try_get(31)?;
+        let name: String = row.try_get(32)?;
+        let description: String = row.try_get(33)?;
+        let slug: String = row.try_get(34)?;
+        let url: String = row.try_get(35)?;
+        let has_stylesheet: bool = row.try_get(36)?;
+        let banner_ext: Option<String> = row.try_get(37)?;
+        let cover_art_ext: Option<String> = row.try_get(38)?;
+        let default_category: Id<CategoryMarker> = row.try_get(39)?;
         Ok(Arc::new(Game {
             id,
             name,

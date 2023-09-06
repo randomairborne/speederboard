@@ -5,11 +5,11 @@ use crate::{
     Error,
 };
 use argon2::Argon2;
-use deadpool_redis::Pool as RedisPool;
-use rayon::ThreadPool;
+use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
+use rayon::{ThreadPool, ThreadPoolBuilder};
 use redis::AsyncCommands;
-use sqlx::PgPool;
-use std::sync::Arc;
+use sqlx::{postgres::PgPoolOptions, PgPool};
+use std::{sync::Arc, time::Duration};
 use tera::Tera;
 
 pub type AppState = Arc<InnerAppState>;
@@ -183,6 +183,50 @@ impl InnerAppState {
                 error!(?source, "Failed to reload templates");
             }
         }
+    }
+
+    pub async fn from_environment() -> AppState {
+        let config: Config = envy::from_env().expect("Failed to read config");
+        let root_url = config.root_url.trim_end_matches('/').to_string();
+        let cdn_url = config.cdn_url.trim_end_matches('/').to_string();
+        let fakes3_endpoint = config.fakes3_endpoint.trim_end_matches('/').to_string();
+        let config = Config {
+            root_url,
+            cdn_url,
+            fakes3_endpoint,
+            ..config
+        };
+        let postgres = PgPoolOptions::new()
+            .connect(&config.database_url)
+            .await
+            .expect("Failed to connect to the database");
+        sqlx::migrate!().run(&postgres).await.unwrap();
+        let redis_mgr = Manager::new(config.redis_url.clone()).expect("failed to connect to redis");
+        let redis = deadpool_redis::Pool::builder(redis_mgr)
+            .runtime(Runtime::Tokio1)
+            .build()
+            .unwrap();
+        let tera = crate::template::tera();
+        let rayon = Arc::new(ThreadPoolBuilder::new().num_threads(8).build().unwrap());
+        let argon = Argon2::new(
+            argon2::Algorithm::Argon2id,
+            argon2::Version::V0x13,
+            argon2::Params::new(16384, 192, 8, Some(64)).unwrap(),
+        );
+        let http = reqwest::ClientBuilder::new()
+            .user_agent("speederboard/http")
+            .timeout(Duration::from_secs(10))
+            .build()
+            .unwrap();
+        Arc::new(InnerAppState::new(
+            config.clone(),
+            tera,
+            redis,
+            postgres,
+            rayon,
+            argon,
+            http,
+        ))
     }
 }
 
