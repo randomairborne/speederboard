@@ -56,6 +56,21 @@ pub fn return_0_usize() -> usize {
     0
 }
 
+#[allow(clippy::trivially_copy_pass_by_ref)]
+pub fn validate_slug(value: &str, _context: &()) -> garde::Result {
+    if !value.chars().all(|char| {
+        (char.is_ascii_alphanumeric() && char.is_ascii_lowercase())
+            || char == '_'
+            || char == '-'
+            || char == '.'
+    }) {
+        return Err(garde::Error::new(
+            "game slug must contain only lowercase alphanumeric characters, _, -, and .",
+        ));
+    }
+    Ok(())
+}
+
 pub fn hash_password(password: &[u8], argon: &Argon2) -> Result<String, ArgonError> {
     trace!("hashing password");
     let salt = SaltString::generate(&mut OsRng);

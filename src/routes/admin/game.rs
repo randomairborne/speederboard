@@ -8,7 +8,7 @@ use crate::{
 pub struct CreateGame {
     #[garde(length(min = crate::util::MIN_GAME_NAME_LEN, max = crate::util::MAX_GAME_NAME_LEN))]
     name: String,
-    #[garde(length(min = crate::util::MIN_GAME_SLUG_LEN, max = crate::util::MAX_GAME_SLUG_LEN))]
+    #[garde(length(min = crate::util::MIN_GAME_SLUG_LEN, max = crate::util::MAX_GAME_SLUG_LEN), custom(crate::util::validate_slug))]
     slug: String,
     #[garde(url, length(min = crate::util::MIN_GAME_URL_LEN, max = crate::util::MAX_GAME_URL_LEN))]
     url: String,

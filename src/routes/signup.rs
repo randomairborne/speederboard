@@ -37,7 +37,7 @@ pub struct SignUpForm {
 pub struct SignUpFormData {
     #[garde(email, length(min = crate::util::MIN_EMAIL_LEN, max = crate::util::MAX_EMAIL_LEN))]
     email: String,
-    #[garde(length(min = crate::util::MIN_USERNAME_LEN, max = crate::util::MAX_USERNAME_LEN))]
+    #[garde(length(min = crate::util::MIN_USERNAME_LEN, max = crate::util::MAX_USERNAME_LEN), custom(crate::util::validate_slug))]
     username: String,
     #[garde(length(min = crate::util::MIN_PASSWORD_LEN))]
     password: String,

@@ -63,7 +63,16 @@ CREATE TABLE runs (
 CREATE TABLE forum_posts (
     id BIGSERIAL PRIMARY KEY,
     game BIGINT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    author BIGINT NOT NULL REFERENCES users(id),
+    title VARCHAR(256) NOT NULL,
+    content VARCHAR(4000) NOT NULL
+);
+
+CREATE TABLE forum_comments (
+    id BIGSERIAL PRIMARY KEY,
+    game BIGINT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
     parent BIGINT REFERENCES forum_posts(id) ON DELETE CASCADE,
     author BIGINT NOT NULL REFERENCES users(id),
     content VARCHAR(4000) NOT NULL
 );
+
