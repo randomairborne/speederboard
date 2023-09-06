@@ -22,7 +22,7 @@ pub struct RunPage<'a> {
     base: BaseRenderInfo,
 }
 
-pub async fn fetch_verify(
+pub async fn fetch_review(
     State(state): State<AppState>,
     Path((game_slug, category_id, run_id)): Path<(String, Id<CategoryMarker>, Id<RunMarker>)>,
     user: User,
@@ -49,7 +49,7 @@ pub async fn fetch_verify(
         run: &run,
         base,
     };
-    state.render("verify_run.jinja", ctx)
+    state.render("review_run.jinja", ctx)
 }
 
 pub async fn verify_run(

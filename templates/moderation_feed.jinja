@@ -13,6 +13,7 @@
         {% endif %}
         <th>link</th>
         <th>view</th>
+        <th>status</th>
     </tr>
     {% for run in submissions %}
     <tr>
@@ -24,8 +25,17 @@
         {% endif %}
         </td>
         <td><a href="{{ run.video }}" target="_blank" rel="noopener noreferrer">{{ run.video }}</a></td>
-        <td><a href="{{ root_url }}/game/{{ game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}" target="_blank", rel="noopener noreferrer">view</a></td>
-
+        <td><a href="{{ root_url }}/game/{{ game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}/review"
+                target="_blank" , rel="noopener noreferrer">view</a></td>
+        <td>
+            {%- if run.status == 1 -%}
+            approved
+            {%- elif run.status == 0 -%}
+            pending verification
+            {%- else -%}
+            denied.
+            {%- endif -%}
+        </td>
     </tr>
     {% endfor %}
 </table>

@@ -15,12 +15,11 @@ score: {{ run.score }}
 </h2>
 {% endif %}
 {{ run.description | markdown }}
-{% if run.status == 1 %}
-run approved
-{% elif run.status == 0 %}
-run pending verification
-{% elif run.status == -1 %}
-run denied.
-{% endif %}
+<form method="POST" action="/game/{{ run.game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}/verify">
+    <button>verify</button>
+</form>
+<form method="POST" action="/game/{{ run.game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}/reject">
+    <button>reject</button>
+</form>
 
 {% endblock body %}

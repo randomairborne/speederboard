@@ -113,9 +113,12 @@ pub fn game_router(state: AppState) -> Router<AppState> {
             get(routes::game::run::get),
         )
         .route_with_tsr(
+            "/game/:gameslug/category/:catid/run/:runid/review",
+            get(routes::game::modtools::run::fetch_review),
+        )
+        .route_with_tsr(
             "/game/:gameslug/category/:catid/run/:runid/verify",
-            get(routes::game::modtools::run::fetch_verify)
-                .post(routes::game::modtools::run::verify_run),
+            post(routes::game::modtools::run::verify_run),
         )
         .route_with_tsr(
             "/game/:gameslug/category/:catid/run/:runid/reject",

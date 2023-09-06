@@ -12,7 +12,15 @@ use crate::{
 use super::{Category, Game, User};
 
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Hash, PartialEq, Eq, Clone, Copy, sqlx::Type,
+    serde_repr::Serialize_repr,
+    serde_repr::Deserialize_repr,
+    Debug,
+    Hash,
+    PartialEq,
+    Eq,
+    Clone,
+    Copy,
+    sqlx::Type,
 )]
 #[repr(i8)]
 pub enum RunStatus {
@@ -270,7 +278,6 @@ impl ResolvedRun {
     /// If `optional_game` is set, it will use the passed-in game. Otherwise,
     /// it will try to get it from the `game.*` fields
     fn row_to_rcat(row: &PgRow, optional_game: Option<Arc<Game>>) -> Result<ResolvedRun, Error> {
-        trace!("columns {:#?}", row.columns());
         let game = match optional_game {
             Some(v) => v,
             None => Self::get_game_from_row(row)?,
