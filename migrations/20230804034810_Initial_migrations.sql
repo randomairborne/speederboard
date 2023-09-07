@@ -70,8 +70,8 @@ CREATE TABLE forum_posts (
 
 CREATE TABLE forum_comments (
     id BIGSERIAL PRIMARY KEY,
-    game BIGINT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
-    parent BIGINT REFERENCES forum_posts(id) ON DELETE CASCADE,
+    parent BIGINT REFERENCES forum_comments(id),
+    root BIGINT NOT NULL REFERENCES forum_posts(id) ON DELETE CASCADE,
     author BIGINT NOT NULL REFERENCES users(id),
     content VARCHAR(4000) NOT NULL
 );
