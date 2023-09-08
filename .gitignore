@@ -1,4 +1,7 @@
 /target
+
+.env
+
 /.vscode
 /.idea
-.env
+.DS_Store
