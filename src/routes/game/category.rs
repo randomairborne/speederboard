@@ -51,7 +51,7 @@ pub(super) async fn get_game_category(
     let spawned_getcats = tokio::spawn(async move {
         query_as!(
             MiniCategory,
-            "SELECT name, id, game, scoreboard
+            "SELECT name, id, game, scoreboard, flags
             FROM categories WHERE game = $1",
             game_id
         )

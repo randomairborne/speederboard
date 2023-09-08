@@ -18,7 +18,7 @@ pub async fn get(
         User,
         "SELECT
         id, username, has_stylesheet, pfp_ext, banner_ext,
-        biography, admin, created_at
+        biography, admin, created_at, flags
         FROM users WHERE username = $1",
         username
     )

@@ -10,7 +10,8 @@ CREATE TABLE users (
     has_stylesheet BOOL NOT NULL,
     banner_ext VARCHAR(4),
     pfp_ext VARCHAR(4),
-    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    flags BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL
 );
 
 CREATE INDEX users_name_index ON users(username);
@@ -24,7 +25,8 @@ CREATE TABLE games (
     description VARCHAR(4000) NOT NULL,
     has_stylesheet BOOL NOT NULL,
     banner_ext VARCHAR(4),
-    cover_art_ext VARCHAR(4)
+    cover_art_ext VARCHAR(4),
+    flags BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE INDEX games_slug_index ON games(slug);
@@ -35,7 +37,8 @@ CREATE TABLE categories (
     name VARCHAR(128) NOT NULL,
     description VARCHAR(4000) NOT NULL,
     rules TEXT NOT NULL,
-    scoreboard BOOL NOT NULL DEFAULT false
+    scoreboard BOOL NOT NULL DEFAULT false,
+    flags BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE permissions (
@@ -56,23 +59,25 @@ CREATE TABLE runs (
     time BIGINT NOT NULL,
     verifier BIGINT,
     status SMALLINT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    verified_at TIMESTAMP
+    created_at TIMESTAMP NOT NULL,
+    verified_at TIMESTAMP,
+    flags BIGINT NOT NULL DEFAULT 0
 );
 
-CREATE TABLE forum_posts (
+CREATE TABLE forum_entries (
     id BIGSERIAL PRIMARY KEY,
-    game BIGINT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    title VARCHAR(256),
+    parent BIGINT REFERENCES forum_entries(id) ON DELETE CASCADE,
+    game BIGINT REFERENCES games(id) ON DELETE CASCADE,
     author BIGINT NOT NULL REFERENCES users(id),
-    title VARCHAR(256) NOT NULL,
-    content VARCHAR(4000) NOT NULL
-);
-
-CREATE TABLE forum_comments (
-    id BIGSERIAL PRIMARY KEY,
-    parent BIGINT REFERENCES forum_comments(id),
-    root BIGINT NOT NULL REFERENCES forum_posts(id) ON DELETE CASCADE,
-    author BIGINT NOT NULL REFERENCES users(id),
-    content VARCHAR(4000) NOT NULL
+    created_at TIMESTAMP NOT NULL,
+    content VARCHAR(4000) NOT NULL,
+    flags BIGINT NOT NULL DEFAULT 0,
+    CONSTRAINT root_forum_entries_have_titles CHECK
+    (
+        (title <> NULL AND parent = NULL)
+        OR
+        (title = NULL AND parent <> NULL)
+    )
 );
 

@@ -36,6 +36,12 @@ pub const MAX_RUN_VIDEO_LEN: usize = 256;
 pub const MIN_RUN_VIDEO_LEN: usize = 12;
 pub const MAX_RUN_DESCRIPTION_LEN: usize = 4000;
 pub const MIN_RUN_DESCRIPTION_LEN: usize = 0;
+pub const MAX_FORUM_TITLE_LEN: usize = 128;
+pub const MIN_FORUM_TITLE_LEN: usize = 5;
+pub const MAX_FORUM_POST_LEN: usize = 4000;
+pub const MIN_FORUM_POST_LEN: usize = 1;
+pub const MAX_FORUM_COMMENT_LEN: usize = 4000;
+pub const MIN_FORUM_COMMENT_LEN: usize = 1;
 
 pub const AUTHTOKEN_COOKIE: &str = "token";
 pub const AUTHTOKEN_TTL: usize = 24 * 60 * 60;
@@ -90,6 +96,7 @@ pub fn opt_user(
     banner_ext: Option<String>,
     admin: Option<bool>,
     created_at: Option<chrono::NaiveDateTime>,
+    flags: Option<i64>
 ) -> Option<User> {
     Some(User {
         id: id?,
@@ -100,6 +107,7 @@ pub fn opt_user(
         banner_ext,
         admin: admin?,
         created_at: created_at?,
+        flags: flags?
     })
 }
 

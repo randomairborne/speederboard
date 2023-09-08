@@ -11,13 +11,14 @@ pub struct Category {
     pub description: String,
     pub rules: String,
     pub scoreboard: bool,
+    pub flags: i64
 }
 
 impl Category {
     pub async fn from_db(state: AppState, id: Id<CategoryMarker>) -> Result<Category, Error> {
         query_as!(
             Category,
-            "SELECT id, game, name, description, rules, scoreboard FROM categories WHERE id = $1",
+            "SELECT id, game, name, description, rules, scoreboard, flags FROM categories WHERE id = $1",
             id.get()
         )
         .fetch_optional(&state.postgres)
@@ -32,4 +33,5 @@ pub struct MiniCategory {
     pub id: Id<CategoryMarker>,
     pub game: Id<GameMarker>,
     pub scoreboard: bool,
+    pub flags: i64,
 }

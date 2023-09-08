@@ -23,6 +23,7 @@ pub struct User {
     pub banner_ext: Option<String>,
     pub admin: bool,
     pub created_at: chrono::NaiveDateTime,
+    pub flags: i64,
 }
 
 const DEFAULT_PFP: &str = "/static/pfp/default.png";
@@ -68,7 +69,7 @@ impl User {
     pub async fn from_db(state: &AppState, id: Id<UserMarker>) -> Result<User, Error> {
         let record = query!(
             "SELECT id, username, has_stylesheet, pfp_ext,
-            banner_ext, biography, admin, created_at
+            banner_ext, biography, admin, created_at, flags
             FROM users WHERE id = $1",
             id.get()
         )
@@ -83,6 +84,7 @@ impl User {
             biography: record.biography,
             admin: record.admin,
             created_at: record.created_at,
+            flags: record.flags
         };
         Ok(user)
     }
@@ -114,6 +116,7 @@ impl User {
             biography: record.biography,
             admin: record.admin,
             created_at: record.created_at,
+            flags: record.flags
         };
         if let Err(argon2::password_hash::Error::Password) = password_result {
             return Ok(Err(()));
@@ -185,6 +188,7 @@ pub struct UserUpdate {
     pfp_ext: MaybeNullUpdate<String>,
     banner_ext: MaybeNullUpdate<String>,
     admin: Option<bool>,
+    flags: Option<i64>
 }
 
 #[allow(dead_code)]
@@ -198,6 +202,7 @@ impl UserUpdate {
             pfp_ext: MaybeNullUpdate::None,
             banner_ext: MaybeNullUpdate::None,
             admin: None,
+            flags: None
         }
     }
 
@@ -211,9 +216,10 @@ impl UserUpdate {
                 biography = COALESCE($4, biography),
                 pfp_ext = CASE WHEN $5 THEN NULL ELSE COALESCE($6, pfp_ext) END,
                 banner_ext = CASE WHEN $7 THEN NULL ELSE COALESCE($8, banner_ext) END,
-                admin = COALESCE($9, admin)
+                admin = COALESCE($9, admin),
+                flags = $10
             WHERE id = $1
-            RETURNING id, username, has_stylesheet,
+            RETURNING id, username, has_stylesheet, flags,
             pfp_ext, banner_ext, biography, admin, created_at",
             self.id.get(),
             self.username,
@@ -223,7 +229,8 @@ impl UserUpdate {
             self.pfp_ext.into_option(),
             self.banner_ext.is_null(),
             self.banner_ext.into_option(),
-            self.admin
+            self.admin,
+            self.flags
         )
         .fetch_one(&state.postgres)
         .await?;

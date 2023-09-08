@@ -71,6 +71,8 @@ pub enum Error {
     InsufficientPermissions,
     #[error("That category isn't part of that game!")]
     InvalidGameCategoryPair,
+    #[error("This post is a root post (it has no parent) but it has no title!")]
+    NoTitleForRootPost,
     #[error(
         "You can't delete the default category for a game, change the default category first!!"
     )]
@@ -132,6 +134,7 @@ pub async fn error_middleware<B>(
         | Error::UrlParse(_)
         | Error::MissingQueryPair(_)
         | Error::TooManyRows(_, _)
+        | Error::NoTitleForRootPost
         | Error::RowDoesNotMatchInputGame
         | Error::NoDomainInUrl
         | Error::PathHasNoParent => StatusCode::INTERNAL_SERVER_ERROR,

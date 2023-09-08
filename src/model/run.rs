@@ -100,6 +100,7 @@ pub struct Run {
     pub status: RunStatus,
     pub created_at: NaiveDateTime,
     pub verified_at: Option<NaiveDateTime>,
+    pub flags: i64,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
@@ -117,6 +118,7 @@ pub struct ResolvedRun {
     pub status: RunStatus,
     pub created_at: NaiveDateTime,
     pub verified_at: Option<NaiveDateTime>,
+    pub flags: i64,
 }
 
 #[derive(Clone, Copy)]
@@ -205,15 +207,15 @@ impl ResolvedRun {
         let mut query = sqlx::QueryBuilder::new(
             r#"SELECT runs.id, runs.game, runs.category, runs.video,
             runs.description, runs.score, runs.time, runs.status,
-            runs.created_at, runs.verified_at,
+            runs.created_at, runs.verified_at, runs.flags,
             verifier.id, verifier.username, verifier.has_stylesheet,
             verifier.biography, verifier.pfp_ext, verifier.banner_ext,
-            verifier.admin, verifier.created_at,
+            verifier.admin, verifier.created_at, verifier.flags,
             submitter.id, submitter.username, submitter.has_stylesheet,
             submitter.biography, submitter.pfp_ext, submitter.banner_ext,
-            submitter.admin, submitter.created_at,
+            submitter.admin, submitter.created_at, submitter.flags,
             category.game, category.name, category.description,
-            category.rules, category.scoreboard "#,
+            category.rules, category.scoreboard, category.flags "#,
         );
         // getting a single run requires us to get game data as well
         if let ResolvedRunRequest::Single(_) = request {
@@ -221,7 +223,7 @@ impl ResolvedRun {
                 ',',
                 "game.id, game.name, game.description, game.slug, game.url,",
                 "game.has_stylesheet, game.banner_ext, game.cover_art_ext,",
-                "game.default_category ",
+                "game.default_category, game.flags ",
             ));
         }
         query.push(concat!(
@@ -292,35 +294,39 @@ impl ResolvedRun {
         let status_num: i16 = row.try_get(7)?;
         let created_at: NaiveDateTime = row.try_get(8)?;
         let verified_at: Option<NaiveDateTime> = row.try_get(9)?;
+        let flags: i64 = row.try_get(10)?;
 
         let status = RunStatus::from(status_num);
         if game_id != game.id {
             return Err(Error::RowDoesNotMatchInputGame);
         }
 
-        let verifier_id: Option<Id<UserMarker>> = row.try_get(10)?;
-        let verifier_name: Option<String> = row.try_get(11)?;
-        let verifier_has_stylesheet: Option<bool> = row.try_get(12)?;
-        let verifier_bio: Option<String> = row.try_get(13)?;
-        let verifier_pfp_ext: Option<String> = row.try_get(14)?;
-        let verifier_banner_ext: Option<String> = row.try_get(15)?;
-        let verifier_admin: Option<bool> = row.try_get(16)?;
-        let verifier_created_at: Option<NaiveDateTime> = row.try_get(17)?;
+        let verifier_id: Option<Id<UserMarker>> = row.try_get(11)?;
+        let verifier_name: Option<String> = row.try_get(12)?;
+        let verifier_has_stylesheet: Option<bool> = row.try_get(13)?;
+        let verifier_bio: Option<String> = row.try_get(14)?;
+        let verifier_pfp_ext: Option<String> = row.try_get(15)?;
+        let verifier_banner_ext: Option<String> = row.try_get(16)?;
+        let verifier_admin: Option<bool> = row.try_get(17)?;
+        let verifier_created_at: Option<NaiveDateTime> = row.try_get(18)?;
+        let verifier_flags: Option<i64> = row.try_get(19)?;
 
-        let submitter_id: Id<UserMarker> = row.try_get(18)?;
-        let submitter_name: String = row.try_get(19)?;
-        let submitter_has_stylesheet: bool = row.try_get(20)?;
-        let submitter_bio: String = row.try_get(21)?;
-        let submitter_pfp_ext: Option<String> = row.try_get(22)?;
-        let submitter_banner_ext: Option<String> = row.try_get(23)?;
-        let submitter_admin: bool = row.try_get(24)?;
-        let submitter_created_at: NaiveDateTime = row.try_get(25)?;
+        let submitter_id: Id<UserMarker> = row.try_get(20)?;
+        let submitter_name: String = row.try_get(21)?;
+        let submitter_has_stylesheet: bool = row.try_get(22)?;
+        let submitter_bio: String = row.try_get(23)?;
+        let submitter_pfp_ext: Option<String> = row.try_get(24)?;
+        let submitter_banner_ext: Option<String> = row.try_get(25)?;
+        let submitter_admin: bool = row.try_get(26)?;
+        let submitter_created_at: NaiveDateTime = row.try_get(27)?;
+        let submitter_flags: i64 = row.try_get(28)?;
 
-        let category_game_id: Id<GameMarker> = row.try_get(26)?;
-        let category_name: String = row.try_get(27)?;
-        let category_description: String = row.try_get(28)?;
-        let category_rules: String = row.try_get(29)?;
-        let category_scoreboard: bool = row.try_get(30)?;
+        let category_game_id: Id<GameMarker> = row.try_get(29)?;
+        let category_name: String = row.try_get(30)?;
+        let category_description: String = row.try_get(31)?;
+        let category_rules: String = row.try_get(32)?;
+        let category_scoreboard: bool = row.try_get(33)?;
+        let category_flags: i64 = row.try_get(34)?;
 
         let verifier = opt_user(
             verifier_id,
@@ -331,6 +337,7 @@ impl ResolvedRun {
             verifier_banner_ext,
             verifier_admin,
             verifier_created_at,
+            verifier_flags
         );
         let submitter = User {
             id: submitter_id,
@@ -341,6 +348,7 @@ impl ResolvedRun {
             banner_ext: submitter_banner_ext,
             admin: submitter_admin,
             created_at: submitter_created_at,
+            flags: submitter_flags
         };
         let category = Category {
             id: category_id,
@@ -349,6 +357,7 @@ impl ResolvedRun {
             description: category_description,
             rules: category_rules,
             scoreboard: category_scoreboard,
+            flags: category_flags
         };
         let rr = ResolvedRun {
             id,
@@ -363,20 +372,22 @@ impl ResolvedRun {
             status,
             created_at,
             verified_at,
+            flags
         };
         Ok(rr)
     }
 
     fn get_game_from_row(row: &PgRow) -> Result<Arc<Game>, Error> {
-        let id: Id<GameMarker> = row.try_get(31)?;
-        let name: String = row.try_get(32)?;
-        let description: String = row.try_get(33)?;
-        let slug: String = row.try_get(34)?;
-        let url: String = row.try_get(35)?;
-        let has_stylesheet: bool = row.try_get(36)?;
-        let banner_ext: Option<String> = row.try_get(37)?;
-        let cover_art_ext: Option<String> = row.try_get(38)?;
-        let default_category: Id<CategoryMarker> = row.try_get(39)?;
+        let id: Id<GameMarker> = row.try_get(35)?;
+        let name: String = row.try_get(36)?;
+        let description: String = row.try_get(37)?;
+        let slug: String = row.try_get(38)?;
+        let url: String = row.try_get(39)?;
+        let has_stylesheet: bool = row.try_get(40)?;
+        let banner_ext: Option<String> = row.try_get(41)?;
+        let cover_art_ext: Option<String> = row.try_get(42)?;
+        let default_category: Id<CategoryMarker> = row.try_get(43)?;
+        let flags: i64 = row.try_get(44)?;
         Ok(Arc::new(Game {
             id,
             name,
@@ -387,6 +398,7 @@ impl ResolvedRun {
             has_stylesheet,
             banner_ext,
             cover_art_ext,
+            flags
         }))
     }
 }

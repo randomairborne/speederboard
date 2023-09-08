@@ -114,12 +114,19 @@ pub trait IdMarker {}
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct UserMarker;
 impl IdMarker for UserMarker {}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct GameMarker;
 impl IdMarker for GameMarker {}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct CategoryMarker;
 impl IdMarker for CategoryMarker {}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct RunMarker;
 impl IdMarker for RunMarker {}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct ForumEntryMarker;
+impl IdMarker for ForumEntryMarker {}

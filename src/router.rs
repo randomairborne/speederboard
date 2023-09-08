@@ -17,8 +17,9 @@ pub fn build(state: AppState) -> Router {
             get(routes::signup::get).post(routes::signup::post),
         )
         .route_with_tsr("/user/:username", get(routes::user::get))
-        .merge(game_router(state.clone()))
         .merge(settings_router(state.clone()))
+        .merge(game_router(state.clone()))
+        .merge(forum_router(state.clone()))
         .merge(admin_router(state.clone()))
         .layer(
             tower::ServiceBuilder::new()
@@ -124,6 +125,17 @@ pub fn game_router(state: AppState) -> Router<AppState> {
             "/game/:gameslug/category/:catid/run/:runid/reject",
             post(routes::game::modtools::run::reject_run),
         )
+        .with_state(state)
+}
+
+pub fn forum_router(state: AppState) -> Router<AppState> {
+    Router::new()
+        .route_with_tsr("/forum/:gameslug", get(routes::forum::root::get))
+        .route_with_tsr(
+            "/forum/:gameslug/new",
+            get(routes::forum::new_post::get).post(routes::forum::new_post::post),
+        )
+        .route_with_tsr("/forum/:gameslug/post/:postid", get(routes::forum::post::get).post(routes::forum::post::post))
         .with_state(state)
 }
 

@@ -16,6 +16,7 @@ pub struct Game {
     pub banner_ext: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cover_art_ext: Option<String>,
+    pub flags: i64,
 }
 
 impl Game {
