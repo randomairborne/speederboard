@@ -171,7 +171,7 @@ pub async fn error_middleware<B>(
         error!(?source, "failed to render error");
         format_raw_error(&error_as_string, &source.to_string())
     });
-    (status, content).into_response()
+    (status, [("cache-control", "private")], content).into_response()
 }
 
 fn format_raw_error(original: &str, tera: &str) -> String {
