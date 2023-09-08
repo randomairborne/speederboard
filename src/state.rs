@@ -1,13 +1,7 @@
-use crate::{
-    config::Config,
-    id::{Id, UserMarker},
-    model::User,
-    Error,
-};
+use crate::{config::Config, Error};
 use argon2::Argon2;
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
 use rayon::{ThreadPool, ThreadPoolBuilder};
-use redis::AsyncCommands;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::{sync::Arc, time::Duration};
 use tera::Tera;
@@ -69,45 +63,6 @@ impl InnerAppState {
             let _ = tx.send(func(state));
         });
         rx.await
-    }
-
-    pub async fn update_user(&self, user: DbUserUpdate) -> Result<User, Error> {
-        trace!(?user, "updating user with data");
-        let new_db_user = query_as!(
-            User,
-            "UPDATE users SET
-                username = COALESCE($2, username),
-                has_stylesheet = COALESCE($3, has_stylesheet),
-                biography = COALESCE($4, biography),
-                pfp_ext = CASE WHEN $5 THEN NULL ELSE COALESCE($6, pfp_ext) END,
-                banner_ext = CASE WHEN $7 THEN NULL ELSE COALESCE($8, banner_ext) END,
-                admin = COALESCE($9, admin)
-            WHERE id = $1
-            RETURNING id, username, has_stylesheet,
-            pfp_ext, banner_ext, biography, admin, created_at",
-            user.id.get(),
-            user.username,
-            user.has_stylesheet,
-            user.biography,
-            user.pfp_ext.is_null(),
-            user.pfp_ext.into_option(),
-            user.banner_ext.is_null(),
-            user.banner_ext.into_option(),
-            user.admin
-        )
-        .fetch_one(&self.postgres)
-        .await?;
-        trace!(?new_db_user, "updated user with data, adding to redis");
-        self.redis
-            .get()
-            .await?
-            .set_ex(
-                format!("user:{}", user.id.get()),
-                serde_json::to_string(&new_db_user)?,
-                86_400,
-            )
-            .await?;
-        Ok(new_db_user)
     }
 
     pub async fn put_r2_file(
@@ -227,109 +182,5 @@ impl InnerAppState {
             argon,
             http,
         ))
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct DbUserUpdate {
-    id: Id<UserMarker>,
-    username: Option<String>,
-    has_stylesheet: Option<bool>,
-    biography: Option<String>,
-    pfp_ext: MaybeNullUpdate<String>,
-    banner_ext: MaybeNullUpdate<String>,
-    admin: Option<bool>,
-}
-
-impl DbUserUpdate {
-    pub fn new(id: Id<UserMarker>) -> Self {
-        Self {
-            id,
-            username: None,
-            has_stylesheet: None,
-            biography: None,
-            pfp_ext: MaybeNullUpdate::None,
-            banner_ext: MaybeNullUpdate::None,
-            admin: None,
-        }
-    }
-
-    pub fn username(self, username: String) -> Self {
-        Self {
-            username: Some(username),
-            ..self
-        }
-    }
-
-    pub fn has_stylesheet(self, has_stylesheet: bool) -> Self {
-        Self {
-            has_stylesheet: Some(has_stylesheet),
-            ..self
-        }
-    }
-
-    pub fn biography(self, biography: String) -> Self {
-        Self {
-            biography: Some(biography),
-            ..self
-        }
-    }
-
-    pub fn pfp_ext(self, pfp_ext: Option<String>) -> Self {
-        Self {
-            pfp_ext: pfp_ext.into(),
-            ..self
-        }
-    }
-
-    pub fn banner_ext(self, banner_ext: Option<String>) -> Self {
-        Self {
-            banner_ext: banner_ext.into(),
-            ..self
-        }
-    }
-
-    pub fn admin(self, is_admin: bool) -> Self {
-        Self {
-            admin: Some(is_admin),
-            ..self
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub enum MaybeNullUpdate<T: Clone> {
-    Null,
-    None,
-    Some(T),
-}
-
-impl<T: Clone> MaybeNullUpdate<T> {
-    pub fn is_null(&self) -> bool {
-        matches!(self, Self::Null)
-    }
-
-    pub fn into_option(self) -> Option<T> {
-        self.into()
-    }
-}
-
-impl<T: Clone> From<Option<T>> for MaybeNullUpdate<T> {
-    fn from(value: Option<T>) -> Self {
-        if let Some(v) = value {
-            Self::Some(v)
-        } else {
-            Self::Null
-        }
-    }
-}
-
-impl<T: Clone> From<MaybeNullUpdate<T>> for Option<T> {
-    fn from(value: MaybeNullUpdate<T>) -> Option<T> {
-        if let MaybeNullUpdate::Some(v) = value {
-            Some(v)
-        } else {
-            None
-        }
     }
 }

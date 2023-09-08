@@ -1,5 +1,8 @@
 use super::UPDATE_COMPLETE_URL;
-use crate::{model::User, state::DbUserUpdate, AppState, Error};
+use crate::{
+    model::{User, UserUpdate},
+    AppState, Error,
+};
 use axum::{extract::State, response::Redirect};
 use axum_extra::extract::multipart::Multipart;
 
@@ -9,15 +12,15 @@ pub async fn pfp(
     multipart: Multipart,
 ) -> Result<Redirect, Error> {
     multipart_into_s3(&state, multipart, "pfp", &user.pfp_dest_path()).await?;
-    let update = DbUserUpdate::new(user.id).pfp_ext(Some("png".to_string()));
-    state.update_user(update).await?;
+    let update = UserUpdate::new(user.id).pfp_ext(Some("png".to_string()));
+    update.execute(&state).await?;
     Ok(Redirect::to(UPDATE_COMPLETE_URL))
 }
 
 pub async fn pfp_del(State(state): State<AppState>, user: User) -> Result<Redirect, Error> {
     state.delete_r2_file(&user.pfp_dest_path()).await?;
-    let update = DbUserUpdate::new(user.id).pfp_ext(None);
-    state.update_user(update).await?;
+    let update = UserUpdate::new(user.id).pfp_ext(None);
+    update.execute(&state).await?;
     Ok(Redirect::to(UPDATE_COMPLETE_URL))
 }
 
@@ -27,15 +30,15 @@ pub async fn banner(
     multipart: Multipart,
 ) -> Result<Redirect, Error> {
     multipart_into_s3(&state, multipart, "banner", &user.banner_dest_path()).await?;
-    let update = DbUserUpdate::new(user.id).banner_ext(Some("png".to_string()));
-    state.update_user(update).await?;
+    let update = UserUpdate::new(user.id).banner_ext(Some("png".to_string()));
+    update.execute(&state).await?;
     Ok(Redirect::to(UPDATE_COMPLETE_URL))
 }
 
 pub async fn banner_del(State(state): State<AppState>, user: User) -> Result<Redirect, Error> {
     state.delete_r2_file(&user.banner_dest_path()).await?;
-    let update = DbUserUpdate::new(user.id).banner_ext(None);
-    state.update_user(update).await?;
+    let update = UserUpdate::new(user.id).banner_ext(None);
+    update.execute(&state).await?;
     Ok(Redirect::to(UPDATE_COMPLETE_URL))
 }
 
@@ -51,15 +54,15 @@ pub async fn stylesheet(
         &user.stylesheet_dest_path(),
     )
     .await?;
-    let update = DbUserUpdate::new(user.id).has_stylesheet(true);
-    state.update_user(update).await?;
+    let update = UserUpdate::new(user.id).has_stylesheet(true);
+    update.execute(&state).await?;
     Ok(Redirect::to(UPDATE_COMPLETE_URL))
 }
 
 pub async fn stylesheet_del(State(state): State<AppState>, user: User) -> Result<Redirect, Error> {
     state.delete_r2_file(&user.stylesheet_dest_path()).await?;
-    let update = DbUserUpdate::new(user.id).has_stylesheet(false);
-    state.update_user(update).await?;
+    let update = UserUpdate::new(user.id).has_stylesheet(false);
+    update.execute(&state).await?;
     Ok(Redirect::to(UPDATE_COMPLETE_URL))
 }
 

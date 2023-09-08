@@ -1,7 +1,10 @@
 pub mod credentials;
 pub mod files;
 use crate::{
-    id::Id, model::User, state::DbUserUpdate, template::BaseRenderInfo, util::ValidatedForm,
+    id::Id,
+    model::{User, UserUpdate},
+    template::BaseRenderInfo,
+    util::ValidatedForm,
     AppState, Error, HandlerResult,
 };
 use axum::{extract::State, response::Redirect};
@@ -21,7 +24,7 @@ pub struct PrivateUser {
 }
 
 #[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
-pub struct UserUpdate {
+pub struct UserUpdateForm {
     #[garde(length(min = crate::util::MIN_USERNAME_LEN, max = crate::util::MAX_USERNAME_LEN))]
     pub username: String,
     #[garde(length(min = crate::util::MIN_USER_BIOGRAPHY_LEN, max = crate::util::MAX_USER_BIOGRAPHY_LEN))]
@@ -66,11 +69,11 @@ pub async fn get(State(state): State<AppState>, user: User, base: BaseRenderInfo
 pub async fn profile(
     State(state): State<AppState>,
     user: User,
-    ValidatedForm(form): ValidatedForm<UserUpdate>,
+    ValidatedForm(form): ValidatedForm<UserUpdateForm>,
 ) -> Result<Redirect, Error> {
-    let update = DbUserUpdate::new(user.id)
+    let update = UserUpdate::new(user.id)
         .username(form.username)
         .biography(form.biography);
-    state.update_user(update).await?;
+    update.execute(&state).await?;
     Ok(Redirect::to(UPDATE_COMPLETE_URL))
 }
