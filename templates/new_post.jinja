@@ -1,0 +1,13 @@
+{% extends "base.jinja" %}
+{% block title %}{{ game.name }} forum | new post{% endblock title %}
+{% block extraheaders %}{% endblock extraheaders %}
+{% block body %}
+<h1>new forum post in {{ game.name }}</h1>
+<form method="POST">
+<input id="title" name="title" maxlength="128"/>
+<br>
+<textarea maxlength="4000" name="content" id="content"></textarea>
+<br>
+<button>submit</button>
+</form>
+{% endblock body %}

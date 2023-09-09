@@ -11,7 +11,7 @@ pub struct Category {
     pub description: String,
     pub rules: String,
     pub scoreboard: bool,
-    pub flags: i64
+    pub flags: i64,
 }
 
 impl Category {

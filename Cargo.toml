@@ -41,6 +41,7 @@ axum-extra = { version = "0.7", features = ["cookie", "multipart"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 garde = { version = "0.14", features = ["derive", "email", "url"] }
 tower = { version = "0.4", default-features = false }
+tera = { version = "1.19", features = ["builtins"] }
 serde = { version = "1", features = ["derive"] }
 markdown = "1.0.0-alpha.12"
 deadpool-redis = "0.12"
@@ -50,7 +51,6 @@ dotenvy = "0.15"
 thiserror = "1"
 tracing = "0.1"
 argon2 = "0.5"
-tera = "1.19"
 envy = "0.4"
 rand = "0.8"
 rayon = "1"

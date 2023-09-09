@@ -337,7 +337,7 @@ impl ResolvedRun {
             verifier_banner_ext,
             verifier_admin,
             verifier_created_at,
-            verifier_flags
+            verifier_flags,
         );
         let submitter = User {
             id: submitter_id,
@@ -348,7 +348,7 @@ impl ResolvedRun {
             banner_ext: submitter_banner_ext,
             admin: submitter_admin,
             created_at: submitter_created_at,
-            flags: submitter_flags
+            flags: submitter_flags,
         };
         let category = Category {
             id: category_id,
@@ -357,7 +357,7 @@ impl ResolvedRun {
             description: category_description,
             rules: category_rules,
             scoreboard: category_scoreboard,
-            flags: category_flags
+            flags: category_flags,
         };
         let rr = ResolvedRun {
             id,
@@ -372,7 +372,7 @@ impl ResolvedRun {
             status,
             created_at,
             verified_at,
-            flags
+            flags,
         };
         Ok(rr)
     }
@@ -398,7 +398,7 @@ impl ResolvedRun {
             has_stylesheet,
             banner_ext,
             cover_art_ext,
-            flags
+            flags,
         }))
     }
 }

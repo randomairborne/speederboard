@@ -41,7 +41,7 @@ impl Member {
             banner_ext: member.banner_ext,
             admin: member.admin,
             created_at: member.created_at,
-            flags: member.flags
+            flags: member.flags,
         };
         let perms = if user.admin {
             Permissions::ADMINISTRATOR

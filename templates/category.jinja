@@ -2,6 +2,7 @@
 {% block extraheaders %}{% endblock extraheaders %}
 {% block title %}game{% endblock title %}
 {% block body %}
+<a href="{{ root_url }}/forum/{{ game.slug }}">discuss on the forum</a>
 {% for minicat in categories %}
 <a href="{{ root_url }}/game/{{ game.slug }}/category/{{ minicat.id }}">{{ minicat.name }}</a>
 {% endfor %}

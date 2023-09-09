@@ -39,8 +39,9 @@ pub async fn get(
     member.perms.check(Permissions::ADMINISTRATOR)?;
     let categories = query_as!(
         Category,
-        "SELECT name, id, game, scoreboard, description,
-            rules FROM categories WHERE game = $1",
+        "SELECT name, id, game, scoreboard,
+        description, rules, flags
+        FROM categories WHERE game = $1",
         game.id.get()
     )
     .fetch_all(&state.postgres)

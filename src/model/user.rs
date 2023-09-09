@@ -84,7 +84,7 @@ impl User {
             biography: record.biography,
             admin: record.admin,
             created_at: record.created_at,
-            flags: record.flags
+            flags: record.flags,
         };
         Ok(user)
     }
@@ -116,7 +116,7 @@ impl User {
             biography: record.biography,
             admin: record.admin,
             created_at: record.created_at,
-            flags: record.flags
+            flags: record.flags,
         };
         if let Err(argon2::password_hash::Error::Password) = password_result {
             return Ok(Err(()));
@@ -188,7 +188,7 @@ pub struct UserUpdate {
     pfp_ext: MaybeNullUpdate<String>,
     banner_ext: MaybeNullUpdate<String>,
     admin: Option<bool>,
-    flags: Option<i64>
+    flags: Option<i64>,
 }
 
 #[allow(dead_code)]
@@ -202,7 +202,7 @@ impl UserUpdate {
             pfp_ext: MaybeNullUpdate::None,
             banner_ext: MaybeNullUpdate::None,
             admin: None,
-            flags: None
+            flags: None,
         }
     }
 

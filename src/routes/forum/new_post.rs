@@ -4,8 +4,7 @@ use axum::{
 };
 
 use crate::{
-    id::{CategoryMarker, Id},
-    model::{Category, Game, User},
+    model::{Game, User},
     template::BaseRenderInfo,
     util::ValidatedForm,
     AppState, Error, HandlerResult,
@@ -21,75 +20,49 @@ pub struct PostCreatePage {
 
 #[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
 pub struct PostCreateForm {
-    #[garde(length())]
+    #[garde(length(max = crate::util::MAX_FORUM_TITLE_LEN, min = crate::util::MIN_FORUM_TITLE_LEN))]
     title: String,
+    #[garde(length(max = crate::util::MAX_FORUM_POST_LEN, min = crate::util::MIN_FORUM_POST_LEN))]
+    content: String,
 }
 
 pub async fn get(
     State(state): State<AppState>,
     user: User,
     base: BaseRenderInfo,
-    Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
+    Path(game_slug): Path<String>,
 ) -> HandlerResult {
     let game = Game::from_db_slug(&state, &game_slug).await?;
-    let category = Category::from_db(state.clone(), category_id).await?;
-    if category.game != game.id {
-        return Err(Error::InvalidGameCategoryPair);
-    }
-    let context = GetRunCreatePage {
-        base,
-        user,
-        game,
-        category,
-    };
-    state.render("create_run.jinja", context)
+    let context = PostCreatePage { base, user, game };
+    state.render("new_post.jinja", context)
 }
 
 #[allow(clippy::unused_async)]
-pub async fn create(
+pub async fn post(
     State(state): State<AppState>,
     user: User,
-    Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
-    ValidatedForm(form): ValidatedForm<RunCreateForm>,
+    Path(game_slug): Path<String>,
+    ValidatedForm(form): ValidatedForm<PostCreateForm>,
 ) -> Result<Redirect, Error> {
     let game = Game::from_db_slug(&state, &game_slug).await?;
-    let category = Category::from_db(state.clone(), category_id).await?;
-    if category.game != game.id {
-        return Err(Error::InvalidGameCategoryPair);
-    }
-    if category.scoreboard {
-        if form.score == 0 {
-            return Err(Error::CustomFormValidation(
-                "score must be filled when the leaderboard is a scoreboard".to_string(),
-            ));
-        }
-    } else if form.consolidate_times() == 0 {
-        return Err(Error::CustomFormValidation(
-            "time must be filled when the leaderboard is a speedrun".to_string(),
-        ));
-    }
-    let (score, time) = (form.score, form.consolidate_times());
-    let run_id = query!(
-        "INSERT INTO runs
+    let post_id = query!(
+        "INSERT INTO forum_entries
         (
-            game, category, submitter, video,
-            description, score, time, status
+            title, game, author, content,
+            created_at, flags
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, 0)
+        VALUES ($1, $2, $3, $4, NOW(), 0)
         RETURNING id",
+        form.title,
         game.id.get(),
-        category.id.get(),
         user.id.get(),
-        form.video,
-        form.description,
-        score,
-        time
+        form.content
     )
     .fetch_one(&state.postgres)
     .await?
     .id;
     Ok(Redirect::to(&format!(
-        "{}/game/{game_slug}/category/{category_id}/run/{run_id}",
+        "{}/forum/{game_slug}/post/{post_id}",
         state.config.root_url
     )))
 }

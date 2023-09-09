@@ -38,7 +38,7 @@ pub async fn get(State(state): State<AppState>, user: User, base: BaseRenderInfo
     let record = query!(
         "SELECT
         id, username, has_stylesheet, pfp_ext, banner_ext,
-        biography, email, admin, created_at
+        biography, email, admin, created_at, flags
         FROM users WHERE id = $1",
         user.id.get()
     )
@@ -54,6 +54,7 @@ pub async fn get(State(state): State<AppState>, user: User, base: BaseRenderInfo
         banner_ext: record.banner_ext,
         admin: record.admin,
         created_at: record.created_at,
+        flags: record.flags,
     };
     let private_user = PrivateUser {
         base: base_user,

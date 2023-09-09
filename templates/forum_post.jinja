@@ -1,5 +1,22 @@
 {% extends "base.jinja" %}
+{% block title %}{{ game.name }} | {{ post.title }}{% endblock title %}
 {% block extraheaders %}{% endblock extraheaders %}
-{% block title %}{% endblock title %}
 {% block body %}
+<h1>{{ post.title }}</h1>
+<h3><i>from</i> {{ post.author.username }}</h3>
+<div class="forum-post-content">
+<p>{{ post.content | markdown }}</p>
+</div>
+{% for comment in comments %}
+<hr>
+<h4 id="comment-{{ comment.id }}"><i>from</i> {{ comment.author.username }}</h4>
+<div class="forum-comment-content">
+{{ comment.content | markdown }}
+</div>
+{% endfor %}
+<form method="post">
+<textarea maxlength="4000" name="content" id="content"></textarea>
+<br>
+<button>submit</button>
+</form>
 {% endblock body %}

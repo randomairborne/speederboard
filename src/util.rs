@@ -96,7 +96,7 @@ pub fn opt_user(
     banner_ext: Option<String>,
     admin: Option<bool>,
     created_at: Option<chrono::NaiveDateTime>,
-    flags: Option<i64>
+    flags: Option<i64>,
 ) -> Option<User> {
     Some(User {
         id: id?,
@@ -107,7 +107,7 @@ pub fn opt_user(
         banner_ext,
         admin: admin?,
         created_at: created_at?,
-        flags: flags?
+        flags: flags?,
     })
 }
 
@@ -142,7 +142,7 @@ pub async fn game_n_member(
         "SELECT g.id, g.name, g.slug,
         g.url, g.default_category, g.description,
         g.has_stylesheet, g.banner_ext,
-        g.cover_art_ext, p.permissions
+        g.cover_art_ext, g.flags, p.permissions
         FROM games as g LEFT JOIN permissions as p
         ON p.user_id = $1 AND p.game_id = g.id AND g.slug = $2",
         user.id.get(),
@@ -174,6 +174,7 @@ pub async fn game_n_member(
         has_stylesheet: data.has_stylesheet,
         banner_ext: data.banner_ext,
         cover_art_ext: data.cover_art_ext,
+        flags: data.flags,
     };
     Ok((game, member))
 }

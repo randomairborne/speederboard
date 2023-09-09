@@ -135,7 +135,10 @@ pub fn forum_router(state: AppState) -> Router<AppState> {
             "/forum/:gameslug/new",
             get(routes::forum::new_post::get).post(routes::forum::new_post::post),
         )
-        .route_with_tsr("/forum/:gameslug/post/:postid", get(routes::forum::post::get).post(routes::forum::post::post))
+        .route_with_tsr(
+            "/forum/:gameslug/post/:postid",
+            get(routes::forum::post::get).post(routes::forum::post::post),
+        )
         .with_state(state)
 }
 

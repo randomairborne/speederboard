@@ -69,7 +69,7 @@ CREATE TABLE forum_entries (
     title VARCHAR(256),
     parent BIGINT REFERENCES forum_entries(id) ON DELETE CASCADE,
     game BIGINT REFERENCES games(id) ON DELETE CASCADE,
-    author BIGINT NOT NULL REFERENCES users(id),
+    author BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP NOT NULL,
     content VARCHAR(4000) NOT NULL,
     flags BIGINT NOT NULL DEFAULT 0,
