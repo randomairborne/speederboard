@@ -94,3 +94,22 @@ a:visited {
     border-radius: 10px;
     white-space: pre-wrap;
 }
+
+.forum-posts {
+    display: flex;
+}
+
+.forum-post-card {
+    width: 10vw;
+    text-decoration: none;
+    margin-top: 2ch;
+    margin-bottom: 2ch;
+    margin-left: 2ch;
+    margin-right: 2ch;
+    padding-top: 1ch;
+    padding-bottom: 1ch;
+    padding-left: 1ch;
+    padding-right: 1ch;
+    border-style: groove;
+    border-radius: 5px;
+}

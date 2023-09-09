@@ -2,13 +2,17 @@
 {% block title %}{{ game.name }} forum{% endblock title %}
 {% block extraheaders %}{% endblock extraheaders %}
 {% block body %}
+<div class="forum-header">
 <h1>{{ game.name }} forums</h1>
 <a href="{{ root_url }}/forum/{{ game.slug }}/new">new post</a>
+</div>
+<div class="forum-posts">
 {% for post in posts %}
-<a class="forum-post-card" href="{{ root_url }}/forum/{{ game.slug }}/">
+<a class="forum-post-card" href="{{ root_url }}/forum/{{ game.slug }}/post/{{ post.id }}">
     {{ post.title }}
     <hr>
-    {{ post.content | markdown }}
+    {{ post.content | truncate(length=100) | markdown }}
 </a>
 {% endfor %}
+</div>
 {% endblock body %}
