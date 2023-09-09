@@ -2,7 +2,7 @@
 {% block title %}{{ game.name }} forum{% endblock title %}
 {% block extraheaders %}{% endblock extraheaders %}
 {% block body %}
-<h1>{{ game.name }} </h1>
+<h1>{{ game.name }} forums</h1>
 <a href="{{ root_url }}/forum/{{ game.slug }}/new">new post</a>
 {% for post in posts %}
 <a class="forum-post-card" href="{{ root_url }}/forum/{{ game.slug }}/">

@@ -75,9 +75,9 @@ CREATE TABLE forum_entries (
     flags BIGINT NOT NULL DEFAULT 0,
     CONSTRAINT root_forum_entries_have_titles CHECK
     (
-        (title <> NULL AND parent = NULL)
+        (title IS NOT NULL AND parent IS NULL)
         OR
-        (title = NULL AND parent <> NULL)
+        (title IS NULL AND parent IS NOT NULL)
     )
 );
 

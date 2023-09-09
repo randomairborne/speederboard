@@ -38,7 +38,7 @@ pub async fn get(
             users.created_at as user_created_at
             FROM forum_entries
             JOIN users ON forum_entries.author = users.id
-            WHERE game = $1 AND title <> NULL",
+            WHERE game = $1 AND title IS NOT NULL",
         game.id.get()
     )
     .fetch_all(&state.postgres)
