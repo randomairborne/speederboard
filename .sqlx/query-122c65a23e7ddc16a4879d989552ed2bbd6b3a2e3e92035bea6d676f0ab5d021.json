@@ -47,6 +47,11 @@
         "ordinal": 8,
         "name": "cover_art_ext",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "flags",
+        "type_info": "Int8"
       }
     ],
     "parameters": {
@@ -61,7 +66,8 @@
       false,
       false,
       true,
-      true
+      true,
+      false
     ]
   },
   "hash": "122c65a23e7ddc16a4879d989552ed2bbd6b3a2e3e92035bea6d676f0ab5d021"

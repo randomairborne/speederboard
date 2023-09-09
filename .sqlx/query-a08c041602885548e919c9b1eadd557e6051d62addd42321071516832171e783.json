@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT name, id, game, scoreboard\n            FROM categories WHERE game = $1",
+  "query": "SELECT name, id, game, scoreboard, flags\n            FROM categories WHERE game = $1",
   "describe": {
     "columns": [
       {
@@ -22,6 +22,11 @@
         "ordinal": 3,
         "name": "scoreboard",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "flags",
+        "type_info": "Int8"
       }
     ],
     "parameters": {
@@ -33,8 +38,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "7f1aeb9a9b79ab45cbf8ba3fdd3503a34e083921c181920d58b6234aa65f09dc"
+  "hash": "a08c041602885548e919c9b1eadd557e6051d62addd42321071516832171e783"
 }

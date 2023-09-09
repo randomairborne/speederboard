@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n        id, username, has_stylesheet, pfp_ext, banner_ext,\n        biography, email, admin, created_at\n        FROM users WHERE id = $1",
+  "query": "SELECT u.id, u.username, u.has_stylesheet,\n            u.pfp_ext, u.banner_ext, u.biography, u.admin,\n            u.created_at, u.flags, p.permissions\n            FROM users as u LEFT JOIN permissions as p\n            ON p.user_id = $1 AND p.game_id = $2 AND u.id = $1",
   "describe": {
     "columns": [
       {
@@ -35,22 +35,28 @@
       },
       {
         "ordinal": 6,
-        "name": "email",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 7,
         "name": "admin",
         "type_info": "Bool"
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "created_at",
         "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 8,
+        "name": "flags",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "permissions",
+        "type_info": "Int8"
       }
     ],
     "parameters": {
       "Left": [
+        "Int8",
         "Int8"
       ]
     },
@@ -63,8 +69,9 @@
       false,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "6a41d1d70cf77ae582ee25b94277f49b03ad5a9837a86c8ac480b3d7505da888"
+  "hash": "570d9a873f360c59740abd5d3782fc544e0ba0230393893ce3035fb0170029de"
 }

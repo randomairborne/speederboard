@@ -50,6 +50,11 @@
       },
       {
         "ordinal": 9,
+        "name": "flags",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
         "name": "created_at",
         "type_info": "Timestamp"
       }
@@ -69,6 +74,7 @@
       false,
       true,
       true,
+      false,
       false
     ]
   },

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE users SET\n                username = COALESCE($2, username),\n                has_stylesheet = COALESCE($3, has_stylesheet),\n                biography = COALESCE($4, biography),\n                pfp_ext = CASE WHEN $5 THEN NULL ELSE COALESCE($6, pfp_ext) END,\n                banner_ext = CASE WHEN $7 THEN NULL ELSE COALESCE($8, banner_ext) END,\n                admin = COALESCE($9, admin)\n            WHERE id = $1\n            RETURNING id, username, has_stylesheet,\n            pfp_ext, banner_ext, biography, admin, created_at",
+  "query": "UPDATE users SET\n                username = COALESCE($2, username),\n                has_stylesheet = COALESCE($3, has_stylesheet),\n                biography = COALESCE($4, biography),\n                pfp_ext = CASE WHEN $5 THEN NULL ELSE COALESCE($6, pfp_ext) END,\n                banner_ext = CASE WHEN $7 THEN NULL ELSE COALESCE($8, banner_ext) END,\n                admin = COALESCE($9, admin),\n                flags = $10\n            WHERE id = $1\n            RETURNING id, username, has_stylesheet, flags,\n            pfp_ext, banner_ext, biography, admin, created_at",
   "describe": {
     "columns": [
       {
@@ -20,26 +20,31 @@
       },
       {
         "ordinal": 3,
+        "name": "flags",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
         "name": "pfp_ext",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "banner_ext",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "biography",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 6,
+        "ordinal": 7,
         "name": "admin",
         "type_info": "Bool"
       },
       {
-        "ordinal": 7,
+        "ordinal": 8,
         "name": "created_at",
         "type_info": "Timestamp"
       }
@@ -54,10 +59,12 @@
         "Varchar",
         "Bool",
         "Varchar",
-        "Bool"
+        "Bool",
+        "Int8"
       ]
     },
     "nullable": [
+      false,
       false,
       false,
       false,
@@ -68,5 +75,5 @@
       false
     ]
   },
-  "hash": "aa28bcf55c8fccacf2dfd68f138b1e6f342518442f3869303f1bef16b355d8cc"
+  "hash": "daed25538432c8aee25cb7ddc7886f32f465f3bee7d17e3b23012f93338d5746"
 }

@@ -1,37 +1,42 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT name, id, game, scoreboard, description,\n            rules FROM categories WHERE game = $1",
+  "query": "SELECT id, game, name, description, rules, scoreboard, flags FROM categories WHERE id = $1",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "name",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 1,
         "name": "id",
         "type_info": "Int8"
       },
       {
-        "ordinal": 2,
+        "ordinal": 1,
         "name": "game",
         "type_info": "Int8"
       },
       {
-        "ordinal": 3,
-        "name": "scoreboard",
-        "type_info": "Bool"
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Varchar"
       },
       {
-        "ordinal": 4,
+        "ordinal": 3,
         "name": "description",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 5,
+        "ordinal": 4,
         "name": "rules",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "scoreboard",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "flags",
+        "type_info": "Int8"
       }
     ],
     "parameters": {
@@ -45,8 +50,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "b8e6f3542d5a139b0c4f1ae1fafca2921e5c561b6681f6cde58dd0324aac7295"
+  "hash": "df5df17f6cf5a4e669d58696eed3ad43d0eea5cdd6f8e03635ec7f2abe0a299c"
 }

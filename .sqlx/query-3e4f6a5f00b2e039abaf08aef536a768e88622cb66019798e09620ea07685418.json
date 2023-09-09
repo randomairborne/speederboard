@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n        id, username, has_stylesheet, pfp_ext, banner_ext,\n        biography, admin, created_at\n        FROM users WHERE username = $1",
+  "query": "INSERT INTO users\n        (username, email, password, has_stylesheet, flags,\n            pfp_ext, banner_ext, biography, admin, created_at)\n        VALUES ($1, $2, $3, false, 0, NULL, NULL, '', false, NOW())\n        RETURNING id, username, has_stylesheet, pfp_ext,\n        banner_ext, biography, admin, created_at, flags",
   "describe": {
     "columns": [
       {
@@ -42,11 +42,18 @@
         "ordinal": 7,
         "name": "created_at",
         "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 8,
+        "name": "flags",
+        "type_info": "Int8"
       }
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Varchar",
+        "Varchar",
+        "Varchar"
       ]
     },
     "nullable": [
@@ -57,8 +64,9 @@
       true,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "095f502bcd0cb4c96cd14f41bdbc0c0507dbf359ad05cc0ae697818fb0cb5330"
+  "hash": "3e4f6a5f00b2e039abaf08aef536a768e88622cb66019798e09620ea07685418"
 }

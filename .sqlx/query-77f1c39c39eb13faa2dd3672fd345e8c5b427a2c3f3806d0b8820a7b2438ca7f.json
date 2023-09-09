@@ -1,0 +1,106 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT forum_entries.id as forum_entry_id,\n        forum_entries.title as forum_entry_title,\n        forum_entries.content as forum_entry_content,\n        forum_entries.flags as forum_entry_flags,\n        forum_entries.parent as forum_entry_parent,\n        forum_entries.created_at as forum_entry_created_at,\n        users.id as user_id,\n        users.username as user_username,\n        users.biography as user_biography,\n        users.admin as user_admin,\n        users.has_stylesheet as user_has_stylesheet,\n        users.banner_ext as user_banner_ext,\n        users.pfp_ext as user_pfp_ext,\n        users.flags as user_flags,\n        users.created_at as user_created_at\n        FROM forum_entries\n        JOIN users ON forum_entries.author = users.id\n        WHERE forum_entries.id = $1 OR forum_entries.parent = $1\n        ORDER BY forum_entries.created_at",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "forum_entry_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "forum_entry_title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "forum_entry_content",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "forum_entry_flags",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "forum_entry_parent",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "forum_entry_created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 6,
+        "name": "user_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "user_username",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "user_biography",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "user_admin",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 10,
+        "name": "user_has_stylesheet",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 11,
+        "name": "user_banner_ext",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 12,
+        "name": "user_pfp_ext",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 13,
+        "name": "user_flags",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 14,
+        "name": "user_created_at",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "77f1c39c39eb13faa2dd3672fd345e8c5b427a2c3f3806d0b8820a7b2438ca7f"
+}

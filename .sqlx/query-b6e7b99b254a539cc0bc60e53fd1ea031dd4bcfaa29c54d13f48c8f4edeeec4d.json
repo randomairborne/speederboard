@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT u.id, u.username, u.has_stylesheet,\n            u.pfp_ext, u.banner_ext, u.biography, u.admin,\n            u.created_at, p.permissions\n            FROM users as u LEFT JOIN permissions as p\n            ON p.user_id = $1 AND p.game_id = $2 AND u.id = $1",
+  "query": "SELECT\n        id, username, has_stylesheet, pfp_ext, banner_ext,\n        biography, admin, created_at, flags\n        FROM users WHERE username = $1",
   "describe": {
     "columns": [
       {
@@ -45,14 +45,13 @@
       },
       {
         "ordinal": 8,
-        "name": "permissions",
+        "name": "flags",
         "type_info": "Int8"
       }
     ],
     "parameters": {
       "Left": [
-        "Int8",
-        "Int8"
+        "Text"
       ]
     },
     "nullable": [
@@ -64,8 +63,8 @@
       false,
       false,
       false,
-      true
+      false
     ]
   },
-  "hash": "5ba77c05f89d6ffd62240aa98293d71aa22162172e9821d3b856a5aacd5e90f6"
+  "hash": "b6e7b99b254a539cc0bc60e53fd1ea031dd4bcfaa29c54d13f48c8f4edeeec4d"
 }
