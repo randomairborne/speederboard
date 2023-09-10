@@ -361,7 +361,7 @@ impl ResolvedRun {
         };
         let rr = ResolvedRun {
             id,
-            game: game.clone(),
+            game,
             category,
             submitter,
             verifier,
