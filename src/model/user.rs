@@ -67,6 +67,11 @@ impl User {
     }
 
     pub async fn from_db(state: &AppState, id: Id<UserMarker>) -> Result<User, Error> {
+        let maybe_user: Option<User> =
+            crate::util::get_redis_object(state, format!("user:{id}")).await?;
+        if let Some(user) = maybe_user {
+            return Ok(user);
+        }
         let record = query!(
             "SELECT id, username, has_stylesheet, pfp_ext,
             banner_ext, biography, admin, created_at, flags

@@ -23,7 +23,6 @@ impl Permissions {
     }
 
     #[inline]
-    #[allow(dead_code)]
     pub fn get(self) -> i64 {
         self.0
     }

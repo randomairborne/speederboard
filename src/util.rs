@@ -3,11 +3,13 @@ use std::fmt::Debug;
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use axum::extract::FromRequest;
 use rand::rngs::OsRng;
+use redis::AsyncCommands;
 
 use crate::{
     error::ArgonError,
     id::{Id, UserMarker},
     model::{Game, Member, Permissions, User},
+    AppState, Error,
 };
 
 pub const MIN_PASSWORD_LEN: usize = 8;
@@ -177,4 +179,35 @@ pub async fn game_n_member(
         flags: data.flags,
     };
     Ok((game, member))
+}
+
+pub async fn get_redis_object<
+    T: for<'de> serde::Deserialize<'de>,
+    K: redis::ToRedisArgs + Send + Sync,
+>(
+    state: &AppState,
+    key: K,
+) -> Result<Option<T>, Error> {
+    let maybe_object_str: Option<String> = state.redis.get().await?.get(key).await?;
+    if let Some(object_str) = maybe_object_str {
+        let object: T = serde_json::from_str(&object_str)?;
+        Ok(Some(object))
+    } else {
+        Ok(None)
+    }
+}
+pub async fn set_redis_object<K: redis::ToRedisArgs + Send + Sync, V: serde::Serialize>(
+    state: &AppState,
+    key: K,
+    data: &V,
+    expiry: usize,
+) -> Result<(), Error> {
+    let game_str = serde_json::to_string(data)?;
+    state
+        .redis
+        .get()
+        .await?
+        .set_ex(key, game_str, expiry)
+        .await?;
+    Ok(())
 }

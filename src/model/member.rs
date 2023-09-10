@@ -1,3 +1,5 @@
+use redis::AsyncCommands;
+
 use crate::{
     id::{GameMarker, Id, UserMarker},
     AppState, Error,
@@ -18,6 +20,22 @@ impl Member {
         user: Id<UserMarker>,
         game: Id<GameMarker>,
     ) -> Result<Option<Self>, Error> {
+        let maybe_user: Option<User> =
+            crate::util::get_redis_object(state, format!("user:{user}")).await?;
+        let maybe_permissions: Option<i64> = state
+            .redis
+            .get()
+            .await?
+            .get(format!("permissions:{game}:{user}"))
+            .await?;
+        if let Some(user) = maybe_user {
+            if let Some(perms) = maybe_permissions {
+                return Ok(Some(Member {
+                    perms: Permissions::new(perms),
+                    user,
+                }));
+            }
+        }
         let Some(member) = query!(
             "SELECT u.id, u.username, u.has_stylesheet,
             u.pfp_ext, u.banner_ext, u.biography, u.admin,
@@ -48,6 +66,18 @@ impl Member {
         } else {
             Permissions::new_opt(member.permissions)
         };
+        state
+            .redis
+            .get()
+            .await?
+            .set_ex(format!("permissions:{game}:{}", user.id), perms.get(), 600)
+            .await?;
+        state
+            .redis
+            .get()
+            .await?
+            .set_ex(format!("user:{}", user.id), perms.get(), 600)
+            .await?;
         Ok(Some(Member { perms, user }))
     }
 }

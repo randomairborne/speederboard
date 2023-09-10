@@ -1,5 +1,3 @@
-use redis::AsyncCommands;
-
 use crate::{
     id::{CategoryMarker, GameMarker, Id},
     AppState, Error,
@@ -23,7 +21,7 @@ pub struct Game {
 
 impl Game {
     pub async fn from_db_slug(state: &AppState, slug: &str) -> Result<Self, Error> {
-        match Self::get_game_slug_redis(state, slug).await {
+        match crate::util::get_redis_object(state, format!("game:{slug}")).await {
             Ok(Some(game)) => return Ok(game),
             Ok(None) => trace!(slug, "did not find game slug in redis cache"),
             Err(source) => error!(
@@ -37,29 +35,9 @@ impl Game {
         else {
             return Err(Error::NotFound);
         };
-        if let Err(source) = Self::set_redis_game_cache(state, slug, &game).await {
+        if let Err(source) = crate::util::set_redis_object(state, slug, &game, 600).await {
             error!(?source, "failed to set game redis cache");
         }
         Ok(game)
-    }
-
-    async fn get_game_slug_redis(state: &AppState, slug: &str) -> Result<Option<Self>, Error> {
-        let maybe_game_str: Option<String> =
-            state.redis.get().await?.get(format!("game:{slug}")).await?;
-        let Some(game_str) = maybe_game_str else {
-            return Ok(None);
-        };
-        Ok(Some(serde_json::from_str(&game_str)?))
-    }
-
-    async fn set_redis_game_cache(state: &AppState, slug: &str, game: &Game) -> Result<(), Error> {
-        let game_str = serde_json::to_string(game)?;
-        state
-            .redis
-            .get()
-            .await?
-            .set_ex(format!("game:{slug}"), game_str, 600)
-            .await?;
-        Ok(())
     }
 }
