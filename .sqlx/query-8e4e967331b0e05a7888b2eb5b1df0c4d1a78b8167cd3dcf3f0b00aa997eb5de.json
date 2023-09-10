@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT permissions.permissions,\n        users.id, users.username, users.biography,\n        users.admin, users.has_stylesheet, users.banner_ext,\n        users.pfp_ext, users.flags, users.created_at\n        FROM users\n        JOIN permissions ON permissions.user_id = users.id\n        WHERE permissions.permissions > 0\n        AND permissions.game_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "permissions",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "username",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "biography",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "admin",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "has_stylesheet",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "banner_ext",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "pfp_ext",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "flags",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "8e4e967331b0e05a7888b2eb5b1df0c4d1a78b8167cd3dcf3f0b00aa997eb5de"
+}

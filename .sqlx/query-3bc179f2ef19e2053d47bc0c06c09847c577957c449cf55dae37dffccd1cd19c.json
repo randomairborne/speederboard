@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO permissions (user_id, game_id, permissions)\n        VALUES ($1, $2, $3)\n        ON CONFLICT (user_id, game_id) DO UPDATE SET permissions = $3",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3bc179f2ef19e2053d47bc0c06c09847c577957c449cf55dae37dffccd1cd19c"
+}
