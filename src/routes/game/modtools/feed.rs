@@ -21,7 +21,7 @@ pub struct ModFeedQuery {
 }
 
 #[derive(serde::Serialize, Debug, Clone)]
-struct ModFeedContext {
+pub struct ModFeedPage {
     has_next: bool,
     submissions: Vec<ResolvedRun>,
     category: Option<Category>,
@@ -90,7 +90,7 @@ async fn feed_maybe_cat(
     } else {
         None
     };
-    let ctx = ModFeedContext {
+    let ctx = ModFeedPage {
         base,
         has_next: leaderboard.has_next(),
         category,

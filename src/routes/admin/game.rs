@@ -5,7 +5,7 @@ use crate::{
 };
 
 #[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
-pub struct CreateGame {
+pub struct GameCreateForm {
     #[garde(length(min = crate::util::MIN_GAME_NAME_LEN, max = crate::util::MAX_GAME_NAME_LEN))]
     name: String,
     #[garde(length(min = crate::util::MIN_GAME_SLUG_LEN, max = crate::util::MAX_GAME_SLUG_LEN), custom(crate::util::validate_slug))]
@@ -26,7 +26,7 @@ pub struct CreateGame {
 }
 
 #[derive(serde::Serialize, Debug, Clone)]
-pub struct GetGameCreatePageContext {
+pub struct GameCreatePage {
     #[serde(flatten)]
     base: BaseRenderInfo,
     user: User,
@@ -34,13 +34,13 @@ pub struct GetGameCreatePageContext {
 
 #[allow(clippy::unused_async)]
 pub async fn get(State(state): State<AppState>, user: User, base: BaseRenderInfo) -> HandlerResult {
-    let ctx = GetGameCreatePageContext { base, user };
+    let ctx = GameCreatePage { base, user };
     state.render("create_game.jinja", ctx)
 }
 
 pub async fn post(
     State(state): State<AppState>,
-    ValidatedForm(newgame): ValidatedForm<CreateGame>,
+    ValidatedForm(newgame): ValidatedForm<GameCreateForm>,
 ) -> Result<Redirect, Error> {
     let mut trans = state.postgres.begin().await?;
     let game_id = query!(
@@ -82,8 +82,5 @@ pub async fn post(
     .execute(trans.as_mut())
     .await?;
     trans.commit().await?;
-    Ok(Redirect::to(&format!(
-        "{}/game/{}",
-        state.config.root_url, newgame.slug
-    )))
+    Ok(state.redirect(format!("/game/{}", newgame.slug)))
 }

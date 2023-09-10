@@ -2,11 +2,11 @@ use std::fmt::Display;
 
 use crate::{template::BaseRenderInfo, AppState};
 use axum::{
-    extract::State,
+    extract::{OriginalUri, State},
     http::Request,
     http::StatusCode,
     middleware::Next,
-    response::{IntoResponse, Redirect, Response},
+    response::{IntoResponse, Response},
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -107,6 +107,7 @@ impl IntoResponse for Error {
 }
 pub async fn error_middleware<B>(
     State(state): State<AppState>,
+    uri: OriginalUri,
     request: Request<B>,
     next: Next<B>,
 ) -> Response {
@@ -149,11 +150,15 @@ pub async fn error_middleware<B>(
         | Error::CannotDeleteDefaultCategory
         | Error::DoubleDotInPath => StatusCode::BAD_REQUEST,
         Error::InvalidPassword | Error::InsufficientPermissions => StatusCode::UNAUTHORIZED,
-        Error::InvalidCookie => return Redirect::to("/login").into_response(),
+        Error::InvalidCookie => return state.redirect("/login").into_response(),
         Error::NeedsLogin(return_to) => {
-            return Redirect::to(&format!("/login?return_to={return_to}")).into_response()
+            return state
+                .redirect(format!("/login?return_to={return_to}"))
+                .into_response()
         }
-        Error::NotFound => return crate::routes::notfound(&state, core).into_response(),
+        Error::NotFound => {
+            return crate::routes::notfound(&state, core, uri.to_string()).into_response()
+        }
     };
     if status == StatusCode::INTERNAL_SERVER_ERROR {
         error!(?error, "failed to handle request");
@@ -187,7 +192,6 @@ Please send an email to valk@randomairborne.dev with a copy of this message."
     )
 }
 
-#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub enum ArgonError {
     PasswordHash(argon2::password_hash::Error),

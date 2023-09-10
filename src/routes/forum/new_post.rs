@@ -61,8 +61,5 @@ pub async fn post(
     .fetch_one(&state.postgres)
     .await?
     .id;
-    Ok(Redirect::to(&format!(
-        "{}/forum/{game_slug}/post/{post_id}",
-        state.config.root_url
-    )))
+    Ok(state.redirect(format!("/forum/{game_slug}/post/{post_id}")))
 }

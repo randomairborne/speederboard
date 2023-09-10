@@ -7,13 +7,22 @@ use crate::{
     util::ValidatedForm,
     AppState, Error, HandlerResult,
 };
-use axum::{extract::State, response::Redirect};
+use axum::{
+    extract::{Query, State},
+    response::Redirect,
+};
 
 #[derive(serde::Serialize, Debug, Clone)]
-pub struct SettingsUserContext {
+pub struct SettingsPage {
     #[serde(flatten)]
     base: BaseRenderInfo,
     user: PrivateUser,
+    incorrect: bool,
+}
+
+#[derive(serde::Deserialize, Debug, Clone)]
+pub struct SettingsQuery {
+    incorrect: bool,
 }
 
 #[derive(serde::Serialize, Debug, Clone)]
@@ -26,15 +35,18 @@ pub struct PrivateUser {
 #[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
 pub struct UserUpdateForm {
     #[garde(length(min = crate::util::MIN_USERNAME_LEN, max = crate::util::MAX_USERNAME_LEN))]
-    pub username: String,
+    username: String,
     #[garde(length(min = crate::util::MIN_USER_BIOGRAPHY_LEN, max = crate::util::MAX_USER_BIOGRAPHY_LEN))]
-    pub biography: String,
+    biography: String,
 }
 
-const UPDATE_COMPLETE_URL: &str = "/settings";
-
 #[allow(clippy::unused_async)]
-pub async fn get(State(state): State<AppState>, user: User, base: BaseRenderInfo) -> HandlerResult {
+pub async fn get(
+    State(state): State<AppState>,
+    user: User,
+    base: BaseRenderInfo,
+    Query(query): Query<SettingsQuery>,
+) -> HandlerResult {
     let record = query!(
         "SELECT
         id, username, has_stylesheet, pfp_ext, banner_ext,
@@ -60,8 +72,9 @@ pub async fn get(State(state): State<AppState>, user: User, base: BaseRenderInfo
         base: base_user,
         email: record.email,
     };
-    let ctx = SettingsUserContext {
+    let ctx = SettingsPage {
         base,
+        incorrect: query.incorrect,
         user: private_user,
     };
     state.render("settings.jinja", ctx)
@@ -76,5 +89,5 @@ pub async fn profile(
         .username(form.username)
         .biography(form.biography);
     update.execute(&state).await?;
-    Ok(Redirect::to(UPDATE_COMPLETE_URL))
+    Ok(state.redirect("location"))
 }

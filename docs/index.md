@@ -7,3 +7,4 @@ Please update it if you make a change relating to any of its topics.
 - [assets](/assets.html)
 - [cdn](/cdn.html)
 - [templates](/templates.html)
+- [style](/style.html)

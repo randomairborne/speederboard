@@ -13,14 +13,14 @@ use crate::{
 };
 
 #[derive(serde::Serialize, Debug, Clone)]
-pub struct Team {
+pub struct TeamPage {
     members: Vec<Member>,
     #[serde(flatten)]
     base: BaseRenderInfo,
 }
 
 #[derive(serde::Deserialize, garde::Validate, Debug, Clone)]
-pub struct ModifyTeamMember {
+pub struct ModifyTeamMemberForm {
     #[garde(skip)]
     member: Id<UserMarker>,
     #[garde(skip)]
@@ -70,7 +70,7 @@ pub async fn get(
         },
     })
     .collect();
-    let ctx = Team { members, base };
+    let ctx = TeamPage { members, base };
     state.render("game_team.jinja", ctx)
 }
 
@@ -78,7 +78,7 @@ pub async fn post(
     State(state): State<AppState>,
     Path(game_slug): Path<String>,
     user: User,
-    ValidatedForm(form): ValidatedForm<ModifyTeamMember>,
+    ValidatedForm(form): ValidatedForm<ModifyTeamMemberForm>,
 ) -> Result<Redirect, Error> {
     let (game, member) = game_n_member(&state, user, &game_slug).await?;
     if !member.perms.contains(Permissions::ADMINISTRATOR) {
@@ -104,5 +104,5 @@ pub async fn post(
     )
     .execute(&state.postgres)
     .await?;
-    Ok(Redirect::to(&format!("/game/{game_slug}/team")))
+    Ok(state.redirect(format!("/game/{game_slug}/team")))
 }

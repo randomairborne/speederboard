@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[derive(serde::Serialize, Debug, Clone)]
-pub struct GameEditContext {
+pub struct GameEditPage {
     game: Game,
     categories: Vec<Category>,
     #[serde(flatten)]
@@ -20,7 +20,7 @@ pub struct GameEditContext {
 }
 
 #[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
-pub struct GameEdit {
+pub struct GameEditForm {
     #[garde(length(min = crate::util::MIN_GAME_NAME_LEN, max = crate::util::MAX_GAME_NAME_LEN))]
     name: String,
     #[garde(url, length(min = crate::util::MIN_GAME_URL_LEN, max = crate::util::MAX_GAME_URL_LEN))]
@@ -46,7 +46,7 @@ pub async fn get(
     )
     .fetch_all(&state.postgres)
     .await?;
-    let context = GameEditContext {
+    let context = GameEditPage {
         game,
         categories,
         base,
@@ -58,7 +58,7 @@ pub async fn edit(
     State(state): State<AppState>,
     Path(game_slug): Path<String>,
     user: User,
-    ValidatedForm(form): ValidatedForm<GameEdit>,
+    ValidatedForm(form): ValidatedForm<GameEditForm>,
 ) -> Result<Redirect, Error> {
     let (game, member) = util::game_n_member(&state, user, &game_slug).await?;
     member.perms.check(Permissions::ADMINISTRATOR)?;
@@ -71,7 +71,7 @@ pub async fn edit(
     )
     .execute(&state.postgres)
     .await?;
-    Ok(Redirect::to(&format!("/game/{}/edit", game.slug)))
+    Ok(state.redirect(format!("/game/{}/edit", game.slug)))
 }
 
 pub async fn set_default_category(
@@ -88,5 +88,5 @@ pub async fn set_default_category(
     )
     .execute(&state.postgres)
     .await?;
-    Ok(Redirect::to(&format!("/game/{game_slug}/edit")))
+    Ok(state.redirect(format!("/game/{game_slug}/edit")))
 }

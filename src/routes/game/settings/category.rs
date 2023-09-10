@@ -11,7 +11,7 @@ use axum::{
 };
 
 #[derive(serde::Serialize, Debug, Clone)]
-pub struct GetCategoryContext {
+pub struct CategoryEditPage {
     #[serde(flatten)]
     base: BaseRenderInfo,
     category: Category,
@@ -19,7 +19,7 @@ pub struct GetCategoryContext {
 }
 
 #[derive(serde::Deserialize, Clone, Debug, garde::Validate)]
-pub struct NewCategory {
+pub struct NewCategoryForm {
     #[garde(length(min = crate::util::MIN_CATEGORY_NAME_LEN, max = crate::util::MAX_CATEGORY_NAME_LEN))]
     name: String,
     #[garde(length(min = crate::util::MIN_CATEGORY_DESCRIPTION_LEN, max = crate::util::MAX_CATEGORY_DESCRIPTION_LEN))]
@@ -35,7 +35,7 @@ pub async fn new(
     State(state): State<AppState>,
     Path(game_slug): Path<String>,
     user: User,
-    ValidatedForm(form): ValidatedForm<NewCategory>,
+    ValidatedForm(form): ValidatedForm<NewCategoryForm>,
 ) -> Result<Redirect, Error> {
     let (game, member) = util::game_n_member(&state, user, &game_slug).await?;
     member.perms.check(Permissions::ADMINISTRATOR)?;
@@ -52,9 +52,7 @@ pub async fn new(
     .fetch_one(&state.postgres)
     .await?
     .id;
-    Ok(Redirect::to(&format!(
-        "/game/{game_slug}/category/{cat_id}"
-    )))
+    Ok(state.redirect(&format!("/game/{game_slug}/category/{cat_id}")))
 }
 
 #[allow(clippy::unused_async)]
@@ -92,14 +90,14 @@ pub async fn delete(
     )
     .execute(&state.postgres)
     .await?;
-    Ok(Redirect::to(&format!("/game/{game_slug}/edit")))
+    Ok(state.redirect(&format!("/game/{game_slug}/edit")))
 }
 
 pub async fn edit(
     State(state): State<AppState>,
     Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
     user: User,
-    ValidatedForm(form): ValidatedForm<NewCategory>,
+    ValidatedForm(form): ValidatedForm<NewCategoryForm>,
 ) -> Result<Redirect, Error> {
     let (game, member) = util::game_n_member(&state, user, &game_slug).await?;
     member.perms.check(Permissions::ADMINISTRATOR)?;
@@ -118,9 +116,7 @@ pub async fn edit(
     )
     .execute(&state.postgres)
     .await?;
-    Ok(Redirect::to(&format!(
-        "/game/{game_slug}/category/{category_id}/edit"
-    )))
+    Ok(state.redirect(&format!("/game/{game_slug}/category/{category_id}/edit")))
 }
 
 pub async fn get(
@@ -132,7 +128,7 @@ pub async fn get(
     let (game, member) = util::game_n_member(&state, user, &game_slug).await?;
     member.perms.check(Permissions::ADMINISTRATOR)?;
     let category = Category::from_db(state.clone(), category_id).await?;
-    let ctx = GetCategoryContext {
+    let ctx = CategoryEditPage {
         base,
         category,
         game,

@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[derive(serde::Serialize, Debug, Clone)]
-pub struct GetRunCreatePage {
+pub struct RunCreatePage {
     #[serde(flatten)]
     base: BaseRenderInfo,
     user: User,
@@ -68,7 +68,7 @@ pub async fn get(
     if category.game != game.id {
         return Err(Error::InvalidGameCategoryPair);
     }
-    let context = GetRunCreatePage {
+    let context = RunCreatePage {
         base,
         user,
         game,
@@ -120,8 +120,7 @@ pub async fn create(
     .fetch_one(&state.postgres)
     .await?
     .id;
-    Ok(Redirect::to(&format!(
-        "{}/game/{game_slug}/category/{category_id}/run/{run_id}",
-        state.config.root_url
+    Ok(state.redirect(format!(
+        "/game/{game_slug}/category/{category_id}/run/{run_id}"
     )))
 }

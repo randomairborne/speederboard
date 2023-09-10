@@ -1,5 +1,6 @@
 use crate::{config::Config, Error};
 use argon2::Argon2;
+use axum::response::Redirect;
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use sqlx::{postgres::PgPoolOptions, PgPool};
@@ -96,6 +97,12 @@ impl InnerAppState {
             .error_for_status()?;
         trace!(?resp, "got response on deletion");
         Ok(())
+    }
+
+    pub fn redirect(&self, location: impl AsRef<str>) -> Redirect {
+        let root = &self.config.root_url;
+        let path = location.as_ref();
+        Redirect::to(&format!("{root}{path}"))
     }
 
     pub fn render<T: serde::Serialize>(

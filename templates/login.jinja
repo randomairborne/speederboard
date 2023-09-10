@@ -14,6 +14,7 @@
             <td><input name="password" id="password" type="password" /></td>
         </tr>
     </table>
+    <input type="hidden" value="{{ root_url }}{{ return_to }}" />
     <button>log in</button>
 </form>
 {% if incorrect %}

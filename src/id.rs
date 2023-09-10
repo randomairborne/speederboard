@@ -108,7 +108,6 @@ impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> From<Id<T>> for i64 {
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
 pub trait IdMarker {}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

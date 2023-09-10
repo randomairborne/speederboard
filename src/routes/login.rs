@@ -12,7 +12,6 @@ use axum_extra::extract::{cookie::Cookie, CookieJar};
 use rand::distributions::DistString;
 use redis::AsyncCommands;
 
-#[allow(clippy::module_name_repetitions)]
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct LoginPage {
     #[serde(flatten)]
@@ -21,29 +20,20 @@ pub struct LoginPage {
     return_to: String,
 }
 
-#[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, Debug, Clone)]
-pub struct LoginForm {
-    username: String,
-    email: String,
-    #[serde(flatten)]
-    base: BaseRenderInfo,
-}
-
-#[allow(clippy::module_name_repetitions)]
 #[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
-pub struct LoginFormData {
+pub struct LoginForm {
     #[garde(email, length(min = crate::util::MIN_EMAIL_LEN, max = crate::util::MAX_EMAIL_LEN))]
-    pub email: String,
+    email: String,
     #[garde(length(min = crate::util::MIN_PASSWORD_LEN))]
-    pub password: String,
+    password: String,
+    #[garde(skip)]
+    return_to: String,
 }
 
-#[allow(clippy::module_name_repetitions)]
 #[derive(serde::Deserialize, Debug, Clone)]
 pub struct LoginQuery {
     #[serde(default = "crate::util::default_return_to")]
-    pub return_to: String,
+    return_to: String,
 }
 
 #[allow(clippy::unused_async)]
@@ -64,14 +54,13 @@ pub async fn post(
     State(state): State<AppState>,
     cookies: CookieJar,
     base: BaseRenderInfo,
-    Query(query): Query<LoginQuery>,
-    ValidatedForm(form): ValidatedForm<LoginFormData>,
+    ValidatedForm(form): ValidatedForm<LoginForm>,
 ) -> Result<Result<(CookieJar, Redirect), HandlerResult>, Error> {
     let Ok(user) = User::from_db_auth(&state, &state.postgres, form.email, form.password).await?
     else {
         let ctx = LoginPage {
             base,
-            return_to: query.return_to,
+            return_to: form.return_to,
             incorrect: true,
         };
         return Ok(Err(state.render("login.jinja", ctx)));
@@ -95,7 +84,7 @@ pub async fn post(
         .await?;
     Ok(Ok((
         cookies.add(Cookie::new(AUTHTOKEN_COOKIE, token)),
-        Redirect::to(&format!("{}{}", state.config.root_url, query.return_to)),
+        state.redirect(form.return_to),
     )))
 }
 
@@ -104,7 +93,7 @@ pub async fn logout(
     cookies: CookieJar,
 ) -> Result<(CookieJar, Redirect), Error> {
     let Some(token) = cookies.get(AUTHTOKEN_COOKIE).map(Cookie::value) else {
-        return Ok((cookies, Redirect::to(&state.config.root_url)));
+        return Ok((cookies, state.redirect("/")));
     };
     let maybe_id: Option<String> = state
         .redis
@@ -113,11 +102,11 @@ pub async fn logout(
         .get_del(format!("token:user:{token}"))
         .await?;
     let Some(id) = maybe_id else {
-        return Ok((cookies, Redirect::to(&state.config.root_url)));
+        return Ok((cookies, state.redirect("/")));
     };
     state.redis.get().await?.del(format!("user:{id}")).await?;
     Ok((
         cookies.remove(Cookie::named(AUTHTOKEN_COOKIE)),
-        Redirect::to(&state.config.root_url),
+        state.redirect("/"),
     ))
 }

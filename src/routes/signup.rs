@@ -25,16 +25,8 @@ pub struct SignUpQuery {
     return_to: String,
 }
 
-#[derive(serde::Serialize, Debug, Clone)]
-pub struct SignUpForm {
-    username: String,
-    email: String,
-    #[serde(flatten)]
-    base: BaseRenderInfo,
-}
-
 #[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
-pub struct SignUpFormData {
+pub struct SignUpForm {
     #[garde(email, length(min = crate::util::MIN_EMAIL_LEN, max = crate::util::MAX_EMAIL_LEN))]
     email: String,
     #[garde(length(min = crate::util::MIN_USERNAME_LEN, max = crate::util::MAX_USERNAME_LEN), custom(crate::util::validate_slug))]
@@ -59,7 +51,7 @@ pub async fn get(
 pub async fn post(
     State(state): State<AppState>,
     cookies: CookieJar,
-    ValidatedForm(form): ValidatedForm<SignUpFormData>,
+    ValidatedForm(form): ValidatedForm<SignUpForm>,
 ) -> Result<(CookieJar, Redirect), Error> {
     let password_hash = state
         .spawn_rayon(move |state| {
@@ -99,6 +91,6 @@ pub async fn post(
         .await?;
     Ok((
         cookies.add(Cookie::new(AUTHTOKEN_COOKIE, token)),
-        Redirect::to(&state.config.root_url),
+        state.redirect("/"),
     ))
 }

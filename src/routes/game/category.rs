@@ -12,11 +12,11 @@ use crate::{
 #[derive(serde::Deserialize, Debug, Clone)]
 pub struct GetCategoryQuery {
     #[serde(default = "crate::util::return_0_usize")]
-    pub page: usize,
+    page: usize,
 }
 
 #[derive(serde::Serialize, Debug, Clone)]
-pub struct GetGameContext {
+pub struct GamePage {
     #[serde(flatten)]
     base: BaseRenderInfo,
     categories: Vec<MiniCategory>,
@@ -26,7 +26,16 @@ pub struct GetGameContext {
     game: Arc<Game>,
 }
 
-pub async fn get(
+pub async fn default_category(
+    State(state): State<AppState>,
+    Path(game_slug): Path<String>,
+    Query(query): Query<GetCategoryQuery>,
+    base: BaseRenderInfo,
+) -> HandlerResult {
+    get_game_category(&state, base, game_slug, None, query.page).await
+}
+
+pub async fn specific_category(
     State(state): State<AppState>,
     Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
     Query(query): Query<GetCategoryQuery>,
@@ -82,7 +91,7 @@ pub(super) async fn get_game_category(
     )
     .await?;
     let categories = spawned_getcats.await??;
-    let ctx = GetGameContext {
+    let ctx = GamePage {
         base,
         categories,
         category,

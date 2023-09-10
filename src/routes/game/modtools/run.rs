@@ -94,7 +94,7 @@ async fn set_verify(
         return Err(Error::NotFound);
     }
     trans.commit().await?;
-    Ok(Redirect::to(&format!(
+    Ok(state.redirect(format!(
         "/game/{game_slug}/category/{category_id}/run/{run_id}"
     )))
 }

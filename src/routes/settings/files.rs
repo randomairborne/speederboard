@@ -1,4 +1,3 @@
-use super::UPDATE_COMPLETE_URL;
 use crate::{
     model::{User, UserUpdate},
     AppState, Error,
@@ -14,14 +13,14 @@ pub async fn pfp(
     multipart_into_s3(&state, multipart, "pfp", &user.pfp_dest_path()).await?;
     let update = UserUpdate::new(user.id).pfp_ext(Some("png".to_string()));
     update.execute(&state).await?;
-    Ok(Redirect::to(UPDATE_COMPLETE_URL))
+    Ok(state.redirect("/settings"))
 }
 
 pub async fn pfp_del(State(state): State<AppState>, user: User) -> Result<Redirect, Error> {
     state.delete_r2_file(&user.pfp_dest_path()).await?;
     let update = UserUpdate::new(user.id).pfp_ext(None);
     update.execute(&state).await?;
-    Ok(Redirect::to(UPDATE_COMPLETE_URL))
+    Ok(state.redirect("/settings"))
 }
 
 pub async fn banner(
@@ -32,14 +31,14 @@ pub async fn banner(
     multipart_into_s3(&state, multipart, "banner", &user.banner_dest_path()).await?;
     let update = UserUpdate::new(user.id).banner_ext(Some("png".to_string()));
     update.execute(&state).await?;
-    Ok(Redirect::to(UPDATE_COMPLETE_URL))
+    Ok(state.redirect("/settings"))
 }
 
 pub async fn banner_del(State(state): State<AppState>, user: User) -> Result<Redirect, Error> {
     state.delete_r2_file(&user.banner_dest_path()).await?;
     let update = UserUpdate::new(user.id).banner_ext(None);
     update.execute(&state).await?;
-    Ok(Redirect::to(UPDATE_COMPLETE_URL))
+    Ok(state.redirect("/settings"))
 }
 
 pub async fn stylesheet(
@@ -56,14 +55,14 @@ pub async fn stylesheet(
     .await?;
     let update = UserUpdate::new(user.id).has_stylesheet(true);
     update.execute(&state).await?;
-    Ok(Redirect::to(UPDATE_COMPLETE_URL))
+    Ok(state.redirect("/settings"))
 }
 
 pub async fn stylesheet_del(State(state): State<AppState>, user: User) -> Result<Redirect, Error> {
     state.delete_r2_file(&user.stylesheet_dest_path()).await?;
     let update = UserUpdate::new(user.id).has_stylesheet(false);
     update.execute(&state).await?;
-    Ok(Redirect::to(UPDATE_COMPLETE_URL))
+    Ok(state.redirect("/settings"))
 }
 
 const SIZE_LIMIT: usize = 1024 * 512;

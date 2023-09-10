@@ -2,7 +2,7 @@ use crate::{model::Game, template::BaseRenderInfo, AppState, HandlerResult};
 use axum::extract::State;
 
 #[derive(serde::Serialize, Debug, Clone)]
-struct RootContext {
+pub struct RootPage {
     games: Vec<Game>,
     #[serde(flatten)]
     base: BaseRenderInfo,
@@ -13,6 +13,6 @@ pub async fn get(State(state): State<AppState>, base: BaseRenderInfo) -> Handler
     let games = query_as!(Game, "SELECT * FROM games")
         .fetch_all(&state.postgres)
         .await?;
-    let ctx = RootContext { games, base };
+    let ctx = RootPage { games, base };
     state.render("index.jinja", ctx)
 }
