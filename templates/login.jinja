@@ -2,7 +2,7 @@
 {% block extraheaders %}{% endblock extraheaders %}
 {% block title %}log in{% endblock title %}
 {% block body %}
-<form method="post">
+<form method="post" action="/login">
 
     <table>
         <tr>
@@ -14,7 +14,7 @@
             <td><input name="password" id="password" type="password" /></td>
         </tr>
     </table>
-    <input type="hidden" value="{{ root_url }}{{ return_to }}" />
+    <input name="return_to" id="return_to" type="hidden" value="{{ return_to }}" />
     <button>log in</button>
 </form>
 {% if incorrect %}
