@@ -52,7 +52,7 @@ pub async fn new(
     .fetch_one(&state.postgres)
     .await?
     .id;
-    Ok(state.redirect(&format!("/game/{game_slug}/category/{cat_id}")))
+    Ok(state.redirect(format!("/game/{game_slug}/category/{cat_id}")))
 }
 
 #[allow(clippy::unused_async)]
@@ -90,7 +90,7 @@ pub async fn delete(
     )
     .execute(&state.postgres)
     .await?;
-    Ok(state.redirect(&format!("/game/{game_slug}/edit")))
+    Ok(state.redirect(format!("/game/{game_slug}/edit")))
 }
 
 pub async fn edit(
@@ -116,7 +116,7 @@ pub async fn edit(
     )
     .execute(&state.postgres)
     .await?;
-    Ok(state.redirect(&format!("/game/{game_slug}/category/{category_id}/edit")))
+    Ok(state.redirect(format!("/game/{game_slug}/category/{category_id}/edit")))
 }
 
 pub async fn get(
