@@ -35,9 +35,7 @@ impl Game {
         else {
             return Err(Error::NotFound);
         };
-        if let Err(source) = crate::util::set_redis_object(state, slug, &game, 600).await {
-            error!(?source, "failed to set game redis cache");
-        }
+        crate::util::set_redis_object(state, format!("game:{slug}"), &game, 600).await?;
         Ok(game)
     }
 }
