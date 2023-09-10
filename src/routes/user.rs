@@ -4,7 +4,7 @@ use axum::extract::{Path, State};
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct UserPage {
     #[serde(flatten)]
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
     user: User,
 }
 
@@ -12,7 +12,7 @@ pub struct UserPage {
 pub async fn get(
     State(state): State<AppState>,
     Path(username): Path<String>,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
 ) -> HandlerResult {
     let user = query_as!(
         User,
@@ -25,6 +25,6 @@ pub async fn get(
     .fetch_optional(&state.postgres)
     .await?
     .ok_or(Error::NotFound)?;
-    let ctx = UserPage { core, user };
+    let ctx = UserPage { base, user };
     state.render("user.jinja", ctx)
 }

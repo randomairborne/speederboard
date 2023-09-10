@@ -13,11 +13,11 @@ pub mod user;
 #[allow(clippy::unused_async)]
 pub async fn notfound_handler(
     State(state): State<AppState>,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
 ) -> (StatusCode, HandlerResult) {
-    notfound(&state, core)
+    notfound(&state, base)
 }
 
-pub fn notfound(state: &AppState, core: BaseRenderInfo) -> (StatusCode, HandlerResult) {
-    (StatusCode::NOT_FOUND, state.render("404.jinja", core))
+pub fn notfound(state: &AppState, base: BaseRenderInfo) -> (StatusCode, HandlerResult) {
+    (StatusCode::NOT_FOUND, state.render("404.jinja", base))
 }

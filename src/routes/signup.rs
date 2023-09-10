@@ -16,7 +16,7 @@ use redis::AsyncCommands;
 pub struct SignUpPage {
     return_to: String,
     #[serde(flatten)]
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
 }
 
 #[derive(serde::Deserialize, Debug, Clone)]
@@ -30,7 +30,7 @@ pub struct SignUpForm {
     username: String,
     email: String,
     #[serde(flatten)]
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
 }
 
 #[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
@@ -47,10 +47,10 @@ pub struct SignUpFormData {
 pub async fn get(
     State(state): State<AppState>,
     Query(query): Query<SignUpQuery>,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
 ) -> HandlerResult {
     let ctx = SignUpPage {
-        core,
+        base,
         return_to: query.return_to,
     };
     state.render("signup.jinja", ctx)

@@ -18,7 +18,7 @@ pub struct GetCategoryQuery {
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct GetGameContext {
     #[serde(flatten)]
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
     categories: Vec<MiniCategory>,
     category: Category,
     has_next: bool,
@@ -30,16 +30,16 @@ pub async fn get(
     State(state): State<AppState>,
     Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
     Query(query): Query<GetCategoryQuery>,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
 ) -> HandlerResult {
-    get_game_category(&state, core, game_slug, Some(category_id), query.page).await
+    get_game_category(&state, base, game_slug, Some(category_id), query.page).await
 }
 
 const RUNS_PER_PAGE: usize = 50;
 
 pub(super) async fn get_game_category(
     state: &AppState,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
     game_slug: String,
     maybe_category_id: Option<Id<CategoryMarker>>,
     page: usize,
@@ -83,7 +83,7 @@ pub(super) async fn get_game_category(
     .await?;
     let categories = spawned_getcats.await??;
     let ctx = GetGameContext {
-        core,
+        base,
         categories,
         category,
         has_next: resolution.has_next(),

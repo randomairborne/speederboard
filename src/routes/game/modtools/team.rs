@@ -16,7 +16,7 @@ use crate::{
 pub struct Team {
     members: Vec<Member>,
     #[serde(flatten)]
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
 }
 
 #[derive(serde::Deserialize, garde::Validate, Debug, Clone)]
@@ -32,7 +32,7 @@ pub async fn get(
     State(state): State<AppState>,
     Path(game_slug): Path<String>,
     user: User,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
 ) -> HandlerResult {
     let game = Game::from_db_slug(&state, &game_slug).await?;
     let member = Member::from_db(&state, user.id, game.id)
@@ -70,7 +70,7 @@ pub async fn get(
         },
     })
     .collect();
-    let ctx = Team { members, core };
+    let ctx = Team { members, base };
     state.render("game_team.jinja", ctx)
 }
 

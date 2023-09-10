@@ -10,14 +10,14 @@ use crate::{
 #[derive(serde::Serialize, Clone, Debug)]
 pub struct ForumPage {
     #[serde(flatten)]
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
     posts: Vec<ForumPost>,
     game: Game,
 }
 
 pub async fn get(
     State(state): State<AppState>,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
     Path(game_slug): Path<String>,
 ) -> HandlerResult {
     let game = Game::from_db_slug(&state, &game_slug).await?;
@@ -67,6 +67,6 @@ pub async fn get(
             flags: row.forum_entry_flags,
         });
     }
-    let data = ForumPage { core, posts, game };
+    let data = ForumPage { base, posts, game };
     state.render("forum.jinja", data)
 }

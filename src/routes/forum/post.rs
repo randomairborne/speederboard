@@ -14,7 +14,7 @@ use crate::{
 #[derive(serde::Serialize, Clone, Debug)]
 pub struct ForumPostPage {
     #[serde(flatten)]
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
     comments: Vec<ForumComment>,
     post: ForumPost,
     game: Game,
@@ -28,7 +28,7 @@ pub struct CommentCreateForm {
 
 pub async fn get(
     State(state): State<AppState>,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
     Path((game_slug, post_id)): Path<(String, Id<ForumEntryMarker>)>,
 ) -> HandlerResult {
     let game = Game::from_db_slug(&state, &game_slug).await?;
@@ -98,7 +98,7 @@ pub async fn get(
         return Err(Error::NotFound);
     };
     let page = ForumPostPage {
-        core,
+        base,
         comments,
         post,
         game,

@@ -27,34 +27,34 @@ struct ModFeedContext {
     category: Option<Category>,
     game: Arc<Game>,
     #[serde(flatten)]
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
 }
 
 pub async fn game_feed(
     State(state): State<AppState>,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
     user: User,
 
     Path(game_slug): Path<String>,
     Query(query): Query<ModFeedQuery>,
 ) -> HandlerResult {
-    feed_maybe_cat(&state, core, game_slug, None, user, query).await
+    feed_maybe_cat(&state, base, game_slug, None, user, query).await
 }
 
 pub async fn category_feed(
     State(state): State<AppState>,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
     user: User,
 
     Path((game_slug, category_id)): Path<(String, Id<CategoryMarker>)>,
     Query(query): Query<ModFeedQuery>,
 ) -> HandlerResult {
-    feed_maybe_cat(&state, core, game_slug, Some(category_id), user, query).await
+    feed_maybe_cat(&state, base, game_slug, Some(category_id), user, query).await
 }
 
 async fn feed_maybe_cat(
     state: &AppState,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
     game_slug: String,
     maybe_category_id: Option<Id<CategoryMarker>>,
     user: User,
@@ -91,7 +91,7 @@ async fn feed_maybe_cat(
         None
     };
     let ctx = ModFeedContext {
-        core,
+        base,
         has_next: leaderboard.has_next(),
         category,
         submissions: leaderboard.resolveds(),

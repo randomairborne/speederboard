@@ -8,7 +8,7 @@ pub async fn get(
     State(state): State<AppState>,
     Path(game_slug): Path<String>,
     Query(query): Query<GetCategoryQuery>,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
 ) -> HandlerResult {
-    get_game_category(&state, core, game_slug, None, query.page).await
+    get_game_category(&state, base, game_slug, None, query.page).await
 }

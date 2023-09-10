@@ -16,7 +16,7 @@ use redis::AsyncCommands;
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct LoginPage {
     #[serde(flatten)]
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
     incorrect: bool,
     return_to: String,
 }
@@ -27,7 +27,7 @@ pub struct LoginForm {
     username: String,
     email: String,
     #[serde(flatten)]
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
 }
 
 #[allow(clippy::module_name_repetitions)]
@@ -50,10 +50,10 @@ pub struct LoginQuery {
 pub async fn get(
     State(state): State<AppState>,
     Query(query): Query<LoginQuery>,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
 ) -> HandlerResult {
     let ctx = LoginPage {
-        core,
+        base,
         return_to: query.return_to,
         incorrect: false,
     };
@@ -63,14 +63,14 @@ pub async fn get(
 pub async fn post(
     State(state): State<AppState>,
     cookies: CookieJar,
-    core: BaseRenderInfo,
+    base: BaseRenderInfo,
     Query(query): Query<LoginQuery>,
     ValidatedForm(form): ValidatedForm<LoginFormData>,
 ) -> Result<Result<(CookieJar, Redirect), HandlerResult>, Error> {
     let Ok(user) = User::from_db_auth(&state, &state.postgres, form.email, form.password).await?
     else {
         let ctx = LoginPage {
-            core,
+            base,
             return_to: query.return_to,
             incorrect: true,
         };
