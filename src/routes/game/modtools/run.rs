@@ -90,6 +90,7 @@ async fn set_verify(
     .fetch_one(trans.as_mut())
     .await?;
     if Id::new(run.game) != game.id || Id::new(run.category) != category_id {
+        trans.rollback().await?;
         return Err(Error::NotFound);
     }
     trans.commit().await?;

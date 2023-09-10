@@ -1,0 +1,17 @@
+{% extends "base.jinja" %}
+{% block title %}{{ game.name }} team{% endblock title %}
+{% block extraheaders %}{% endblock extraheaders %}
+{% block body %}
+<div class="team-list-header">
+<h1>{{ game.name }} team</h1>
+</div>
+<div class="team-list">
+<ul>
+{% for member in members %}
+<li>
+    {{ member.name }} {{ member.perms }}
+</li>
+{% endfor %}
+</div>
+</ul>
+{% endblock body %}

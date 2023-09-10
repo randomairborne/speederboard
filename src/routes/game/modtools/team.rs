@@ -2,93 +2,107 @@ use axum::{
     extract::{Path, State},
     response::Redirect,
 };
+use redis::AsyncCommands;
 
 use crate::{
-    id::{CategoryMarker, Id, RunMarker},
-    model::{Category, Game, Member, Permissions, ResolvedRun, User},
+    id::{Id, UserMarker},
+    model::{Game, Member, Permissions, User},
     template::BaseRenderInfo,
-    util::game_n_member,
+    util::{game_n_member, ValidatedForm},
     AppState, Error, HandlerResult,
 };
 
 #[derive(serde::Serialize, Debug, Clone)]
-pub struct RunPage<'a> {
-    user: &'a User,
-    game: &'a Game,
-    category: &'a Category,
-    verifier: &'a Option<User>,
-    run: &'a ResolvedRun,
+pub struct Team {
+    members: Vec<Member>,
     #[serde(flatten)]
-    base: BaseRenderInfo,
+    core: BaseRenderInfo,
+}
+
+#[derive(serde::Deserialize, garde::Validate, Debug, Clone)]
+pub struct ModifyTeamMember {
+    #[garde(skip)]
+    member: Id<UserMarker>,
+    #[garde(skip)]
+    #[serde(flatten)]
+    permissions: Permissions,
 }
 
 pub async fn get(
     State(state): State<AppState>,
     Path(game_slug): Path<String>,
     user: User,
-    base: BaseRenderInfo,
+    core: BaseRenderInfo,
 ) -> HandlerResult {
     let game = Game::from_db_slug(&state, &game_slug).await?;
-    let member = Member::from_db(&state, user.id, run.game.id)
+    let member = Member::from_db(&state, user.id, game.id)
         .await?
         .ok_or(Error::InsufficientPermissions)?;
-    drop(user);
-    if !member.perms.contains(Permissions::VERIFY_RUNS) {
+    if !member.perms.contains(Permissions::ADMINISTRATOR) {
         return Err(Error::InsufficientPermissions);
     }
-    let ctx = RunPage {
-        user: &run.submitter,
-        game: &run.game,
-        category: &run.category,
-        verifier: &run.verifier,
-        run: &run,
-        base,
-    };
-    state.render("review_run.jinja", ctx)
-}
-
-pub async fn verify_run(
-    State(state): State<AppState>,
-    Path((game_slug, category_id, run_id)): Path<(String, Id<CategoryMarker>, Id<RunMarker>)>,
-    user: User,
-) -> Result<Redirect, Error> {
-    set_verify(&state, game_slug, category_id, run_id, user, 1).await
-}
-
-pub async fn reject_run(
-    State(state): State<AppState>,
-    Path((game_slug, category_id, run_id)): Path<(String, Id<CategoryMarker>, Id<RunMarker>)>,
-    user: User,
-) -> Result<Redirect, Error> {
-    set_verify(&state, game_slug, category_id, run_id, user, -1).await
-}
-
-async fn set_verify(
-    state: &AppState,
-    game_slug: String,
-    category_id: Id<CategoryMarker>,
-    run_id: Id<RunMarker>,
-    user: User,
-    value: i16,
-) -> Result<Redirect, Error> {
-    let (game, member) = game_n_member(state, user, &game_slug).await?;
-    if !member.perms.contains(Permissions::VERIFY_RUNS) {
-        return Err(Error::InsufficientPermissions);
-    }
-    let mut trans = state.postgres.begin().await?;
-    let run = query!(
-        "UPDATE runs SET status = $1, verifier = $2 WHERE id = $3 RETURNING game, category",
-        value,
-        member.user.id.get(),
-        run_id.get()
+    let members = query!(
+        "SELECT permissions.permissions,
+        users.id, users.username, users.biography,
+        users.admin, users.has_stylesheet, users.banner_ext,
+        users.pfp_ext, users.flags, users.created_at
+        FROM users
+        JOIN permissions ON permissions.user_id = users.id
+        WHERE permissions.permissions > 0
+        AND permissions.game_id = $1",
+        game.id.get()
     )
-    .fetch_one(trans.as_mut())
-    .await?;
-    if Id::new(run.game) != game.id || Id::new(run.category) != category_id {
-        return Err(Error::NotFound);
+    .fetch_all(&state.postgres)
+    .await?
+    .into_iter()
+    .map(|row| Member {
+        perms: Permissions::new(row.permissions),
+        user: User {
+            id: Id::new(row.id),
+            username: row.username,
+            has_stylesheet: row.has_stylesheet,
+            biography: row.biography,
+            pfp_ext: row.pfp_ext,
+            banner_ext: row.banner_ext,
+            admin: row.admin,
+            created_at: row.created_at,
+            flags: row.flags,
+        },
+    })
+    .collect();
+    let ctx = Team { members, core };
+    state.render("game_team.jinja", ctx)
+}
+
+pub async fn post(
+    State(state): State<AppState>,
+    Path(game_slug): Path<String>,
+    user: User,
+    ValidatedForm(form): ValidatedForm<ModifyTeamMember>,
+) -> Result<Redirect, Error> {
+    let (game, member) = game_n_member(&state, user, &game_slug).await?;
+    if !member.perms.contains(Permissions::ADMINISTRATOR) {
+        return Err(Error::InsufficientPermissions);
     }
-    trans.commit().await?;
-    Ok(Redirect::to(&format!(
-        "/game/{game_slug}/category/{category_id}/run/{run_id}"
-    )))
+    state
+        .redis
+        .get()
+        .await?
+        .set_ex(
+            format!("permissions:{}:{}", game.id, member.user.id.get()),
+            form.permissions.get(),
+            600,
+        )
+        .await?;
+    query!(
+        "INSERT INTO permissions (user_id, game_id, permissions)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (user_id, game_id) DO UPDATE SET permissions = $3",
+        form.member.get(),
+        game.id.get(),
+        form.permissions.get()
+    )
+    .execute(&state.postgres)
+    .await?;
+    Ok(Redirect::to(&format!("/game/{game_slug}/team")))
 }
