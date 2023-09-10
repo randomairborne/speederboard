@@ -15,6 +15,7 @@ use crate::{
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct TeamPage {
     members: Vec<Member>,
+    game: Game,
     #[serde(flatten)]
     base: BaseRenderInfo,
 }
@@ -70,7 +71,7 @@ pub async fn get(
         },
     })
     .collect();
-    let ctx = TeamPage { members, base };
+    let ctx = TeamPage { members, game, base };
     state.render("game_team.jinja", ctx)
 }
 
