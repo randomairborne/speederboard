@@ -105,9 +105,10 @@ pub async fn create(
         "INSERT INTO runs
         (
             game, category, submitter, video,
-            description, score, time, status
+            description, score, time, status,
+            created_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, 0)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, 0, NOW())
         RETURNING id",
         game.id.get(),
         category.id.get(),
