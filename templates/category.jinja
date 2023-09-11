@@ -3,11 +3,14 @@
 {% block title %}game{% endblock title %}
 {% block body %}
 <a href="{{ root_url }}/forum/{{ game.slug }}">discuss on the forum</a>
+<div class="game-categories">
 {% for minicat in categories %}
-<a href="{{ root_url }}/game/{{ game.slug }}/category/{{ minicat.id }}">{{ minicat.name }}</a>
+<a href="{{ root_url }}/game/{{ game.slug }}/category/{{ minicat.id }}" class="">{{ minicat.name }}</a>
 {% endfor %}
-<br>
-<a href="{{ root_url }}/game/{{ game.slug }}/category/{{ category.id }}/run/new">submit run</a>
+</div><a href="{{ root_url }}/game/{{ game.slug }}/category/{{ category.id }}/run/new">submit run</a>
+{% if runs | length <= 0 %}
+<p>no runs yet!</p>
+{% else %}
 <table>
     <tr>
         <th>user</th>
@@ -30,5 +33,6 @@
     </tr>
     {% endfor %}
 </table>
+{% endif %}
 
 {% endblock body %}

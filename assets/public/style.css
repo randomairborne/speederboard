@@ -113,3 +113,14 @@ a:visited {
     border-style: groove;
     border-radius: 5px;
 }
+
+.forum-post-card:visited {
+    border-style: groove;
+    border-color: black;
+    color: black
+}
+
+.game-list {
+    display: flex;
+    flex-wrap: wrap;
+}

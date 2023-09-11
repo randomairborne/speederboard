@@ -76,7 +76,11 @@ impl Member {
             .redis
             .get()
             .await?
-            .set_ex(format!("user:{}", user.id), serde_json::to_string(&user)?, 600)
+            .set_ex(
+                format!("user:{}", user.id),
+                serde_json::to_string(&user)?,
+                600,
+            )
             .await?;
         Ok(Some(Member { perms, user }))
     }

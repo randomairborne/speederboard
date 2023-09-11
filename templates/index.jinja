@@ -4,6 +4,7 @@
 {% block body %}
 <h3>welcome. speederboard is a free and open-source project to create an improved speedrun and leaderboard tracking website.
 check out our current games below, or request a new one by emailing <a href="mailto:valk@randomairborne.dev">valk&commat;randomairborne.dev</a>.</h3>
+<div class="game-list">
 {% for game in games %}
 <div class="root-game-card">
     <a href="{{ root_url }}/game/{{ game.slug }}" class="coverart-anchor">
@@ -16,4 +17,5 @@ check out our current games below, or request a new one by emailing <a href="mai
     </a>
 </div>
 {% endfor %}
+</div>
 {% endblock body %}

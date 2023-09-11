@@ -2,6 +2,9 @@
 {% block extraheaders %}{% endblock extraheaders %}
 {% block title %}game{% endblock title %}
 {% block body %}
+{% if submissions | length <= 0 %}
+<p>the queue for this leaderboard is empty  . thank you for moderating!</p>
+{% else %}
 <br>
 <table>
     <tr>
@@ -39,5 +42,5 @@
     </tr>
     {% endfor %}
 </table>
-
+{% endif %}
 {% endblock body %}

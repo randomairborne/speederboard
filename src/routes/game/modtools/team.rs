@@ -71,7 +71,11 @@ pub async fn get(
         },
     })
     .collect();
-    let ctx = TeamPage { members, game, base };
+    let ctx = TeamPage {
+        members,
+        game,
+        base,
+    };
     state.render("game_team.jinja", ctx)
 }
 
