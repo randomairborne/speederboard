@@ -1,0 +1,6 @@
+{% extends "base.jinja" %}
+{% block title %}game{% endblock title %}
+{% for notification in notifications %}
+{{ notification.contents }}
+{% endfor %}
+{% block body %}
