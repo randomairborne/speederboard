@@ -44,7 +44,7 @@ pub enum Error {
     #[error("Failed to validate submission: {0}")]
     FormValidation(#[from] garde::Error),
     #[error("Failed to validate submission: \n{0}")]
-    MultiFormValidation(#[from] garde::Errors),
+    MultiFormValidation(#[from] garde::Report),
     #[error("Form data invalid: {0}")]
     FormRejection(#[from] axum::extract::rejection::FormRejection),
     #[error("Failed to validate submission: {0}")]
@@ -98,7 +98,7 @@ impl From<Error> for std::io::Error {
 }
 
 impl IntoResponse for Error {
-    fn into_response(self) -> axum::response::Response {
+    fn into_response(self) -> Response {
         let mut resp = (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response();
         trace!(?self, "Converting error into response");
         resp.extensions_mut().insert(self);

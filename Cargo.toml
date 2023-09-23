@@ -13,7 +13,7 @@ tower-http = { version = "0.4", default-features = false, features = [
     "decompression-full",
     "tracing"
 ] }
-reqwest = { version = "0.11.18", features = [
+reqwest = { version = "0.11", features = [
     "rustls-tls",
     "stream",
     "trust-dns",
@@ -37,13 +37,13 @@ notify = { version = "6", default-features = false, optional = true, features = 
 chrono = { version = "0.4", default-features = false, features = ["serde"] }
 redis = { version = "0.23", features = ["aio", "connection-manager"] }
 axum = { version = "0.6", features = ["http2", "headers", "macros"] }
-axum-extra = { version = "0.7", features = ["cookie", "multipart"] }
+axum-extra = { version = "0.8", features = ["cookie", "multipart"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-garde = { version = "0.14", features = ["derive", "email", "url"] }
+garde = { version = "0.15", features = ["derive", "email", "url"] }
 tower = { version = "0.4", default-features = false }
 tera = { version = "1.19", features = ["builtins"] }
 serde = { version = "1", features = ["derive"] }
-markdown = "1.0.0-alpha.12"
+markdown = "1.0.0-alpha.14"
 deadpool-redis = "0.12"
 serde_repr = "0.1"
 serde_json = "1"
