@@ -65,7 +65,7 @@ pub async fn post(
             pfp_ext, banner_ext, biography, admin, created_at)
         VALUES ($1, $2, $3, false, 0, NULL, NULL, '', false, NOW())
         RETURNING id, username, has_stylesheet, pfp_ext,
-        banner_ext, biography, admin, created_at, flags",
+        banner_ext, biography, admin, created_at, flags, language",
         form.username,
         form.email,
         password_hash.to_string()

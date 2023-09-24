@@ -11,7 +11,8 @@ CREATE TABLE users (
     banner_ext VARCHAR(4),
     pfp_ext VARCHAR(4),
     flags BIGINT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP NOT NULL,
+    language VARCHAR(5)
 );
 
 CREATE INDEX users_name_index ON users(username);

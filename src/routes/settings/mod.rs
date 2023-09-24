@@ -50,7 +50,7 @@ pub async fn get(
     let record = query!(
         "SELECT
         id, username, has_stylesheet, pfp_ext, banner_ext,
-        biography, email, admin, created_at, flags
+        biography, email, admin, created_at, flags, language
         FROM users WHERE id = $1",
         user.id.get()
     )
@@ -67,6 +67,7 @@ pub async fn get(
         admin: record.admin,
         created_at: record.created_at,
         flags: record.flags,
+        language: record.language,
     };
     let private_user = PrivateUser {
         base: base_user,

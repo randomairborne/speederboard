@@ -39,7 +39,7 @@ impl Member {
         let Some(member) = query!(
             "SELECT u.id, u.username, u.has_stylesheet,
             u.pfp_ext, u.banner_ext, u.biography, u.admin,
-            u.created_at, u.flags, p.permissions
+            u.created_at, u.flags, u.language, p.permissions
             FROM users as u LEFT JOIN permissions as p
             ON p.user_id = $1 AND p.game_id = $2 AND u.id = $1",
             user.get(),
@@ -60,6 +60,7 @@ impl Member {
             admin: member.admin,
             created_at: member.created_at,
             flags: member.flags,
+            language: member.language,
         };
         let perms = if user.admin {
             Permissions::ADMINISTRATOR

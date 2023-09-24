@@ -210,10 +210,12 @@ impl ResolvedRun {
             runs.created_at, runs.verified_at, runs.flags,
             verifier.id, verifier.username, verifier.has_stylesheet,
             verifier.biography, verifier.pfp_ext, verifier.banner_ext,
-            verifier.admin, verifier.created_at, verifier.flags,
+            verifier.admin, verifier.created_at, verifier.flags, 
+            verifier.language,
             submitter.id, submitter.username, submitter.has_stylesheet,
             submitter.biography, submitter.pfp_ext, submitter.banner_ext,
             submitter.admin, submitter.created_at, submitter.flags,
+            submitter.language,
             category.game, category.name, category.description,
             category.rules, category.scoreboard, category.flags "#,
         );
@@ -310,23 +312,25 @@ impl ResolvedRun {
         let verifier_admin: Option<bool> = row.try_get(17)?;
         let verifier_created_at: Option<NaiveDateTime> = row.try_get(18)?;
         let verifier_flags: Option<i64> = row.try_get(19)?;
+        let verifier_language: Option<String> = row.try_get(20)?;
 
-        let submitter_id: Id<UserMarker> = row.try_get(20)?;
-        let submitter_name: String = row.try_get(21)?;
-        let submitter_has_stylesheet: bool = row.try_get(22)?;
-        let submitter_bio: String = row.try_get(23)?;
-        let submitter_pfp_ext: Option<String> = row.try_get(24)?;
-        let submitter_banner_ext: Option<String> = row.try_get(25)?;
-        let submitter_admin: bool = row.try_get(26)?;
-        let submitter_created_at: NaiveDateTime = row.try_get(27)?;
-        let submitter_flags: i64 = row.try_get(28)?;
+        let submitter_id: Id<UserMarker> = row.try_get(21)?;
+        let submitter_name: String = row.try_get(22)?;
+        let submitter_has_stylesheet: bool = row.try_get(23)?;
+        let submitter_bio: String = row.try_get(24)?;
+        let submitter_pfp_ext: Option<String> = row.try_get(25)?;
+        let submitter_banner_ext: Option<String> = row.try_get(26)?;
+        let submitter_admin: bool = row.try_get(27)?;
+        let submitter_created_at: NaiveDateTime = row.try_get(28)?;
+        let submitter_flags: i64 = row.try_get(29)?;
+        let submitter_language: Option<String> = row.try_get(30)?;
 
-        let category_game_id: Id<GameMarker> = row.try_get(29)?;
-        let category_name: String = row.try_get(30)?;
-        let category_description: String = row.try_get(31)?;
-        let category_rules: String = row.try_get(32)?;
-        let category_scoreboard: bool = row.try_get(33)?;
-        let category_flags: i64 = row.try_get(34)?;
+        let category_game_id: Id<GameMarker> = row.try_get(31)?;
+        let category_name: String = row.try_get(32)?;
+        let category_description: String = row.try_get(33)?;
+        let category_rules: String = row.try_get(34)?;
+        let category_scoreboard: bool = row.try_get(35)?;
+        let category_flags: i64 = row.try_get(36)?;
 
         let verifier = opt_user(
             verifier_id,
@@ -338,6 +342,7 @@ impl ResolvedRun {
             verifier_admin,
             verifier_created_at,
             verifier_flags,
+            verifier_language,
         );
         let submitter = User {
             id: submitter_id,
@@ -349,6 +354,7 @@ impl ResolvedRun {
             admin: submitter_admin,
             created_at: submitter_created_at,
             flags: submitter_flags,
+            language: submitter_language,
         };
         let category = Category {
             id: category_id,
@@ -378,16 +384,16 @@ impl ResolvedRun {
     }
 
     fn get_game_from_row(row: &PgRow) -> Result<Arc<Game>, Error> {
-        let id: Id<GameMarker> = row.try_get(35)?;
-        let name: String = row.try_get(36)?;
-        let description: String = row.try_get(37)?;
-        let slug: String = row.try_get(38)?;
-        let url: String = row.try_get(39)?;
-        let has_stylesheet: bool = row.try_get(40)?;
-        let banner_ext: Option<String> = row.try_get(41)?;
-        let cover_art_ext: Option<String> = row.try_get(42)?;
-        let default_category: Id<CategoryMarker> = row.try_get(43)?;
-        let flags: i64 = row.try_get(44)?;
+        let id: Id<GameMarker> = row.try_get(37)?;
+        let name: String = row.try_get(38)?;
+        let description: String = row.try_get(39)?;
+        let slug: String = row.try_get(40)?;
+        let url: String = row.try_get(41)?;
+        let has_stylesheet: bool = row.try_get(42)?;
+        let banner_ext: Option<String> = row.try_get(43)?;
+        let cover_art_ext: Option<String> = row.try_get(44)?;
+        let default_category: Id<CategoryMarker> = row.try_get(45)?;
+        let flags: i64 = row.try_get(46)?;
         Ok(Arc::new(Game {
             id,
             name,

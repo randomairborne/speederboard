@@ -99,6 +99,7 @@ pub fn opt_user(
     admin: Option<bool>,
     created_at: Option<chrono::NaiveDateTime>,
     flags: Option<i64>,
+    language: Option<String>,
 ) -> Option<User> {
     Some(User {
         id: id?,
@@ -110,6 +111,7 @@ pub fn opt_user(
         admin: admin?,
         created_at: created_at?,
         flags: flags?,
+        language,
     })
 }
 

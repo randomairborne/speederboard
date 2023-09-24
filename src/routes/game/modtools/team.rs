@@ -46,7 +46,8 @@ pub async fn get(
         "SELECT permissions.permissions,
         users.id, users.username, users.biography,
         users.admin, users.has_stylesheet, users.banner_ext,
-        users.pfp_ext, users.flags, users.created_at
+        users.pfp_ext, users.flags, users.created_at,
+        users.language
         FROM users
         JOIN permissions ON permissions.user_id = users.id
         WHERE permissions.permissions > 0
@@ -68,6 +69,7 @@ pub async fn get(
             admin: row.admin,
             created_at: row.created_at,
             flags: row.flags,
+            language: row.language,
         },
     })
     .collect();

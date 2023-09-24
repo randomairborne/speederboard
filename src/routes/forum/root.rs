@@ -35,7 +35,8 @@ pub async fn get(
             users.banner_ext as user_banner_ext,
             users.pfp_ext as user_pfp_ext,
             users.flags as user_flags,
-            users.created_at as user_created_at
+            users.created_at as user_created_at,
+            users.language as user_language
             FROM forum_entries
             JOIN users ON forum_entries.author = users.id
             WHERE game = $1 AND title IS NOT NULL",
@@ -57,6 +58,7 @@ pub async fn get(
             admin: row.user_admin,
             created_at: row.user_created_at,
             flags: row.user_flags,
+            language: row.user_language,
         };
         posts.push(ForumPost {
             id,

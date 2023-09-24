@@ -47,7 +47,8 @@ pub async fn get(
         users.banner_ext as user_banner_ext,
         users.pfp_ext as user_pfp_ext,
         users.flags as user_flags,
-        users.created_at as user_created_at
+        users.created_at as user_created_at,
+        users.language as user_language
         FROM forum_entries
         JOIN users ON forum_entries.author = users.id
         WHERE forum_entries.id = $1 OR forum_entries.parent = $1
@@ -69,6 +70,7 @@ pub async fn get(
             admin: run.user_admin,
             created_at: run.user_created_at,
             flags: run.user_flags,
+            language: run.user_language,
         };
         let id: Id<ForumEntryMarker> = Id::new(run.forum_entry_id);
         let content = run.forum_entry_content;

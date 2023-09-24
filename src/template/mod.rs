@@ -1,3 +1,5 @@
+mod translate;
+
 use axum::{extract::FromRequestParts, http::request::Parts};
 use std::fmt::Write;
 #[cfg(feature = "dev")]
@@ -6,13 +8,26 @@ use tera::Tera;
 
 use crate::{model::User, AppState, Error};
 
-fn real_tera() -> tera::Tera {
-    let mut tera = tera::Tera::new("./templates/**/*").expect("Failed to build templates");
+fn real_tera() -> Tera {
+    let translations = translate::get_translations();
+    let mut tera = match Tera::new("./templates/**/*") {
+        Ok(v) => v,
+        Err(source) => {
+            if let tera::ErrorKind::Msg(msg) = &source.kind {
+                error!("Failed to reload templates: {}", msg);
+                std::process::exit(1);
+            } else {
+                error!(?source, "Failed to reload templates");
+                std::process::exit(1);
+            }
+        }
+    };
     tera.register_filter("markdown", MarkdownFilter);
     tera.register_filter("long_format_duration", HumanizeDuration);
     tera.register_filter("duration", Duration);
     tera.register_filter("video_embed", VideoEmbedder);
     tera.register_function("devmode", DevModeFunction);
+    tera.register_function("gettrans", translate::GetTranslation::new(translations));
     tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
     tera
 }
@@ -32,31 +47,32 @@ pub struct BaseRenderInfo {
     pub root_url: String,
     pub cdn_url: String,
     pub logged_in_user: Option<User>,
-}
-
-impl BaseRenderInfo {
-    pub fn new(root_url: String, cdn_url: String) -> Self {
-        Self {
-            root_url,
-            cdn_url,
-            logged_in_user: None,
-        }
-    }
+    pub language: String,
 }
 
 #[axum::async_trait]
 impl FromRequestParts<AppState> for BaseRenderInfo {
-    type Rejection = crate::Error;
+    type Rejection = Error;
 
     async fn from_request_parts(
         parts: &mut Parts,
         state: &AppState,
     ) -> Result<Self, Self::Rejection> {
         let user = User::from_request_parts(parts, state).await.ok();
+        let language = if let Some(user) = user.as_ref() {
+            if let Some(lang) = user.language.as_ref() {
+                lang.clone()
+            } else {
+                "en".to_owned()
+            }
+        } else {
+            "en".to_owned()
+        };
         let bri = BaseRenderInfo {
             root_url: state.config.root_url.clone(),
             cdn_url: state.config.cdn_url.clone(),
             logged_in_user: user,
+            language,
         };
         Ok(bri)
     }

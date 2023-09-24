@@ -108,6 +108,7 @@ impl IntoResponse for Error {
 pub async fn error_middleware<B>(
     State(state): State<AppState>,
     uri: OriginalUri,
+    base: BaseRenderInfo,
     request: Request<B>,
     next: Next<B>,
 ) -> Response {
@@ -117,7 +118,6 @@ pub async fn error_middleware<B>(
     } else {
         return response;
     };
-    let core = BaseRenderInfo::new(state.config.root_url.clone(), state.config.cdn_url.clone());
     let status = match &error {
         Error::Sqlx(_)
         | Error::DeadpoolRedis(_)
@@ -157,14 +157,14 @@ pub async fn error_middleware<B>(
                 .into_response()
         }
         Error::NotFound => {
-            return crate::routes::notfound(&state, core, uri.to_string()).into_response()
+            return crate::routes::notfound(&state, base, uri.to_string()).into_response()
         }
     };
     if status == StatusCode::INTERNAL_SERVER_ERROR {
         error!(?error, "failed to handle request");
     }
     let error_as_string = error.to_string();
-    let mut ctx = match tera::Context::from_serialize(core) {
+    let mut ctx = match tera::Context::from_serialize(base) {
         Ok(v) => v,
         Err(source) => {
             return (

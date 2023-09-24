@@ -24,6 +24,7 @@ pub struct User {
     pub admin: bool,
     pub created_at: chrono::NaiveDateTime,
     pub flags: i64,
+    pub language: Option<String>,
 }
 
 const DEFAULT_PFP: &str = "/static/pfp/default.png";
@@ -74,7 +75,8 @@ impl User {
         }
         let record = query!(
             "SELECT id, username, has_stylesheet, pfp_ext,
-            banner_ext, biography, admin, created_at, flags
+            banner_ext, biography, admin, created_at, flags,
+            language
             FROM users WHERE id = $1",
             id.get()
         )
@@ -90,6 +92,7 @@ impl User {
             admin: record.admin,
             created_at: record.created_at,
             flags: record.flags,
+            language: record.language,
         };
         Ok(user)
     }
@@ -122,6 +125,7 @@ impl User {
             admin: record.admin,
             created_at: record.created_at,
             flags: record.flags,
+            language: record.language,
         };
         if let Err(argon2::password_hash::Error::Password) = password_result {
             return Ok(Err(()));
@@ -194,6 +198,7 @@ pub struct UserUpdate {
     banner_ext: MaybeNullUpdate<String>,
     admin: Option<bool>,
     flags: Option<i64>,
+    language: MaybeNullUpdate<String>,
 }
 
 #[allow(dead_code)]
@@ -208,6 +213,7 @@ impl UserUpdate {
             banner_ext: MaybeNullUpdate::None,
             admin: None,
             flags: None,
+            language: MaybeNullUpdate::None,
         }
     }
 
@@ -221,11 +227,12 @@ impl UserUpdate {
                 biography = COALESCE($4, biography),
                 pfp_ext = CASE WHEN $5 THEN NULL ELSE COALESCE($6, pfp_ext) END,
                 banner_ext = CASE WHEN $7 THEN NULL ELSE COALESCE($8, banner_ext) END,
-                admin = COALESCE($9, admin),
-                flags = $10
+                language = CASE WHEN $9 THEN NULL ELSE COALESCE($10, language) END,
+                admin = COALESCE($11, admin),
+                flags = $12
             WHERE id = $1
             RETURNING id, username, has_stylesheet, flags,
-            pfp_ext, banner_ext, biography, admin, created_at",
+            pfp_ext, banner_ext, biography, admin, created_at, language",
             self.id.get(),
             self.username,
             self.has_stylesheet,
@@ -234,6 +241,8 @@ impl UserUpdate {
             self.pfp_ext.into_option(),
             self.banner_ext.is_null(),
             self.banner_ext.into_option(),
+            self.language.is_null(),
+            self.language.into_option(),
             self.admin,
             self.flags
         )
@@ -291,6 +300,13 @@ impl UserUpdate {
     pub fn admin(self, is_admin: bool) -> Self {
         Self {
             admin: Some(is_admin),
+            ..self
+        }
+    }
+
+    pub fn language(self, language: Option<String>) -> Self {
+        Self {
+            language: language.into(),
             ..self
         }
     }
