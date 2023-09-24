@@ -4,6 +4,7 @@
 mod config;
 mod error;
 mod id;
+mod language;
 mod model;
 mod router;
 mod routes;

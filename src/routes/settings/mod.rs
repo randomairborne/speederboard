@@ -1,5 +1,7 @@
 pub mod credentials;
 pub mod files;
+
+use crate::language::Language;
 use crate::{
     id::Id,
     model::{User, UserUpdate},
@@ -38,6 +40,22 @@ pub struct UserUpdateForm {
     username: String,
     #[garde(length(min = crate::util::MIN_USER_BIOGRAPHY_LEN, max = crate::util::MAX_USER_BIOGRAPHY_LEN))]
     biography: String,
+    #[garde(skip)]
+    #[serde(deserialize_with = "language_option_sentinel")]
+    language: Option<Language>,
+}
+
+fn language_option_sentinel<'de, D>(input: D) -> Result<Option<Language>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let data: String = serde::Deserialize::deserialize(input)?;
+    if data == "unset" {
+        return Ok(None);
+    }
+    let data = Language::from_lang_code(&data)
+        .ok_or(serde::de::Error::unknown_field(&data, &Language::CODES))?;
+    Ok(Some(data))
 }
 
 #[allow(clippy::unused_async)]
@@ -87,8 +105,9 @@ pub async fn profile(
     ValidatedForm(form): ValidatedForm<UserUpdateForm>,
 ) -> Result<Redirect, Error> {
     let update = UserUpdate::new(user.id)
+        .language(form.language)
         .username(form.username)
         .biography(form.biography);
     update.execute(&state).await?;
-    Ok(state.redirect("location"))
+    Ok(state.redirect("/settings"))
 }

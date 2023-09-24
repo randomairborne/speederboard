@@ -3,8 +3,7 @@ use std::fmt::Display;
 use crate::{template::BaseRenderInfo, AppState};
 use axum::{
     extract::{OriginalUri, State},
-    http::Request,
-    http::StatusCode,
+    http::{Request, StatusCode},
     middleware::Next,
     response::{IntoResponse, Response},
 };

@@ -3,6 +3,7 @@ use axum::{extract::FromRequestParts, http::request::Parts};
 use axum_extra::extract::CookieJar;
 use redis::AsyncCommands;
 
+use crate::language::Language;
 use crate::{
     id::{Id, UserMarker},
     util::AUTHTOKEN_COOKIE,
@@ -198,7 +199,7 @@ pub struct UserUpdate {
     banner_ext: MaybeNullUpdate<String>,
     admin: Option<bool>,
     flags: Option<i64>,
-    language: MaybeNullUpdate<String>,
+    language: MaybeNullUpdate<Language>,
 }
 
 #[allow(dead_code)]
@@ -304,7 +305,7 @@ impl UserUpdate {
         }
     }
 
-    pub fn language(self, language: Option<String>) -> Self {
+    pub fn language(self, language: Option<Language>) -> Self {
         Self {
             language: language.into(),
             ..self
