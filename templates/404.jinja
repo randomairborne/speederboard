@@ -2,7 +2,7 @@
 {% block extraheaders %}{% endblock extraheaders %}
 {% block title %}not found{% endblock title %}
 {% block body %}
-404 page not found
+{{ gettrans(lang=language, key="404.message") }}
 <br>
-bad link RNG
+{{ gettrans(lang=language, key="404.joke") }}
 {% endblock body %}

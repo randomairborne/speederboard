@@ -1,10 +1,10 @@
 {% extends "base.jinja" %}
 {% block extraheaders %}{% endblock extraheaders %}
-{% block title %}are you sure?{% endblock title %}
+{% block title %}{{ gettrans(lang=language, key="confirm.title") }}{% endblock title %}
 {% block body %}
 <p>are you sure you want to {{ action }}? this action is <strong>irreversible!!</strong></p>
 <form action="{{ action_url }}" method="post">
-    <a href="{{ return_to }}"><button type="button">no, take me back</button></a>
-    <button>yes, i&apos;m sure</button>
+    <a href="{{ return_to }}"><button type="button">{{ gettrans(lang=language, key="confirm.no") }}</button></a>
+    <button>{{ gettrans(lang=language, key="confirm.yes") }}</button>
 </form>
 {% endblock body %}

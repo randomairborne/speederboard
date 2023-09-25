@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{{ gettrans(lang=language, key="name") }} - {% block title %}{% endblock title %}</title>
+    <title>{{ gettrans(lang=language, key="base.name") }} - {% block title %}{% endblock title %}</title>
     <meta name="description" content="{% block description %}{% endblock description %}" />
     <link rel="stylesheet" href="{{ cdn_url }}/public/style.css">
     <link rel="icon" href="{{ cdn_url }}/public/favicon.png" type="image/png">
@@ -18,15 +18,15 @@
 <body>
     <nav>
         <div class="left">
-            <a href="{{ root_url }}" class="pad-left-1ch">{{ gettrans(lang=language, key="name") }}</a>
+            <a href="{{ root_url }}" class="pad-left-1ch">{{ gettrans(lang=language, key="base.name") }}</a>
         </div>
         <div class="right">
             {% if logged_in_user %}
-            <a href="{{ root_url }}/logout" class="pad-right-1ch">{{ gettrans(lang=language, key="logout") }}</a>
-            <a href="{{ root_url }}/settings" class="pad-right-1ch">{{ gettrans(lang=language, key="settings") }}</a>
+            <a href="{{ root_url }}/logout" class="pad-right-1ch">{{ gettrans(lang=language, key="base.logout") }}</a>
+            <a href="{{ root_url }}/settings" class="pad-right-1ch">{{ gettrans(lang=language, key="base.settings") }}</a>
             {% else %}
-            <a href="{{ root_url }}/login" class="pad-right-1ch">{{ gettrans(lang=language, key="login") }}</a>
-            <a href="{{ root_url }}/signup" class="pad-right-1ch">{{ gettrans(lang=language, key="signup") }}</a>
+            <a href="{{ root_url }}/login" class="pad-right-1ch">{{ gettrans(lang=language, key="base.login") }}</a>
+            <a href="{{ root_url }}/signup" class="pad-right-1ch">{{ gettrans(lang=language, key="base.signup") }}</a>
             {% endif %}
         </div>
     </nav>

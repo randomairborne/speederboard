@@ -1,25 +1,25 @@
 {% extends "base.jinja" %}
 {% block extraheaders %}{% endblock extraheaders %}
-{% block title %}game{% endblock title %}
+{% block title %}{{ gettrans(lang=language, key="category.title") }}{% endblock title %}
 {% block body %}
-<a href="{{ root_url }}/forum/{{ game.slug }}">discuss on the forum</a>
+<a href="{{ root_url }}/forum/{{ game.slug }}">{{ gettrans(lang=language, key="category.discuss.forum") }}{</a>
 <div class="game-categories">
 {% for minicat in categories %}
 <a href="{{ root_url }}/game/{{ game.slug }}/category/{{ minicat.id }}" class="">{{ minicat.name }}</a>
 {% endfor %}
 </div><a href="{{ root_url }}/game/{{ game.slug }}/category/{{ category.id }}/run/new">submit run</a>
 {% if runs | length <= 0 %}
-<p>no runs yet!</p>
+<p>{{ gettrans(lang=language, key="category.empty") }}</p>
 {% else %}
 <table>
     <tr>
-        <th>user</th>
+        <th>{{ gettrans(lang=language, key="category.submitter") }}</th>
         {% if run.category.scoreboard %}
-        <th>score</th>
+        <th>{{ gettrans(lang=language, key="category.scoreboard") }}</th>
         {% else %}
-        <th>time</th>
+        <th>{{ gettrans(lang=language, key="category.time") }}</th>
         {% endif %}
-        <th>link</th>
+        <th>{{ gettrans(lang=language, key="category.link") }}</th>
     </tr>
     {% for run in runs %}
     <tr>
@@ -29,7 +29,7 @@
         {% else %}
         <td>{{ run.time | duration }}</td>
         {% endif %}
-        <td><a href="{{ root_url }}/game/{{ game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}">view</a></td>
+        <td><a href="{{ root_url }}/game/{{ game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}">{{ gettrans(lang=language, key="category.link.view") }}</a></td>
     </tr>
     {% endfor %}
 </table>
