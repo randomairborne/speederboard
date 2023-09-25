@@ -3,9 +3,9 @@ use axum::{extract::FromRequestParts, http::request::Parts};
 use axum_extra::extract::CookieJar;
 use redis::AsyncCommands;
 
-use crate::language::Language;
 use crate::{
     id::{Id, UserMarker},
+    language::Language,
     util::AUTHTOKEN_COOKIE,
     AppState, Error,
 };
@@ -230,7 +230,7 @@ impl UserUpdate {
                 banner_ext = CASE WHEN $7 THEN NULL ELSE COALESCE($8, banner_ext) END,
                 language = CASE WHEN $9 THEN NULL ELSE COALESCE($10, language) END,
                 admin = COALESCE($11, admin),
-                flags = $12
+                flags = COALESCE($12, flags)
             WHERE id = $1
             RETURNING id, username, has_stylesheet, flags,
             pfp_ext, banner_ext, biography, admin, created_at, language",
@@ -243,7 +243,7 @@ impl UserUpdate {
             self.banner_ext.is_null(),
             self.banner_ext.into_option(),
             self.language.is_null(),
-            self.language.into_option(),
+            self.language.into_option().map(|v| v.lang_code()),
             self.admin,
             self.flags
         )

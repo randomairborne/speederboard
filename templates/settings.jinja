@@ -15,7 +15,25 @@
       <td><textarea name="biography" id="biography" maxlength="4000" cols="64" rows="10">{{ user.biography }}</textarea>
       </td>
     </tr>
+
   </table>
+  <details>
+  <summary>pick language</summary>
+  <table class="outlines-collapse">
+  <tr class="outlines-collapse">
+  <td class="outlines-collapse">
+  <input type="radio" id="unset" name="language" value="unset" checked>
+  <label for="unset">{{ gettrans(lang=language, key="settings.language.unset") }}</label>
+  </td>
+    {% for language in languages %}
+    <td class="outlines-collapse">
+      <input type="radio" id="language-select-{{ language.code }}" name="language" value="{{ language.code }}">
+      <label for="language-select-{{ language.code }}">{{ language.name }}</label>
+     </td>
+    {% endfor %}
+   </table>
+  </tr>
+  </details>
   <div>
     <button>update</button>
   </div>

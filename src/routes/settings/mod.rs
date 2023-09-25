@@ -1,9 +1,9 @@
 pub mod credentials;
 pub mod files;
 
-use crate::language::Language;
 use crate::{
     id::Id,
+    language::Language,
     model::{User, UserUpdate},
     template::BaseRenderInfo,
     util::ValidatedForm,
@@ -13,6 +13,7 @@ use axum::{
     extract::{Query, State},
     response::Redirect,
 };
+use strum::IntoEnumIterator;
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct SettingsPage {
@@ -20,10 +21,18 @@ pub struct SettingsPage {
     base: BaseRenderInfo,
     user: PrivateUser,
     incorrect: bool,
+    languages: Vec<LanguageMetadata>,
+}
+
+#[derive(serde::Serialize, Debug, Clone)]
+pub struct LanguageMetadata {
+    code: &'static str,
+    name: &'static str,
 }
 
 #[derive(serde::Deserialize, Debug, Clone)]
 pub struct SettingsQuery {
+    #[serde(default = "crate::util::return_false")]
     incorrect: bool,
 }
 
@@ -95,6 +104,12 @@ pub async fn get(
         base,
         incorrect: query.incorrect,
         user: private_user,
+        languages: Language::iter()
+            .map(|lang| LanguageMetadata {
+                code: lang.lang_code(),
+                name: lang.display(),
+            })
+            .collect(),
     };
     state.render("settings.jinja", ctx)
 }

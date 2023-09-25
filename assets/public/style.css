@@ -5,7 +5,7 @@
 html, body {
     height: 100%;
     width: 100%;
-    margin: 0%;
+    margin: 0;
 }
 
 nav {
@@ -60,6 +60,10 @@ a:visited {
     color: #444;
 }
 
+details {
+    margin: 1ch;
+}
+
 .body {
     padding-right: 5ch;
     padding-left: 5ch;
@@ -102,14 +106,8 @@ a:visited {
 .forum-post-card {
     width: 10vw;
     text-decoration: none;
-    margin-top: 2ch;
-    margin-bottom: 2ch;
-    margin-left: 2ch;
-    margin-right: 2ch;
-    padding-top: 1ch;
-    padding-bottom: 1ch;
-    padding-left: 1ch;
-    padding-right: 1ch;
+    margin: 2ch;
+    padding: 1ch;
     border-style: groove;
     border-radius: 5px;
 }
@@ -123,4 +121,13 @@ a:visited {
 .game-list {
     display: flex;
     flex-wrap: wrap;
+}
+
+table.outlines-collapse {
+    margin: 1ch;
+}
+
+.outlines-collapse {
+    border: 1px solid black;
+    border-collapse: collapse;
 }

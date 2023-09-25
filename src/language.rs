@@ -22,6 +22,13 @@ impl Language {
         Self::Japanese.lang_code(),
         Self::Chinese.lang_code(),
     ];
+    const CODE_CHINESE: &'static str = "zh";
+    const CODE_ENGLISH: &'static str = "en";
+    const CODE_FRENCH: &'static str = "fr";
+    const CODE_GERMAN: &'static str = "de";
+    const CODE_JAPANESE: &'static str = "ja";
+    const CODE_SPANISH: &'static str = "es";
+
     pub const fn display(&self) -> &'static str {
         match self {
             Self::English => "English",
@@ -35,23 +42,23 @@ impl Language {
 
     pub const fn lang_code(&self) -> &'static str {
         match self {
-            Self::English => "en",
-            Self::Spanish => "es",
-            Self::French => "fr",
-            Self::German => "de",
-            Self::Japanese => "ja",
-            Self::Chinese => "zh",
+            Self::English => Self::CODE_ENGLISH,
+            Self::Spanish => Self::CODE_SPANISH,
+            Self::French => Self::CODE_FRENCH,
+            Self::German => Self::CODE_GERMAN,
+            Self::Japanese => Self::CODE_JAPANESE,
+            Self::Chinese => Self::CODE_CHINESE,
         }
     }
 
     pub fn from_lang_code(data: &str) -> Option<Self> {
         let lang = match data {
-            "en" => Self::English,
-            "es" => Self::Spanish,
-            "fr" => Self::French,
-            "de" => Self::German,
-            "ja" => Self::Japanese,
-            "zh" => Self::Chinese,
+            Self::CODE_ENGLISH => Self::English,
+            Self::CODE_SPANISH => Self::Spanish,
+            Self::CODE_FRENCH => Self::French,
+            Self::CODE_GERMAN => Self::German,
+            Self::CODE_JAPANESE => Self::Japanese,
+            Self::CODE_CHINESE => Self::Chinese,
             _ => return None,
         };
         Some(lang)

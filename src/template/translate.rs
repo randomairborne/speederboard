@@ -58,13 +58,31 @@ impl tera::Function for GetTranslation {
                 "Key argument to gettrans() was not a string",
             ));
         };
-        let Some(translation) = self.translations.get(&(lang, key.clone())) else {
-            return Err(tera::Error::msg(format!(
-                "Translation `{key}` for `{}` does not exist!",
-                lang.lang_code()
-            )));
-        };
-        Ok(Value::String(translation.clone()))
+        if let Some(translation) = self.translations.get(&(lang, key.clone())) {
+            Ok(Value::String(translation.clone()))
+        } else {
+            warn!(
+                code = lang.lang_code(),
+                key = key,
+                "Translation does not exist!",
+            );
+            let default_lang = Language::default();
+            if let Some(en_translation) = self.translations.get(&(default_lang, key.clone())) {
+                Ok(Value::String(format!("(untranslated) {en_translation}")))
+            } else {
+                error!(
+                    code = lang.lang_code(),
+                    fallback_code = default_lang.lang_code(),
+                    key = key,
+                    "Translation does not exist, and neither does fallback!",
+                );
+                Err(tera::Error::msg(format!(
+                    "Translation `{key}` does not exist for `{}` or fallback `{}`",
+                    lang.lang_code(),
+                    default_lang.lang_code()
+                )))
+            }
+        }
     }
 
     fn is_safe(&self) -> bool {

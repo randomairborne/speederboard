@@ -3,5 +3,6 @@
     "login": "log in",
     "logout": "log out",
     "signup": "sign up",
-    "settings": "settings"
+    "settings": "settings",
+    "settings.language.unset": "Unset (browser default)"
 }
