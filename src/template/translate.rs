@@ -70,7 +70,7 @@ impl tera::Function for GetTranslation {
             );
             let default_lang = Language::default();
             if let Some(en_translation) = self.translations.get(&(default_lang, key.clone())) {
-                Ok(Value::String(format!("(untranslated) {en_translation}")))
+                Ok(Value::String(en_translation.clone()))
             } else {
                 error!(
                     code = lang.lang_code(),
