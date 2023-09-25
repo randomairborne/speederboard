@@ -16,6 +16,8 @@ CREATE TABLE users (
 );
 
 CREATE INDEX users_name_index ON users(username);
+CREATE UNIQUE INDEX case_insensitive_name_index ON users(lower(username));
+
 
 CREATE TABLE games (
     id BIGSERIAL PRIMARY KEY,
