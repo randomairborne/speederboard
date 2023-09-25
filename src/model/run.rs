@@ -3,13 +3,12 @@ use std::{cmp::Ordering, sync::Arc};
 use chrono::NaiveDateTime;
 use sqlx::{postgres::PgRow, Row};
 
+use super::{Category, Game, User};
 use crate::{
     id::{CategoryMarker, GameMarker, Id, RunMarker, UserMarker},
     util::opt_user,
     AppState, Error,
 };
-
-use super::{Category, Game, User};
 
 #[derive(
     serde_repr::Serialize_repr,

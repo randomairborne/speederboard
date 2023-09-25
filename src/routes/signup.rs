@@ -1,9 +1,3 @@
-use crate::{
-    model::User,
-    template::BaseRenderInfo,
-    util::{ValidatedForm, AUTHTOKEN_COOKIE, AUTHTOKEN_TTL},
-    AppState, Error, HandlerResult,
-};
 use axum::{
     extract::{Query, State},
     response::Redirect,
@@ -11,6 +5,12 @@ use axum::{
 use axum_extra::extract::{cookie::Cookie, CookieJar};
 use rand::distributions::DistString;
 use redis::AsyncCommands;
+
+use crate::{
+    template::BaseRenderInfo,
+    util::{ValidatedForm, AUTHTOKEN_COOKIE, AUTHTOKEN_TTL},
+    AppState, Error, HandlerResult,
+};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct SignUpPage {
@@ -59,7 +59,7 @@ pub async fn post(
         })
         .await??;
     let user = query_as!(
-        User,
+        crate::model::User,
         "INSERT INTO users
         (username, email, password, has_stylesheet, flags,
             pfp_ext, banner_ext, biography, admin, created_at)

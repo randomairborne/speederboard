@@ -1,9 +1,3 @@
-use crate::{
-    model::User,
-    template::BaseRenderInfo,
-    util::{ValidatedForm, AUTHTOKEN_COOKIE, AUTHTOKEN_TTL},
-    AppState, Error, HandlerResult,
-};
 use axum::{
     extract::{Query, State},
     response::Redirect,
@@ -11,6 +5,13 @@ use axum::{
 use axum_extra::extract::{cookie::Cookie, CookieJar};
 use rand::distributions::DistString;
 use redis::AsyncCommands;
+
+use crate::{
+    model::User,
+    template::BaseRenderInfo,
+    util::{ValidatedForm, AUTHTOKEN_COOKIE, AUTHTOKEN_TTL},
+    AppState, Error, HandlerResult,
+};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct LoginPage {

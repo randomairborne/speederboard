@@ -1,5 +1,6 @@
-use crate::{model::User, template::BaseRenderInfo, AppState, Error, HandlerResult};
 use axum::extract::{Path, State};
+
+use crate::{model::User, template::BaseRenderInfo, AppState, Error, HandlerResult};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct UserPage {

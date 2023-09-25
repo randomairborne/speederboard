@@ -1,9 +1,10 @@
+use axum::{extract::State, response::Redirect};
+use axum_extra::extract::multipart::Multipart;
+
 use crate::{
     model::{User, UserUpdate},
     AppState, Error,
 };
-use axum::{extract::State, response::Redirect};
-use axum_extra::extract::multipart::Multipart;
 
 pub async fn pfp(
     State(state): State<AppState>,

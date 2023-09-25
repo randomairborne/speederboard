@@ -1,11 +1,10 @@
 use redis::AsyncCommands;
 
+use super::{Permissions, User};
 use crate::{
     id::{GameMarker, Id, UserMarker},
     AppState, Error,
 };
-
-use super::{Permissions, User};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
 pub struct Member {

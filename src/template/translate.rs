@@ -1,6 +1,8 @@
-use crate::language::Language;
 use std::{collections::HashMap, sync::Arc};
+
 use tera::Value;
+
+use crate::language::Language;
 
 pub struct GetTranslation {
     translations: Arc<HashMap<(Language, String), String>>,

@@ -1,8 +1,9 @@
-use crate::{template::BaseRenderInfo, AppState, HandlerResult};
 use axum::{
     extract::{OriginalUri, State},
     http::StatusCode,
 };
+
+use crate::{template::BaseRenderInfo, AppState, HandlerResult};
 
 pub mod admin;
 pub mod forum;

@@ -1,9 +1,10 @@
 mod translate;
 
-use axum::{extract::FromRequestParts, http::request::Parts};
 use std::fmt::Write;
 #[cfg(feature = "dev")]
 use std::sync::{Arc, RwLock};
+
+use axum::{extract::FromRequestParts, http::request::Parts};
 use tera::Tera;
 
 use crate::{model::User, AppState, Error};

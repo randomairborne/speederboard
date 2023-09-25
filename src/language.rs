@@ -1,5 +1,6 @@
-use serde::{de::Error, Deserializer, Serializer};
 use std::fmt::Formatter;
+
+use serde::{de::Error, Deserializer, Serializer};
 use strum::{EnumCount, EnumIter};
 
 #[derive(Clone, Copy, Debug, Default, Hash, Eq, PartialEq, EnumIter, EnumCount)]

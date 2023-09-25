@@ -1,13 +1,14 @@
+use axum::{
+    extract::{Path, State},
+    response::Redirect,
+};
+
 use crate::{
     id::{CategoryMarker, Id},
     model::{Category, Game, Permissions, User},
     template::{BaseRenderInfo, ConfirmContext},
     util::{self, ValidatedForm},
     AppState, Error, HandlerResult,
-};
-use axum::{
-    extract::{Path, State},
-    response::Redirect,
 };
 
 #[derive(serde::Serialize, Debug, Clone)]

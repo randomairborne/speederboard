@@ -1,5 +1,6 @@
-use crate::{model::Game, template::BaseRenderInfo, AppState, HandlerResult};
 use axum::extract::State;
+
+use crate::{model::Game, template::BaseRenderInfo, AppState, HandlerResult};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct RootPage {

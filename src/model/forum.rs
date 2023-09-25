@@ -1,6 +1,5 @@
-use crate::id::{ForumEntryMarker, Id};
-
 use super::User;
+use crate::id::{ForumEntryMarker, Id};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
 pub struct ForumPost {

@@ -1,11 +1,13 @@
-use crate::{config::Config, Error};
+use std::{sync::Arc, time::Duration};
+
 use argon2::Argon2;
 use axum::response::Redirect;
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use sqlx::{postgres::PgPoolOptions, PgPool};
-use std::{sync::Arc, time::Duration};
 use tera::Tera;
+
+use crate::{config::Config, Error};
 
 pub type AppState = Arc<InnerAppState>;
 

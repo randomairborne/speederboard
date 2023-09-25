@@ -1,12 +1,13 @@
 use std::fmt::Display;
 
-use crate::{template::BaseRenderInfo, AppState};
 use axum::{
     extract::{OriginalUri, State},
     http::{Request, StatusCode},
     middleware::Next,
     response::{IntoResponse, Response},
 };
+
+use crate::{template::BaseRenderInfo, AppState};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {

@@ -1,6 +1,12 @@
 pub mod credentials;
 pub mod files;
 
+use axum::{
+    extract::{Query, State},
+    response::Redirect,
+};
+use strum::IntoEnumIterator;
+
 use crate::{
     id::Id,
     language::Language,
@@ -9,11 +15,6 @@ use crate::{
     util::ValidatedForm,
     AppState, Error, HandlerResult,
 };
-use axum::{
-    extract::{Query, State},
-    response::Redirect,
-};
-use strum::IntoEnumIterator;
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct SettingsPage {
