@@ -5,13 +5,46 @@ use tera::Value;
 use crate::language::Language;
 
 pub struct GetTranslation {
-    translations: Arc<HashMap<(Language, String), String>>,
+    translations: Arc<HashMap<(Language, String), TranslationContent>>,
+}
+
+#[derive(Clone, Debug)]
+pub struct TranslationContent {
+    parts: Vec<String>,
+}
+
+impl TranslationContent {
+    pub fn new(input: String) -> Self {
+        let chars: Vec<char> = input.chars().collect();
+        let parts: Vec<String> = Vec::new();
+        let mut next = String::new();
+        let mut index = 0usize;
+        while let Some(character) = chars.get(index).copied() {
+            if character == '$' {
+                if chars.get(index + 1).copied().expect("Templates must not end with a single dollar sign") == '$' {
+                    next.push('$');
+                } else {
+                    compile_error!("support interpolation keys")
+                }
+            } else {
+                next.push(character);
+                index += 1;
+            }
+
+        }
+        Self {
+            parts
+        }
+    }
+    pub fn arity(&self) -> usize {
+        self.parts.len() - 2
+    }
 }
 
 pub struct Translation {
     lang: Language,
     key: String,
-    contents: String,
+    contents: TranslationContent,
 }
 
 impl Translation {
