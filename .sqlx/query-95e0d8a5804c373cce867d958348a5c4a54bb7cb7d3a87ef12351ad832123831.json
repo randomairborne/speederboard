@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE users SET\n                username = COALESCE($2, username),\n                has_stylesheet = COALESCE($3, has_stylesheet),\n                biography = COALESCE($4, biography),\n                pfp_ext = CASE WHEN $5 THEN NULL ELSE COALESCE($6, pfp_ext) END,\n                banner_ext = CASE WHEN $7 THEN NULL ELSE COALESCE($8, banner_ext) END,\n                admin = COALESCE($9, admin),\n                flags = $10\n            WHERE id = $1\n            RETURNING id, username, has_stylesheet, flags,\n            pfp_ext, banner_ext, biography, admin, created_at",
+  "query": "UPDATE users SET\n                username = COALESCE($2, username),\n                has_stylesheet = COALESCE($3, has_stylesheet),\n                biography = COALESCE($4, biography),\n                pfp_ext = CASE WHEN $5 THEN NULL ELSE COALESCE($6, pfp_ext) END,\n                banner_ext = CASE WHEN $7 THEN NULL ELSE COALESCE($8, banner_ext) END,\n                language = CASE WHEN $9 THEN NULL ELSE COALESCE($10, language) END,\n                admin = COALESCE($11, admin),\n                flags = COALESCE($12, flags)\n            WHERE id = $1\n            RETURNING id, username, has_stylesheet, flags,\n            pfp_ext, banner_ext, biography, admin, created_at, language",
   "describe": {
     "columns": [
       {
@@ -47,11 +47,18 @@
         "ordinal": 8,
         "name": "created_at",
         "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 9,
+        "name": "language",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
       "Left": [
         "Int8",
+        "Varchar",
+        "Bool",
         "Varchar",
         "Bool",
         "Varchar",
@@ -72,8 +79,9 @@
       true,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "daed25538432c8aee25cb7ddc7886f32f465f3bee7d17e3b23012f93338d5746"
+  "hash": "95e0d8a5804c373cce867d958348a5c4a54bb7cb7d3a87ef12351ad832123831"
 }

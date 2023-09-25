@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT permissions.permissions,\n        users.id, users.username, users.biography,\n        users.admin, users.has_stylesheet, users.banner_ext,\n        users.pfp_ext, users.flags, users.created_at\n        FROM users\n        JOIN permissions ON permissions.user_id = users.id\n        WHERE permissions.permissions > 0\n        AND permissions.game_id = $1",
+  "query": "SELECT permissions.permissions,\n        users.id, users.username, users.biography,\n        users.admin, users.has_stylesheet, users.banner_ext,\n        users.pfp_ext, users.flags, users.created_at,\n        users.language\n        FROM users\n        JOIN permissions ON permissions.user_id = users.id\n        WHERE permissions.permissions > 0\n        AND permissions.game_id = $1",
   "describe": {
     "columns": [
       {
@@ -52,6 +52,11 @@
         "ordinal": 9,
         "name": "created_at",
         "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 10,
+        "name": "language",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
@@ -69,8 +74,9 @@
       true,
       true,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "8e4e967331b0e05a7888b2eb5b1df0c4d1a78b8167cd3dcf3f0b00aa997eb5de"
+  "hash": "25834d7acbbda35ec95aebea311e56d45a201a61fe1a016c03d3ec2a5ba0d57b"
 }
