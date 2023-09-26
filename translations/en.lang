@@ -4,6 +4,7 @@
     "base.logout": "log out",
     "base.signup": "sign up",
     "base.settings": "settings",
+    "404.title": "not found",
     "404.message": "404 page not found",
     "404.joke": "bad link RNG",
     "category.title": "game runs",
