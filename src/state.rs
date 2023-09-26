@@ -170,6 +170,7 @@ impl InnerAppState {
             .runtime(Runtime::Tokio1)
             .build()
             .unwrap();
+        redis.get().await.expect("Failed to load redis");
         let tera = crate::template::tera();
         let rayon = Arc::new(ThreadPoolBuilder::new().num_threads(8).build().unwrap());
         let argon = Argon2::new(
