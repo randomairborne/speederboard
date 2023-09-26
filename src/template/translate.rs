@@ -94,7 +94,14 @@ impl tera::Function for GetTranslation {
 }
 
 fn stringify_value(value: &Value) -> String {
-    match va
+    match value {
+        Value::Null => "nil".to_owned(),
+        Value::Bool(val) => val.to_string(),
+        Value::Number(val) => val.to_string(),
+        Value::String(string) => string.clone(),
+        Value::Array(values) => values.join(", "),
+        Value::Object(val) => format!("{val:?}"),
+    }
 }
 
 pub fn get_translations() -> Vec<Translation> {
