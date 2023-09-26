@@ -106,10 +106,12 @@ impl InterpolationCompiler {
         self.index += 1;
         Ok(())
     }
+
     #[inline]
     fn valid_ident_char(ch: char) -> bool {
         matches!(ch, 'A'..='Z' | 'a'..='z' | '_' | '-')
     }
+
     fn make_identifier(&mut self) -> Result<String, Error> {
         let mut identifier = String::new();
         while let Some(identifier_part) = self.chars.get(self.index).copied() {
