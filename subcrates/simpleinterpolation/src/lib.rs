@@ -49,7 +49,11 @@ impl Interpolation {
         for (raw, interpolation_key) in &self.parts {
             output.push_str(raw);
             let interpolation_value = args.get(interpolation_key);
-            output.push_str(&interpolation_value.unwrap_or(&Value::Null).to_string());
+            output.push_str(
+                &interpolation_value
+                    .map_or(String::new(), |v| v.to_string())
+                    .to_string(),
+            );
         }
         output
     }
@@ -125,6 +129,7 @@ impl InterpolationCompiler {
             if !Self::valid_ident_char(identifier_part) {
                 return Err(Error::InvalidCharInIdentifier(identifier_part));
             }
+            identifier.push(identifier_part);
             self.index += 1;
         }
         Ok(identifier)

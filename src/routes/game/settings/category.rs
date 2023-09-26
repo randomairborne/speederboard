@@ -67,8 +67,8 @@ pub async fn confirm_delete(
     member.perms.check(Permissions::ADMINISTRATOR)?;
     let ctx = ConfirmContext {
         base,
-        action: "delete this category".to_string(),
-        action_url: format!("/game/{game_slug}/delete-category/{category_id}",),
+        action: "category.confirm.delete".to_string(),
+        action_url: format!("/game/{game_slug}/delete-category/{category_id}"),
         return_to: format!("/game/{game_slug}/edit"),
     };
     state.render("confirm.jinja", ctx)
