@@ -3,7 +3,9 @@
 A game leaderboard website.
 
 If you're looking to contribute, you might want to have a look at [templates.md](https://developer-docs.speederboard.org/templates.html)
-[assets.md](https://developer-docs.speederboard.org/assets.html)
+[assets.md](https://developer-docs.speederboard.org/assets.html), or [assets.md](https://developer-docs.speederboard.org/translations.html)
+
+
 Docs for contributing are available at [developer-docs.speederboard.org](https://developer-docs.speederboard.org/).
 Your contributions would be greatly appreciated, especially with CSS and HTML. Please
 [contact me](https://randomairborne.dev/contact/) if you're interested in helping.
