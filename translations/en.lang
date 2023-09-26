@@ -17,8 +17,8 @@
     "confirm.title": "are you sure?",
     "confirm.yes": "yes, i'm sure",
     "confirm.no": "no, take me back",
-    "confirm.strong": "irreversible!!",
     "confirm.warning": "are you sure you want to {action}? this action is ",
+    "confirm.strong": "irreversible!!",
     "category.confirm.delete": "delete this category",
     "settings.language.unset": "Unset (browser default)"
 }
