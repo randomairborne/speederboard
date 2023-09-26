@@ -42,18 +42,16 @@ impl Interpolation {
         }
         output
     }
-
-    #[cfg(feature = "value")]
-    pub fn render_values(&self, args: &HashMap<String, Value>) -> String {
+    pub fn render_transform<T, F: Fn(&T) -> String>(
+        &self,
+        args: &HashMap<String, T>,
+        transform: F,
+    ) -> String {
         let mut output = self.output_string();
         for (raw, interpolation_key) in &self.parts {
             output.push_str(raw);
             let interpolation_value = args.get(interpolation_key);
-            output.push_str(
-                &interpolation_value
-                    .map_or(String::new(), |v| v.to_string())
-                    .to_string(),
-            );
+            output.push_str(&interpolation_value.map_or(String::new(), &transform));
         }
         output
     }

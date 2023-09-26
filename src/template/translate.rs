@@ -62,7 +62,7 @@ impl tera::Function for GetTranslation {
             ));
         };
         if let Some(translation) = self.translations.get(&(lang, key.clone())) {
-            Ok(Value::String(translation.render_values(args)))
+            Ok(Value::String(translation.render_transform()))
         } else {
             warn!(
                 code = lang.lang_code(),
@@ -91,6 +91,10 @@ impl tera::Function for GetTranslation {
     fn is_safe(&self) -> bool {
         false
     }
+}
+
+fn stringify_value(value: &Value) -> String {
+    match va
 }
 
 pub fn get_translations() -> Vec<Translation> {
