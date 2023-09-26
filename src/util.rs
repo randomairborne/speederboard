@@ -73,7 +73,7 @@ pub fn validate_slug(value: &str, _context: &()) -> garde::Result {
             || char == '.'
     }) {
         return Err(garde::Error::new(
-            "game slug must contain only lowercase alphanumeric characters, _, -, and .",
+            "slug must contain only lowercase alphanumeric characters, _, -, and .",
         ));
     }
     Ok(())
