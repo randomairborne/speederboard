@@ -2366,6 +2366,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "simpleinterpolation"
+version = "0.1.0"
+dependencies = [
+ "serde_json",
+]
+
+[[package]]
 name = "siphasher"
 version = "0.3.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2436,6 +2443,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_repr",
+ "simpleinterpolation",
  "sqlx",
  "strum 0.25.0",
  "tera",

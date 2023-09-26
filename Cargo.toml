@@ -3,6 +3,9 @@ name = "speederboard"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = ["subcrates/simpleinterpolation"]
+
 [features]
 default = ["dev"]
 dev = ["tower-http/fs", "tower-http/cors", "dep:notify"]
@@ -34,6 +37,7 @@ tokio = { version = "1", features = [
 notify = { version = "6", default-features = false, optional = true, features = [
     "macos_kqueue",
 ] }
+simpleinterpolation = { path = "./subcrates/simpleinterpolation", features = ["value"] }
 chrono = { version = "0.4", default-features = false, features = ["serde"] }
 redis = { version = "0.23", features = ["aio", "connection-manager"] }
 axum = { version = "0.6", features = ["http2", "headers", "macros"] }

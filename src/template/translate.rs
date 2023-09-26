@@ -1,50 +1,18 @@
 use std::{collections::HashMap, sync::Arc};
 
+use simpleinterpolation::Interpolation;
 use tera::Value;
 
 use crate::language::Language;
 
 pub struct GetTranslation {
-    translations: Arc<HashMap<(Language, String), TranslationContent>>,
-}
-
-#[derive(Clone, Debug)]
-pub struct TranslationContent {
-    parts: Vec<String>,
-}
-
-impl TranslationContent {
-    pub fn new(input: String) -> Self {
-        let chars: Vec<char> = input.chars().collect();
-        let parts: Vec<String> = Vec::new();
-        let mut next = String::new();
-        let mut index = 0usize;
-        while let Some(character) = chars.get(index).copied() {
-            if character == '$' {
-                if chars.get(index + 1).copied().expect("Templates must not end with a single dollar sign") == '$' {
-                    next.push('$');
-                } else {
-                    compile_error!("support interpolation keys")
-                }
-            } else {
-                next.push(character);
-                index += 1;
-            }
-
-        }
-        Self {
-            parts
-        }
-    }
-    pub fn arity(&self) -> usize {
-        self.parts.len() - 2
-    }
+    translations: Arc<HashMap<(Language, String), Interpolation>>,
 }
 
 pub struct Translation {
     lang: Language,
     key: String,
-    contents: TranslationContent,
+    contents: Interpolation,
 }
 
 impl Translation {
@@ -56,14 +24,14 @@ impl Translation {
         Self {
             lang: lang.into(),
             key: key.into(),
-            contents: contents.into(),
+            contents: Interpolation::new(contents.into()).unwrap(),
         }
     }
 }
 
 impl GetTranslation {
     pub fn new(translations: Vec<Translation>) -> Self {
-        let mut inners: HashMap<(Language, String), String> =
+        let mut inners: HashMap<(Language, String), Interpolation> =
             HashMap::with_capacity(translations.len());
         for translation in translations {
             inners.insert((translation.lang, translation.key), translation.contents);
@@ -94,7 +62,7 @@ impl tera::Function for GetTranslation {
             ));
         };
         if let Some(translation) = self.translations.get(&(lang, key.clone())) {
-            Ok(Value::String(translation.clone()))
+            Ok(Value::String(translation.render_values(args)))
         } else {
             warn!(
                 code = lang.lang_code(),
@@ -103,7 +71,7 @@ impl tera::Function for GetTranslation {
             );
             let default_lang = Language::default();
             if let Some(en_translation) = self.translations.get(&(default_lang, key.clone())) {
-                Ok(Value::String(en_translation.clone()))
+                Ok(Value::String(en_translation.render_values(args)))
             } else {
                 error!(
                     code = lang.lang_code(),
