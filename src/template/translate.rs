@@ -62,7 +62,9 @@ impl tera::Function for GetTranslation {
             ));
         };
         if let Some(translation) = self.translations.get(&(lang, key.clone())) {
-            Ok(Value::String(translation.render_transform()))
+            Ok(Value::String(
+                translation.render_transform(args, stringify_value),
+            ))
         } else {
             warn!(
                 code = lang.lang_code(),
@@ -71,7 +73,9 @@ impl tera::Function for GetTranslation {
             );
             let default_lang = Language::default();
             if let Some(en_translation) = self.translations.get(&(default_lang, key.clone())) {
-                Ok(Value::String(en_translation.render_values(args)))
+                Ok(Value::String(
+                    en_translation.render_transform(args, stringify_value),
+                ))
             } else {
                 error!(
                     code = lang.lang_code(),
@@ -99,7 +103,7 @@ fn stringify_value(value: &Value) -> String {
         Value::Bool(val) => val.to_string(),
         Value::Number(val) => val.to_string(),
         Value::String(string) => string.clone(),
-        Value::Array(values) => values.join(", "),
+        Value::Array(val) => format!("{val:?}"),
         Value::Object(val) => format!("{val:?}"),
     }
 }

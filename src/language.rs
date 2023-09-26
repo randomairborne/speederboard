@@ -30,7 +30,7 @@ impl Language {
     const CODE_JAPANESE: &'static str = "ja";
     const CODE_SPANISH: &'static str = "es";
 
-    pub const fn display(&self) -> &'static str {
+    pub const fn display(self) -> &'static str {
         match self {
             Self::English => "English",
             Self::Spanish => "Español",
@@ -41,7 +41,7 @@ impl Language {
         }
     }
 
-    pub const fn lang_code(&self) -> &'static str {
+    pub const fn lang_code(self) -> &'static str {
         match self {
             Self::English => Self::CODE_ENGLISH,
             Self::Spanish => Self::CODE_SPANISH,

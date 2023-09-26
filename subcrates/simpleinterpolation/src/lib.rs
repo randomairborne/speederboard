@@ -4,10 +4,8 @@
 //! `this is an {interpolated} string`
 //! Variable names may have `-` `_`, `a-z`, and `A-Z`, any other charc
 //!
+//! #
 use std::{collections::HashMap, fmt::Formatter};
-
-#[cfg(feature = "value")]
-use serde_json::Value;
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq)]
 pub struct Interpolation {
@@ -42,6 +40,7 @@ impl Interpolation {
         }
         output
     }
+
     pub fn render_transform<T, F: Fn(&T) -> String>(
         &self,
         args: &HashMap<String, T>,
@@ -99,7 +98,7 @@ impl InterpolationCompiler {
         } else if ch == '{' {
             self.index += 1;
             let ident = self.make_identifier()?;
-            let to_push = std::mem::replace(&mut self.next, String::new());
+            let to_push = std::mem::take(&mut self.next);
             self.parts.push((to_push, ident));
         } else {
             self.next.push(ch);
@@ -107,14 +106,10 @@ impl InterpolationCompiler {
         self.index += 1;
         Ok(())
     }
-
+    #[inline]
     fn valid_ident_char(ch: char) -> bool {
-        match ch {
-            'A'..='Z' | 'a'..='z' | '_' | '-' => true,
-            _ => false,
-        }
+        matches!(ch, 'A'..='Z' | 'a'..='z' | '_' | '-')
     }
-
     fn make_identifier(&mut self) -> Result<String, Error> {
         let mut identifier = String::new();
         while let Some(identifier_part) = self.chars.get(self.index).copied() {

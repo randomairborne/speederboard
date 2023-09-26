@@ -243,7 +243,7 @@ impl UserUpdate {
             self.banner_ext.is_null(),
             self.banner_ext.into_option(),
             self.language.is_null(),
-            self.language.into_option().map(|v| v.lang_code()),
+            self.language.into_option().map(Language::lang_code),
             self.admin,
             self.flags
         )
