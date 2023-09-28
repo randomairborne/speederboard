@@ -21,5 +21,15 @@
     "confirm.warning": "are you sure you want to {action}? this action is ",
     "confirm.strong": "irreversible!!",
     "category.confirm.delete": "delete this category",
+    "create_game.title": "create new game",
+    "create_game.game.name.label": "game name",
+    "create_game.game.slug.label": "game slug",
+    "create_game.game.url.label": "game website url",
+    "create_game.game.description.label": "game description",
+    "create_game.category.name.label": "category name",
+    "create_game.category.description.label": "category description",
+    "create_game.category.rules.label": "category rules",
+    "create_game.category.scoreboard.label": "sort by score rather then time",
+    "create_game.submit": "submit",
     "settings.language.unset": "Unset (browser default)"
 }

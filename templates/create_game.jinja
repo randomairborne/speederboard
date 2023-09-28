@@ -1,43 +1,43 @@
 {% extends "base.jinja" %}
 {% block extraheaders %}{% endblock extraheaders %}
-{% block title %}create a new game{% endblock title %}
+{% block title %}{{ gettrans(lang=language, key="create_game.title") }}{% endblock title %}
 {% block body %}
-<h1>create new game</h1>
+<h1>{{ gettrans(lang=language, key="create_game.title") }}</h1>
 <form method="post">
     <table>
         <tr>
-            <td><label for="name">game name</label></td>
+            <td><label for="name">{{ gettrans(lang=language, key="create_game.game.name.label") }}</label></td>
             <td><input name="name" id="name" maxlength="128" minlength="1" /></td>
         </tr>
         <tr>
-            <td><label for="slug">game slug</label></td>
+            <td><label for="slug">{{ gettrans(lang=language, key="create_game.game.slug.label") }}</label></td>
             <td><input name="slug" id="slug" pattern="[a-z0-9]+" maxlength="32" /></td>
         </tr>
         <tr>
-            <td><label for="url">game website url</label></td>
+            <td><label for="url">{{ gettrans(lang=language, key="create_game.game.url.label") }}</label></td>
             <td><input name="url" id="url" type="url" maxlength="128" /></td>
         </tr>
         <tr>
-            <td><label for="description">game description</label></td>
+            <td><label for="description">{{ gettrans(lang=language, key="create_game.game.description.label") }}</label></td>
             <td><textarea name="description" id="description" maxlength="4000"></textarea></td>
         </tr>
         <tr>
-            <td><label for="cat_name">category name</label></td>
+            <td><label for="cat_name">{{ gettrans(lang=language, key="create_game.category.name.label") }}</label></td>
             <td><input name="cat_name" id="cat_name" maxlength="128"></td>
         </tr>
         <tr>
-            <td><label for="cat_description">category description</label></td>
+            <td><label for="cat_description">{{ gettrans(lang=language, key="create_game.category.description.label") }}</label></td>
             <td><textarea name="cat_description" id="cat_description" maxlength="4000"></textarea></td>
         </tr>
         <tr>
-            <td><label for="cat_rules">category rules</label></td>
+            <td><label for="cat_rules">{{ gettrans(lang=language, key="create_game.category.rules.label") }}</label></td>
             <td><textarea name="cat_rules" id="cat_rules"></textarea></td>
         </tr>
         <tr>
-            <td><label for="scoreboard">sort by score rather then time</label></td>
+            <td><label for="scoreboard">{{ gettrans(lang=language, key="create_game.category.scoreboard.label") }}</label></td>
             <td><input name="scoreboard" id="scoreboard" type="checkbox" value="true"/></td>
         </tr>
     </table>
-    <button>submit!</button>
+    <button>{{ gettrans(lang=language, key="create_game.submit") }}</button>
 </form>
 {% endblock body %}
