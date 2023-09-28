@@ -2,8 +2,8 @@
 
 A game leaderboard website.
 
-If you're looking to contribute, you might want to have a look at [templates.md](https://developer-docs.speederboard.org/templates.html)
-[assets.md](https://developer-docs.speederboard.org/assets.html), or [translations.md](https://developer-docs.speederboard.org/translations.html)
+If you're looking to contribute, you might want to have a look at [templates.md](https://developer-docs.speederboard.org/templates.html),
+[assets.md](https://developer-docs.speederboard.org/assets.html), or [translations.md](https://developer-docs.speederboard.org/translations.html).
 
 
 Docs for contributing are available at [developer-docs.speederboard.org](https://developer-docs.speederboard.org/).
