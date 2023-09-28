@@ -2,7 +2,7 @@
 {% block extraheaders %}{% endblock extraheaders %}
 {% block title %}{{ gettrans(lang=language, key="category.title") }}{% endblock title %}
 {% block body %}
-<a href="{{ root_url }}/forum/{{ game.slug }}">{{ gettrans(lang=language, key="category.discuss.forum") }}</a>
+<a href="{{ root_url }}/forum/{{ game.slug }}">{{ gettrans(lang=language, key="category.discuss_on_forum") }}</a>
 <div class="game-categories">
 {% for minicat in categories %}
 <a href="{{ root_url }}/game/{{ game.slug }}/category/{{ minicat.id }}" class="">{{ minicat.name }}</a>

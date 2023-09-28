@@ -1,39 +1,39 @@
 {% extends "base.jinja" %}
 {% block extraheaders %}{% endblock extraheaders %}
-{% block title %}submit a new run{% endblock title %}
+{% block title %}{{ gettrans(lang=language, key="create_run.title") }}{% endblock title %}
 {% block body %}
-<h1>submit new run</h1>
+<h1>{{ gettrans(lang=language, key="create_run.title") }}</h1>
 <form method="post">
     <table>
         <tr>
-            <td><label for="video">video url</label></td>
+            <td><label for="video">{{ gettrans(lang=language, key="create_run.video_url_label") }}</label></td>
             <td><input name="video" id="video" maxlength="256" minlength="1" type="url" required /></td>
         </tr>
         <tr>
-            <td><label for="description">description of this run</label></td>
+            <td><label for="description">{{ gettrans(lang=language, key="create_run.description_label") }}</label></td>
             <td><textarea name="description" id="description" maxlength="4000"></textarea></td>
         </tr>
         {% if category.scoreboard %}
         <tr>
-            <td><label for="score">game score</label></td>
+            <td><label for="score">{{ gettrans(lang=language, key="create_run.score_label") }}</label></td>
             <td><input name="score" id="score" type="number" value="0" required/></td>
         </tr>
         {% else %}
         <tr>
-            <td><label>time</label></td>
+            <td><label>{{ gettrans(lang=language, key="create_run.time_label") }}</label></td>
             <td>
             <input name="hours" id="hours" type="number" value="0" required/>
-            <label for="hours">h</label>
+            <label for="hours">{{ gettrans(lang=language, key="create_run.hours_label") }}</label>
             <input name="minutes" id="minutes" type="number" max="60" value="0" required/>
-            <label for="minutes">m</label>
+            <label for="minutes">{{ gettrans(lang=language, key="create_run.minutes_label") }}</label>
             <input name="seconds" id="seconds" type="number" max="60" value="0" required/>
-            <label for="seconds">s</label>
+            <label for="seconds">{{ gettrans(lang=language, key="create_run.seconds_label") }}</label>
             <input name="milliseconds" id="milliseconds" type="number" max="1000" value="0" required/>
-            <label for="milliseconds">ms</label>
+            <label for="milliseconds">{{ gettrans(lang=language, key="create_run.milliseconds_label") }}</label>
             </td>
         </tr>
         {% endif %}
     </table>
-    <button>submit!</button>
+    <button>{{ gettrans(lang=language, key="create_run.submit") }}</button>
 </form>
 {% endblock body %}
