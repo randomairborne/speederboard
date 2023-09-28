@@ -3,11 +3,11 @@
 A game leaderboard website.
 
 If you're looking to contribute, you might want to have a look at [templates.md](https://developer-docs.speederboard.org/templates.html)
-[assets.md](https://developer-docs.speederboard.org/assets.html), or [assets.md](https://developer-docs.speederboard.org/translations.html)
+[assets.md](https://developer-docs.speederboard.org/assets.html), or [translations.md](https://developer-docs.speederboard.org/translations.html)
 
 
 Docs for contributing are available at [developer-docs.speederboard.org](https://developer-docs.speederboard.org/).
-Your contributions would be greatly appreciated, especially with CSS and HTML. Please
+Your contributions would be greatly appreciated, especially with CSS/HTML and translations. Please
 [contact me](https://randomairborne.dev/contact/) if you're interested in helping.
 
 suggested dev command:
@@ -17,3 +17,8 @@ cargo watch -x r -w ./src
 ```
 
 this command will near-instantly update templates and public, and update src within about 2 seconds, depending on how big your changes are.
+
+on windows, you can also download the exe: [speederboard.exe](https://cdn.speederboard.org/executables/speederboard.exe)
+it requires certain environment variables, but most of them have sane localhost-y defaults or will be pointed out to you on run.
+You will need to clone the repository and run speederboard.exe in the speederboard root directory, but you need to do this for
+development anyway
