@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - src/**
+      - subcrates/**
       - migrations/**
       - templates/**
       - .sqlx/**

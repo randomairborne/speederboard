@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - src/**
+      - subcrates/**
       - .sqlx/**
       - .github/**
       - Cargo.toml
