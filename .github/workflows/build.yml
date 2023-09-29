@@ -8,6 +8,7 @@ on:
       - subcrates/**
       - migrations/**
       - templates/**
+      - translations/**
       - .sqlx/**
       - .github/**
       - Cargo.toml

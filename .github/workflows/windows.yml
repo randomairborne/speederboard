@@ -7,7 +7,6 @@ on:
       - src/**
       - subcrates/**
       - migrations/**
-      - templates/**
       - .sqlx/**
       - .github/**
       - Cargo.toml
