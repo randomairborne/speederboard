@@ -41,5 +41,13 @@
     "create_run.seconds_label": "s",
     "create_run.milliseconds_label": "ms",
     "create_run.submit": "submit!",
+    "edit_category.title": "edit category {name}",
+    "edit_category.subtitle": "{category_name} category settings",
+    "edit_category.parent": "editing category {game_name} ({game_slug})",
+    "edit_category.name_label": "category name",
+    "edit_category.description_label": "category description",
+    "edit_category.rules_label": "category rules",
+    "edit_category.scoreboard_label": "sort by score rather then time",
+    "edit_category.submit": "submit!",
     "settings.language.unset": "Unset (browser default)"
 }

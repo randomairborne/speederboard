@@ -1,28 +1,34 @@
 {% extends "base.jinja" %}
 {% block extraheaders %}{% endblock extraheaders %}
-{% block title %}edit category{% endblock title %}
+{% block title %}{{ gettrans(lang=language, key="edit_category.title", name=category.name) }}{% endblock title %}
 {% block body %}
-<h2>{{ category.name }} category settings</h2>
-<h3>id {{ category.id }}, category of game <a href="/game/{{ game.slug }}">{{ game.name }} ({{ game.slug }})</a> </h3>
+<h2>{{ gettrans(lang=language, key="edit_category.subtitle" category_name=category.name) }}</h2>
+<h3><a href="/game/{{ game.slug }}">
+        {{ gettrans(lang=language, key="edit_category.parent", game_name=game.name, game_slug=game.slug) }}
+    </a>
+</h3>
 <form action="/game/{{ game.slug }}/category/{{ category.id }}/edit" method="post">
     <table>
         <tr>
-            <td><label for="name">category name</label></td>
+            <td><label for="name">{{ gettrans(lang=language, key="edit_category.name_label") }}</label></td>
             <td><input name="name" id="name" maxlength="128" value="{{ category.name }}"></td>
         </tr>
         <tr>
-            <td><label for="description">category description</label></td>
-            <td><textarea name="description" id="description" rows="10" cols="40" maxlength="4000">{{ category.description }}</textarea></td>
+            <td><label for="description">{{ gettrans(lang=language, key="edit_category.description_label") }}</label></td>
+            <td><textarea name="description" id="description" rows="10" cols="40"
+                    maxlength="4000">{{ category.description }}</textarea></td>
         </tr>
         <tr>
-            <td><label for="rules">category rules</label></td>
-            <td><textarea name="rules" id="rules" rows="10" cols="40" maxlength="20000">{{ category.rules }}</textarea></td>
+            <td><label for="rules">{{ gettrans(lang=language, key="edit_category.rules_label") }}</label></td>
+            <td><textarea name="rules" id="rules" rows="10" cols="40" maxlength="20000">{{ category.rules }}</textarea>
+            </td>
         </tr>
         <tr>
-            <td><label for="scoreboard">sort by score rather then time</label></td>
-            <td><input name="scoreboard" id="scoreboard" type="checkbox" value="true" {% if category.scoreboard %}checked{% endif %} /></td>
+            <td><label for="scoreboard">{{ gettrans(lang=language, key="edit_category.scoreboard_label") }}</label></td>
+            <td><input name="scoreboard" id="scoreboard" type="checkbox" value="true"
+                    {% if category.scoreboard %}checked{% endif %} /></td>
         </tr>
     </table>
-    <button>submit!</button>
+    <button>{{ gettrans(lang=language, key="edit_category.submit") }}</button>
 </form>
 {% endblock body %}
