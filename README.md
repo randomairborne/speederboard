@@ -1,5 +1,7 @@
 # speederboard
 
+## if you're a speedrunner, and want to help with input on features, please contact me at valk (at) randomairborne (dot) dev
+
 A game leaderboard website.
 
 If you're looking to contribute, you might want to have a look at [templates.md](https://developer-docs.speederboard.org/templates.html),
