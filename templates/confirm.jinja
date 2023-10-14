@@ -1,5 +1,4 @@
 {% extends "base.jinja" %}
-{% block extraheaders %}{% endblock extraheaders %}
 {% block title %}{{ gettrans(lang=language, key="confirm.title") }}{% endblock title %}
 {% block body %}
 <p>{{ gettrans(lang=language, key="confirm.warning", action=gettrans(lang=language, key=action)) }}<strong>{{ gettrans(lang=language, key="confirm.strong") }}</strong></p>

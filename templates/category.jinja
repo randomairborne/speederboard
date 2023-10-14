@@ -1,5 +1,4 @@
 {% extends "base.jinja" %}
-{% block extraheaders %}{% endblock extraheaders %}
 {% block title %}{{ gettrans(lang=language, key="category.title") }}{% endblock title %}
 {% block body %}
 <a href="{{ root_url }}/forum/{{ game.slug }}">{{ gettrans(lang=language, key="category.discuss_on_forum") }}</a>
