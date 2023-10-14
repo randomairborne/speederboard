@@ -1,8 +1,8 @@
 {% extends "base.jinja" %}
 {% block extraheaders %}{% endblock extraheaders %}
-{% block title %}error{% endblock title %}
+{% block title %}{{ gettrans(lang=language, key="error.title") }}{% endblock title %}
 {% block body %}
-<p>oops, we encountered an error:</p>
+<p>{{ gettrans(lang=language, key="error.heading") }}</p>
 <div class="codeblock">{{ error }}</div>
-<p><a href="https://github.com/randomairborne/speederboard/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=">make a bug report?</a></p>
+<p><a href="https://github.com/randomairborne/speederboard/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=">{{ gettrans(lang=language, key="error.ask_report") }}</a></p>
 {% endblock body %}

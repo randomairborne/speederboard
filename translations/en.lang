@@ -63,5 +63,9 @@
     "edit_game.categories.new.rules": "category rules",
     "edit_game.categories.new.scoreboard": "sort by score rather then time",
     "edit_game.categories.new.submit": "submit",
+    "error.title": "error",
+    "error.heading": "oops, we encountered an error:",
+    "error.ask_report": "make a bug report?",
+    "error.internal": "error",
     "settings.language.unset": "Unset (browser default)"
 }
