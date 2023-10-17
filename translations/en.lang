@@ -67,5 +67,8 @@
     "error.heading": "oops, we encountered an error:",
     "error.ask_report": "make a bug report?",
     "error.internal": "error",
+    "forum.title": "{name} forums",
+    "forum.heading": "{name} forums",
+    "forum.post.new": "new post",
     "settings.language.unset": "Unset (browser default)"
 }

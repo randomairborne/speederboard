@@ -1,9 +1,9 @@
 {% extends "base.jinja" %}
-{% block title %}{{ game.name }} forum{% endblock title %}
-{% block body %}
+{% block title %}{{ gettrans(lang=language, key="forum.title", name=game.name) }}{% endblock title %}
+ {% block body %}
 <div class="forum-header">
-<h1>{{ game.name }} forums</h1>
-<a href="{{ root_url }}/forum/{{ game.slug }}/new">new post</a>
+<h1>{{ gettrans(lang=language, key="forum.heading", name=game.name) }}</h1>
+<a href="{{ root_url }}/forum/{{ game.slug }}/new">{{ gettrans(lang=language, key="forum.post.new") }}</a>
 </div>
 <div class="forum-posts">
 {% for post in posts %}
