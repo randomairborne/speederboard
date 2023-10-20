@@ -93,19 +93,18 @@ impl tera::Function for GetTranslation {
     }
 
     fn is_safe(&self) -> bool {
-        true
+        false
     }
 }
 
 fn stringify_value(value: &Value) -> String {
-    use tera::escape_html;
     match value {
         Value::Null => "nil".to_owned(),
         Value::Bool(val) => val.to_string(),
         Value::Number(val) => val.to_string(),
-        Value::String(string) => escape_html(string),
-        Value::Array(val) => escape_html(&format!("{val:?}")),
-        Value::Object(val) => escape_html(&format!("{val:?}")),
+        Value::String(string) => string.clone(),
+        Value::Array(val) => format!("{val:?}"),
+        Value::Object(val) => format!("{val:?}"),
     }
 }
 
