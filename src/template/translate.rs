@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc};
 use simpleinterpolation::Interpolation;
 use tera::Value;
 
-use crate::language::Language;
+use crate::{language::Language, Error};
 
 pub struct GetTranslation {
     translations: Arc<HashMap<(Language, String), Interpolation>>,
@@ -109,7 +109,7 @@ fn stringify_value(value: &Value) -> String {
     }
 }
 
-pub fn get_translations() -> Vec<Translation> {
+pub fn get_translations() -> Result<Vec<Translation>, crate::Error> {
     trace!("Reading translations");
     let files = std::fs::read_dir("./translations/")
         .expect("Failed to open ./translations/")
@@ -126,27 +126,19 @@ pub fn get_translations() -> Vec<Translation> {
         }
         let lang_string = file_name
             .file_stem()
-            .unwrap()
+            .ok_or(Error::NoFileStem)?
             .to_os_string()
             .into_string()
-            .unwrap();
+            .map_err(|_| Error::InvalidOsString)?;
         let lang = Language::from_lang_code(&lang_string).unwrap_or_default();
-        let file_contents = std::fs::read(file.path()).unwrap_or_else(|source| {
-            panic!("Failed to open file {} ({})", file.path().display(), source)
-        });
-        let translations_for_lang: HashMap<String, String> = serde_json::from_slice(&file_contents)
-            .unwrap_or_else(|source| {
-                panic!(
-                    "Failed to deserialize file {} ({})",
-                    file.path().display(),
-                    source
-                )
-            });
+        let file_contents = std::fs::read(file.path())?;
+        let translations_for_lang: HashMap<String, String> =
+            serde_json::from_slice(&file_contents)?;
         for (key, contents) in translations_for_lang {
             let translation = Translation::new(lang, key, contents);
             translations.push(translation);
         }
     }
     trace!("Read and parsed translations");
-    translations
+    Ok(translations)
 }

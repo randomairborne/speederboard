@@ -7,7 +7,7 @@ use rayon::{ThreadPool, ThreadPoolBuilder};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tera::Tera;
 
-use crate::{config::Config, Error};
+use crate::{config::Config, template::GetTranslation, Error};
 
 pub type AppState = Arc<InnerAppState>;
 
@@ -147,6 +147,21 @@ impl InnerAppState {
                 error!(?source, "Failed to reload templates");
             }
         }
+    }
+
+    #[cfg(feature = "dev")]
+    pub fn reload_translations(&self) {
+        let translations = match crate::template::get_translations() {
+            Ok(v) => v,
+            Err(source) => {
+                error!(?source, "Failed to reload translations");
+                return;
+            }
+        };
+        self.tera
+            .write()
+            .expect("Tera write lock poisoned, check logs for previous panics!")
+            .register_function("gettrans", GetTranslation::new(translations))
     }
 
     pub async fn from_environment() -> AppState {

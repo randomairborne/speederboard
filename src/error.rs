@@ -81,6 +81,10 @@ pub enum Error {
     NoDomainInUrl,
     #[error("URL being parsed has `..`, which could indicate a directory traversal attack!")]
     DoubleDotInPath,
+    #[error("Translation file did not have stem!")]
+    NoFileStem,
+    #[error("Invalid translation filename OS string!")]
+    InvalidOsString,
     #[error("Hit root directory while parsing path!")]
     PathHasNoParent,
     #[error(
@@ -138,7 +142,9 @@ pub async fn error_middleware<B>(
         | Error::NoTitleForRootPost
         | Error::RowDoesNotMatchInputGame
         | Error::NoDomainInUrl
-        | Error::PathHasNoParent => StatusCode::INTERNAL_SERVER_ERROR,
+        | Error::PathHasNoParent
+        | Error::NoFileStem
+        | Error::InvalidOsString => StatusCode::INTERNAL_SERVER_ERROR,
         Error::FormValidation(_)
         | Error::CustomFormValidation(_)
         | Error::FormRejection(_)

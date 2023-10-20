@@ -6,11 +6,12 @@ use std::sync::{Arc, RwLock};
 
 use axum::{extract::FromRequestParts, http::request::Parts};
 use tera::Tera;
+pub use translate::{get_translations, GetTranslation};
 
 use crate::{model::User, AppState, Error};
 
 fn real_tera() -> Tera {
-    let translations = translate::get_translations();
+    let translations = get_translations().expect("Failed to load translations");
     let mut tera = match Tera::new("./templates/**/*") {
         Ok(v) => v,
         Err(source) => {
