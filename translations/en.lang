@@ -1,8 +1,8 @@
 {
     "base.name": "speederboard",
-    "base.login": "log in",
+    "base.login": log in",
     "base.logout": "log out",
-    "base.signup": "sign up",
+    "base.signup": "**sign up**",
     "base.settings": "settings",
     "404.title": "not found",
     "404.message": "404 page not found",
@@ -67,6 +67,7 @@
     "error.heading": "oops, we encountered an error:",
     "error.ask_report": "make a bug report?",
     "error.internal": "error",
+    "forum_post.author": "from {name}",
     "forum.title": "{name} forums",
     "forum.heading": "{name} forums",
     "forum.post.new": "new post",

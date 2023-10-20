@@ -24,7 +24,7 @@ impl Translation {
         Self {
             lang: lang.into(),
             key: key.into(),
-            contents: Interpolation::new(contents.into()).unwrap(),
+            contents: Interpolation::new(markdown::to_html(&contents.into())).unwrap(),
         }
     }
 }
@@ -93,18 +93,19 @@ impl tera::Function for GetTranslation {
     }
 
     fn is_safe(&self) -> bool {
-        false
+        true
     }
 }
 
 fn stringify_value(value: &Value) -> String {
+    use tera::escape_html;
     match value {
         Value::Null => "nil".to_owned(),
         Value::Bool(val) => val.to_string(),
         Value::Number(val) => val.to_string(),
-        Value::String(string) => string.clone(),
-        Value::Array(val) => format!("{val:?}"),
-        Value::Object(val) => format!("{val:?}"),
+        Value::String(string) => escape_html(string),
+        Value::Array(val) => escape_html(&format!("{val:?}")),
+        Value::Object(val) => escape_html(&format!("{val:?}")),
     }
 }
 
