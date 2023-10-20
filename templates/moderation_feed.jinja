@@ -1,21 +1,21 @@
 {% extends "base.jinja" %}
-{% block title %}game{% endblock title %}
+{% block title %}{{ gettrans(lang=language, key="moderation_feed.title", game=game.name) }}{% endblock title %}
 {% block body %}
 {% if submissions | length <= 0 %}
-<p>the queue for this leaderboard is empty  . thank you for moderating!</p>
+<p>{{ gettrans(lang=language, key="moderation_feed.empty") }}</p>
 {% else %}
 <br>
 <table>
     <tr>
-        <th>user</th>
+        <th>{{ gettrans(lang=language, key="moderation_feed.user") }}</th>
         {% if run.category.scoreboard %}
-        <th>score</th>
+        <th>{{ gettrans(lang=language, key="moderation_feed.score") }}</th>
         {% else %}
-        <th>time</th>
+        <th>{{ gettrans(lang=language, key="moderation_feed.time") }}</th>
         {% endif %}
-        <th>link</th>
-        <th>view</th>
-        <th>status</th>
+        <th>{{ gettrans(lang=language, key="moderation_feed.link") }}</th>
+        <th>{{ gettrans(lang=language, key="moderation_feed.view") }}</th>
+        <th>{{ gettrans(lang=language, key="moderation_feed.status") }}</th>
     </tr>
     {% for run in submissions %}
     <tr>
@@ -23,19 +23,20 @@
         {% if run.category.scoreboard %}
         <td>{{ run.score }}</td>
         {% else %}
+        {# TODO: Localize duration #}
         <td>{{ run.time | duration }}</td>
         {% endif %}
         </td>
         <td><a href="{{ run.video }}" target="_blank" rel="noopener noreferrer">{{ run.video }}</a></td>
         <td><a href="{{ root_url }}/game/{{ game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}/review"
-                target="_blank" , rel="noopener noreferrer">view</a></td>
+                target="_blank", rel="noopener noreferrer">{{ gettrans(lang=language, key="moderation_feed.view") }}</a></td>
         <td>
             {%- if run.status == 1 -%}
-            approved
+            {{ gettrans(lang=language, key="status.approved") }}
             {%- elif run.status == 0 -%}
-            pending verification
+            {{ gettrans(lang=language, key="status.pending") }}
             {%- else -%}
-            denied.
+            {{ gettrans(lang=language, key="status.denied") }}
             {%- endif -%}
         </td>
     </tr>

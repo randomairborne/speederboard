@@ -11,8 +11,7 @@
     {% if logged_in_user and logged_in_user.has_custom_stylesheet %}
     <link rel="stylesheet" href="{{ cdn_url }}/customfiles/users/{{ logged_in_user.id }}/style.css">
     {% endif %}
-    {% block extraheaders %}
-    {% endblock %}
+    {% block extraheaders %}{% endblock %}
 </head>
 
 <body>
