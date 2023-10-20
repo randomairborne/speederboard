@@ -161,7 +161,7 @@ impl InnerAppState {
         self.tera
             .write()
             .expect("Tera write lock poisoned, check logs for previous panics!")
-            .register_function("gettrans", GetTranslation::new(translations))
+            .register_function("gettrans", GetTranslation::new(translations));
     }
 
     pub async fn from_environment() -> AppState {
