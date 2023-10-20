@@ -24,7 +24,7 @@ impl Translation {
         Self {
             lang: lang.into(),
             key: key.into(),
-            contents: Interpolation::new(markdown::to_html(&contents.into())).unwrap(),
+            contents: Interpolation::new(contents.into()).unwrap(),
         }
     }
 }

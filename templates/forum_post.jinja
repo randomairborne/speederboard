@@ -2,7 +2,7 @@
 {% block title %}{{ game.name }} | {{ post.title }}{% endblock title %}
 {% block body %}
 <h1>{{ post.title }}</h1>
-<h3><i>from</i> {{ post.author.username }}</h3>
+<h3>{{ post.author.username }}</h3>
 <div class="forum-post-content">
 <p>{{ post.content | markdown }}</p>
 </div>

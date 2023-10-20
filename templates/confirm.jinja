@@ -1,7 +1,7 @@
 {% extends "base.jinja" %}
 {% block title %}{{ gettrans(lang=language, key="confirm.title") }}{% endblock title %}
 {% block body %}
-<p>{{ gettrans(lang=language, key="confirm.warning", action=gettrans(lang=language, key=action)) }}<strong>{{ gettrans(lang=language, key="confirm.strong") }}</strong></p>
+<p>{{ gettrans(lang=language, key="confirm.warning", action=gettrans(lang=language, key=action)) }}</p>
 <form action="{{ action_url }}" method="post">
     <a href="{{ return_to }}"><button type="button">{{ gettrans(lang=language, key="confirm.no") }}</button></a>
     <button>{{ gettrans(lang=language, key="confirm.yes") }}</button>
