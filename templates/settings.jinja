@@ -1,24 +1,23 @@
 {% extends "base.jinja" %}
-{% block extraheaders %}{% endblock extraheaders %}
-{% block title %}manage your account{% endblock title %}
+{% block title %}{{ gettrans(lang=language, key="settings.title") }}{% endblock title %}
 {% block body %}
-<h2>change profile info</h2>
+<h1>{{ gettrans(lang=language, key="settings.heading") }}</h1>
 <form method="post" action="/settings">
   <table>
     <tr>
-      <td><label for="username">username</label></td>
+      <td><label for="username">{{ gettrans(lang=language, key="settings.username") }}</label></td>
       <td><input name="username" id="username" type="username" value="{{ user.username }}" maxlength="16" />
       </td>
     </tr>
     <tr>
-      <td><label for="biography">biography</label></td>
+      <td><label for="biography">{{ gettrans(lang=language, key="settings.biography") }}</label></td>
       <td><textarea name="biography" id="biography" maxlength="4000" cols="64" rows="10">{{ user.biography }}</textarea>
       </td>
     </tr>
 
   </table>
   <details>
-  <summary>pick language</summary>
+  <summary>{{ gettrans(lang=language, key="settings.language.summary") }}</summary>
   <table class="outlines-collapse">
   <tr class="outlines-collapse">
   <td class="outlines-collapse">
@@ -35,23 +34,23 @@
   </tr>
   </details>
   <div>
-    <button>update</button>
+    <button>{{ gettrans(lang=language, key="settings.language.update") }}</button>
   </div>
 </form>
 
 <table>
   <tr>
     <form method="post" action="/settings/pfp" enctype="multipart/form-data" id="pfp-form">
-      <td><label for="pfp">profile picture</label></td>
+      <td><label for="pfp">{{ gettrans(lang=language, key="settings.pfp") }}</label></td>
       <td><input name="pfp" id="pfp" type="file" accept=".png,image/png"
           onchange="document.getElementById('pfp-form').submit();" /></td>
       <noscript>
-        <td><button>send!</button></td>
+        <td><button>{{ gettrans(lang=language, key="settings.pfp.submit") }}</button></td>
       </noscript>
     </form>
     {% if user.pfp_ext %}
     <form method="post" action="/settings/pfp/delete">
-      <td><button>delete profile picture</button></td>
+      <td><button>{{ gettrans(lang=language, key="settings.pfp.delete") }}</button></td>
     </form>
     <td><img src="{{ cdn_url }}/customfiles/users/{{ user.id }}/pfp.png" /></td>
     {% endif %}
@@ -59,16 +58,16 @@
 
   <tr>
     <form method="post" action="/settings/banner" enctype="multipart/form-data" id="banner-form">
-      <td><label for="banner">banner</label></td>
+      <td><label for="banner">{{ gettrans(lang=language, key="settings.banner") }}</label></td>
       <td><input name="banner" id="banner" type="file" accept=".png,image/png"
           onchange="document.getElementById('banner-form').submit();" /></td>
       <noscript>
-        <td><button>send!</button></td>
+        <td><button>{{ gettrans(lang=language, key="settings.banner.submit") }}</button></td>
       </noscript>
     </form>
     {% if user.banner_ext %}
     <form method="post" action="/settings/banner/delete">
-      <td><button>delete banner</button></td>
+      <td><button>{{ gettrans(lang=language, key="settings.banner.delete") }}</button></td>
     </form>
     <td><img src="{{ cdn_url }}/customfiles/users/{{ user.id }}/banner.png" /></td>
     {% endif %}
@@ -76,16 +75,16 @@
 
   <tr>
     <form method="post" action="/settings/stylesheet" enctype="multipart/form-data" id="css-form">
-      <td><label for="stylesheet">custom stylesheet</label></td>
+      <td><label for="stylesheet">{{ gettrans(lang=language, key="settings.css") }}</label></td>
       <td><input name="stylesheet" id="stylesheet" type="file" accept=".css,.txt,text/css"
-          onchange="document.getElementById('css-form').submit();v" /></td>
+          onchange="document.getElementById('css-form').submit();" /></td>
       <noscript>
-        <td><button>send!</button></td>
+        <td><button>{{ gettrans(lang=language, key="settings.css.submit") }}</button></td>
       </noscript>
     </form>
     {% if user.has_stylesheet %}
     <form method="post" action="/settings/stylesheet/delete">
-      <td><button>delete custom stylesheet</button></td>
+      <td><button>{{ gettrans(lang=language, key="settings.css.delete") }}</button></td>
     </form>
     {% endif %}
   </tr>
@@ -93,45 +92,46 @@
 
 
 <details>
-  <summary>change email (currently <code>{{ user.email }}</code>)</summary>
+  <summary>{{ gettrans(lang=language, key="settings.email.summary") }}</summary>
+  <code>{{ user.email }}</code>
   <form method="post" action="/settings/email">
     <table>
       <tr>
-        <td><label for="new_email">new email</label></td>
+        <td><label for="new_email">{{ gettrans(lang=language, key="settings.email.new") }}</label></td>
         <td><input name="new_email" id="new_email" type="email" maxlength="255" />
         </td>
       </tr>
       <tr>
-        <td><label for="password">password</label></td>
+        <td><label for="password">{{ gettrans(lang=language, key="settings.email.password") }}</label></td>
         <td><input name="password" id="password" type="password" />
         </td>
       </tr>
     </table>
     <input name="old_email" id="email" value="{{ user.email }}" hidden />
     <div>
-      <button>change</button>
+      <button>{{ gettrans(lang=language, key="settings.email.submit") }}</button>
     </div>
   </form>
 </details>
 
 <details>
-  <summary>change password</summary>
+  <summary>{{ gettrans(lang=language, key="settings.password.summary") }}</summary>
   <form method="post" action="/settings/password">
     <input name="email" id="email" type="email" value="{{ user.email }}" hidden />
     <table>
       <tr>
-        <td><label for="old_password">old password</label></td>
+        <td><label for="old_password">{{ gettrans(lang=language, key="settings.password.old") }}</label></td>
         <td><input name="old_password" id="old_password" type="password" />
         </td>
       </tr>
       <tr>
-        <td><label for="new_password">new password</label></td>
+        <td><label for="new_password">{{ gettrans(lang=language, key="settings.password.new") }}</label></td>
         <td><input name="new_password" id="new_password" type="password" />
         </td>
       </tr>
     </table>
     <div>
-      <button>change</button>
+      <button>{{ gettrans(lang=language, key="settings.password.change") }}</button>
     </div>
   </form>
 </details>

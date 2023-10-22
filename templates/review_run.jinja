@@ -1,24 +1,21 @@
 {% extends "base.jinja" %}
-{% block title %}run{% endblock title %}
+{% block title %}{{ gettrans(lang=language, key="review_run.title", game=game.name, user=user.username) }}{% endblock title %}
 {% block body %}
-<h1>{{ user.username }}&apos;s run of {{ game.name }}</h1>
+<h1>{{ gettrans(lang=language, key="review_run.heading", game=game.name, user=user.username) }}</h1>
 {{ run.video | video_embed }}
 {% if run.time %}
-<h2>
-time: {{ run.time | duration }}
-</h2>
+{% set dur = run.time | duration %}
+{{ gettrans(lang=language, key="review_run.time", duration=dur) }}
 {% endif %}
 {% if run.score %}
-<h2>
-score: {{ run.score }}
-</h2>
+{{ gettrans(lang=language, key="review_run.score", score=run.score) }}
 {% endif %}
 {{ run.description | markdown }}
 <form method="POST" action="/game/{{ run.game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}/verify">
-    <button>verify</button>
+    <button>{{ gettrans(lang=language, key="review_run.verify") }}</button>
 </form>
 <form method="POST" action="/game/{{ run.game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}/reject">
-    <button>reject</button>
+    <button>{{ gettrans(lang=language, key="review_run.reject") }}</button>
 </form>
 
 {% endblock body %}

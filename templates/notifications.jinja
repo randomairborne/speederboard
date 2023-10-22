@@ -1,5 +1,5 @@
 {% extends "base.jinja" %}
-{% block title %}game{% endblock title %}
+{% block title %}{{ gettrans(lang=language, key="notifications.title") }}{% endblock title %}
 {% block body %}
 {% for notification in notifications %}
 {{ notification.contents }}

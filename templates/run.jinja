@@ -1,24 +1,22 @@
 {% extends "base.jinja" %}
-{% block title %}run{% endblock title %}
+{% block title %}{{ gettrans(lang=language, key="run.title", game=game.name, user=user.username) }}{% endblock title %}
 {% block body %}
-<h1>{{ user.username }}&apos;s run of {{ game.name }}</h1>
+<h1>{{ gettrans(lang=language, key="run.heading", game=game.name, user=user.username) }}</h1>
+{# TODO: Translate video embed stuff #}
 {{ run.video | video_embed }}
 {% if run.time %}
-<h2>
-time: {{ run.time | duration }}
-</h2>
+{% set dur = run.time | duration %}
+{{ gettrans(lang=language, key="run.time", duration=dur) }}
 {% endif %}
 {% if run.score %}
-<h2>
-score: {{ run.score }}
-</h2>
+{{ gettrans(lang=language, key="run.score", score=run.score) }}
 {% endif %}
 {{ run.description | markdown }}
 {% if run.status == 1 %}
-run approved
+{{ gettrans(lang=language, key="status.approved") }}
 {% elif run.status == 0 %}
-run pending verification
+{{ gettrans(lang=language, key="status.pending") }}
 {% else %}
-run denied.
+{{ gettrans(lang=language, key="status.denied") }}
 {% endif %}
 {% endblock body %}

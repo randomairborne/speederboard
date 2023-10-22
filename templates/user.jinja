@@ -1,10 +1,9 @@
 {% extends "base.jinja" %}
-{% block extraheaders %}{% endblock extraheaders %}
-{% block title %}{{ user.username }}{% endblock title %}
+{% block title %}{{ gettrans(lang=language, key="user.title", user=user.username) }}{% endblock title %}
 {% block body %}
+<h1>{{ gettrans(lang=language, key="user.heading", user=user.username) }}</h1>
 {% if user.pfp_ext %}
-<img src="{{ cdn_url }}/customfiles/users/{{ user.id }}/pfp.png" alt="{{ user.username }}'s profile picture" />
+<img src="{{ cdn_url }}/customfiles/users/{{ user.id }}/pfp.png" alt="{{ gettrans(lang=language, key="signup.title", user=user.username) }}" />
 {% endif %}
-<h1>{{ user.username }}&apos;s profile</h1>
 <div>{{ user.biography | markdown }}</div>
 {% endblock body %}
