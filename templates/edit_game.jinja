@@ -1,8 +1,8 @@
 {% extends "base.jinja" %}
 {% block title %}{{ gettrans(lang=language, key="edit_game.title", name=game.name) }}{% endblock title %}
 {% block body %}
-<h2>{{ gettrans(lang=language, key="edit_game.title", name=game.name) }}</h2>
-<h3>{{ gettrans(lang=language, key="edit_game.categories.header") }}</h3>
+<h2>{{ gettrans(lang=language, key="edit_game.heading", name=game.name) }}</h2>
+<h3>{{ gettrans(lang=language, key="edit_game.categories.heading") }}</h3>
 <table>
     {% for category in categories %}
     {% if game.default_category == category.id %}

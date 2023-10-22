@@ -1,12 +1,12 @@
 {% extends "base.jinja" %}
-{% block title %}{{ game.name }} forum | new post{% endblock title %}
+{% block title %}{{ gettrans(lang=language, key="new_post.title", game=game.name) }}{% endblock title %}
 {% block body %}
-<h1>new forum post in {{ game.name }}</h1>
+<h1>{{ gettrans(lang=language, key="new_post.heading", game=game.name) }}</h1>
 <form method="POST">
 <input id="title" name="title" maxlength="128"/>
 <br>
 <textarea maxlength="4000" name="content" id="content"></textarea>
 <br>
-<button>submit</button>
+<button>{{ gettrans(lang=language, key="new_post.submit") }}</button>
 </form>
 {% endblock body %}
