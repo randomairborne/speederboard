@@ -95,28 +95,28 @@ impl User {
         Ok(Ok(user))
     }
 
-    pub fn stylesheet_path(&self, root: &str) -> String {
+    pub fn stylesheet_path(&self) -> String {
         format!("/users/{}/style.css", self.id)
     }
 
-    pub fn pfp_path(&self, root: &str, ext: &str) -> String {
+    pub fn pfp_path(&self, ext: &str) -> String {
         format!("/users/{}/pfp.{ext}", self.id)
     }
 
-    pub fn banner_path(&self, root: &str, ext: &str) -> String {
+    pub fn banner_path(&self, ext: &str) -> String {
         format!("/users/{}/banner.{ext}", self.id)
     }
 
     pub fn stylesheet_url(&self, root: &str) -> String {
-        root.to_owned() + &self.stylesheet_path(root)
+        root.to_owned() + &self.stylesheet_path()
     }
 
     pub fn pfp_url(&self, root: &str, ext: &str) -> String {
-        root.to_owned() + &self.pfp_url(root, ext)
+        root.to_owned() + &self.pfp_path(ext)
     }
 
     pub fn banner_url(&self, root: &str, ext: &str) -> String {
-        root.to_owned() + &self.banner_path(root, ext)
+        root.to_owned() + &self.banner_path(ext)
     }
 }
 

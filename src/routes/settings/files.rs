@@ -11,22 +11,14 @@ pub async fn pfp(
     user: User,
     multipart: Multipart,
 ) -> Result<Redirect, Error> {
-    multipart_into_s3(
-        &state,
-        multipart,
-        "pfp",
-        &crate::paths::user_pfp_path(user.id, "png"),
-    )
-    .await?;
+    multipart_into_s3(&state, multipart, "pfp", &user.pfp_path("png")).await?;
     let update = UserUpdate::new(user.id).pfp(true);
     update.execute(&state).await?;
     Ok(state.redirect("/settings"))
 }
 
 pub async fn pfp_del(State(state): State<AppState>, user: User) -> Result<Redirect, Error> {
-    state
-        .delete_r2_file(&crate::paths::user_pfp_path(user.id, "png"))
-        .await?;
+    state.delete_r2_file(&user.pfp_path("png")).await?;
     let update = UserUpdate::new(user.id).pfp(false);
     update.execute(&state).await?;
     Ok(state.redirect("/settings"))
@@ -37,22 +29,14 @@ pub async fn banner(
     user: User,
     multipart: Multipart,
 ) -> Result<Redirect, Error> {
-    multipart_into_s3(
-        &state,
-        multipart,
-        "banner",
-        &crate::paths::user_banner_path(user.id, "png"),
-    )
-    .await?;
+    multipart_into_s3(&state, multipart, "banner", &user.banner_path("png")).await?;
     let update = UserUpdate::new(user.id).banner(true);
     update.execute(&state).await?;
     Ok(state.redirect("/settings"))
 }
 
 pub async fn banner_del(State(state): State<AppState>, user: User) -> Result<Redirect, Error> {
-    state
-        .delete_r2_file(&crate::paths::user_banner_path(user.id, "png"))
-        .await?;
+    state.delete_r2_file(&user.banner_path("png")).await?;
     let update = UserUpdate::new(user.id).banner(false);
     update.execute(&state).await?;
     Ok(state.redirect("/settings"))
@@ -63,22 +47,14 @@ pub async fn stylesheet(
     user: User,
     multipart: Multipart,
 ) -> Result<Redirect, Error> {
-    multipart_into_s3(
-        &state,
-        multipart,
-        "stylesheet",
-        &crate::paths::user_stylesheet_path(user.id),
-    )
-    .await?;
+    multipart_into_s3(&state, multipart, "stylesheet", &user.stylesheet_path()).await?;
     let update = UserUpdate::new(user.id).has_stylesheet(true);
     update.execute(&state).await?;
     Ok(state.redirect("/settings"))
 }
 
 pub async fn stylesheet_del(State(state): State<AppState>, user: User) -> Result<Redirect, Error> {
-    state
-        .delete_r2_file(&crate::paths::user_stylesheet_path(user.id))
-        .await?;
+    state.delete_r2_file(&user.stylesheet_path()).await?;
     let update = UserUpdate::new(user.id).has_stylesheet(false);
     update.execute(&state).await?;
     Ok(state.redirect("/settings"))
