@@ -42,12 +42,19 @@ tokio = { version = "1", features = [
 notify = { version = "6", default-features = false, optional = true, features = [
     "macos_kqueue",
 ] }
+image = { version = "0.24.7", default-features = false, features = [
+    "webp-encoder",
+    "webp",
+    "jpeg",
+    "jpeg_rayon",
+    "png"
+] }
 chrono = { version = "0.4", default-features = false, features = ["serde"] }
 redis = { version = "0.23", features = ["aio", "connection-manager"] }
 axum = { version = "0.6", features = ["http2", "headers", "macros"] }
 axum-extra = { version = "0.8", features = ["cookie", "multipart"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-garde = { version = "0.15", features = ["derive", "email", "url"] }
+garde = { version = "0.16", features = ["derive", "email", "url"] }
 simpleinterpolation = { path = "./subcrates/simpleinterpolation" }
 tower = { version = "0.4", default-features = false }
 strum = { version = "0.25.0", features = ["derive"] }
