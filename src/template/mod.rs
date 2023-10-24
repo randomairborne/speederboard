@@ -1,9 +1,8 @@
 mod translate;
 
-use std::collections::HashMap;
-use std::fmt::Write;
 #[cfg(feature = "dev")]
 use std::sync::{Arc, RwLock};
+use std::{collections::HashMap, fmt::Write};
 
 use axum::{extract::FromRequestParts, http::request::Parts};
 use tera::{Tera, Value};
@@ -48,7 +47,8 @@ pub fn tera() -> Tera {
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct BaseRenderInfo {
     pub root_url: String,
-    pub cdn_url: String,
+    pub user_content_url: String,
+    pub static_url: String,
     pub logged_in_user: Option<User>,
     pub language: String,
 }
@@ -73,7 +73,8 @@ impl FromRequestParts<AppState> for BaseRenderInfo {
         };
         let bri = BaseRenderInfo {
             root_url: state.config.root_url.clone(),
-            cdn_url: state.config.cdn_url.clone(),
+            static_url: state.config.static_url.clone(),
+            user_content_url: state.config.user_content_url.clone(),
             logged_in_user: user,
             language,
         };

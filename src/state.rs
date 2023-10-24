@@ -167,11 +167,13 @@ impl InnerAppState {
     pub async fn from_environment() -> AppState {
         let config: Config = envy::from_env().expect("Failed to read config");
         let root_url = config.root_url.trim_end_matches('/').to_string();
-        let cdn_url = config.cdn_url.trim_end_matches('/').to_string();
+        let static_url = config.static_url.trim_end_matches('/').to_string();
+        let user_content_url = config.user_content_url.trim_end_matches('/').to_string();
         let fakes3_endpoint = config.fakes3_endpoint.trim_end_matches('/').to_string();
         let config = Config {
             root_url,
-            cdn_url,
+            static_url,
+            user_content_url,
             fakes3_endpoint,
             ..config
         };

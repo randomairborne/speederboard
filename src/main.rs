@@ -6,12 +6,12 @@ mod error;
 mod id;
 mod language;
 mod model;
+mod paths;
 mod router;
 mod routes;
 mod state;
 mod template;
 mod util;
-mod paths;
 
 #[cfg(feature = "dev")]
 mod dev;
