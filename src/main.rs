@@ -6,7 +6,6 @@ mod error;
 mod id;
 mod language;
 mod model;
-mod paths;
 mod router;
 mod routes;
 mod state;

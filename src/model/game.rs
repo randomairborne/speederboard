@@ -36,4 +36,20 @@ impl Game {
         crate::util::set_redis_object(state, format!("game:{slug}"), &game, 600).await?;
         Ok(game)
     }
+
+    pub fn banner_path(&self, ext: &str) -> String {
+        format!("/games/{}/banner.{ext}", self.id)
+    }
+
+    pub fn cover_art_path(&self, ext: &str) -> String {
+        format!("/games/{}/cover_art.{ext}", self.id)
+    }
+
+    pub fn banner_url(&self, root: &str, ext: &str) -> String {
+        root.to_owned() + &self.banner_path(ext)
+    }
+
+    pub fn cover_art_url(&self, root: &str, ext: &str) -> String {
+        root.to_owned() + &self.cover_art_path(ext)
+    }
 }

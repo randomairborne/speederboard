@@ -10,8 +10,6 @@ use crate::{
     AppState, Error,
 };
 
-/// pull it out of the DB with
-/// `RETURNING id, username, has_stylesheet, pfp_ext, banner_ext, biography, admin`
 #[derive(serde::Serialize, serde::Deserialize, Debug, Encode, Hash, PartialEq, Eq, Clone)]
 pub struct User {
     pub id: Id<UserMarker>,
@@ -95,6 +93,30 @@ impl User {
         // a password, we want to report it, but differently then if the password is *wrong*
         password_result?;
         Ok(Ok(user))
+    }
+
+    pub fn stylesheet_path(&self, root: &str) -> String {
+        format!("/users/{}/style.css", self.id)
+    }
+
+    pub fn pfp_path(&self, root: &str, ext: &str) -> String {
+        format!("/users/{}/pfp.{ext}", self.id)
+    }
+
+    pub fn banner_path(&self, root: &str, ext: &str) -> String {
+        format!("/users/{}/banner.{ext}", self.id)
+    }
+
+    pub fn stylesheet_url(&self, root: &str) -> String {
+        root.to_owned() + &self.stylesheet_path(root)
+    }
+
+    pub fn pfp_url(&self, root: &str, ext: &str) -> String {
+        root.to_owned() + &self.pfp_url(root, ext)
+    }
+
+    pub fn banner_url(&self, root: &str, ext: &str) -> String {
+        root.to_owned() + &self.banner_path(root, ext)
     }
 }
 

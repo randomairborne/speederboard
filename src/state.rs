@@ -188,7 +188,7 @@ impl InnerAppState {
             .build()
             .unwrap();
         redis.get().await.expect("Failed to load redis");
-        let tera = crate::template::tera();
+        let tera = crate::template::tera(&config);
         let rayon = Arc::new(ThreadPoolBuilder::new().num_threads(8).build().unwrap());
         let argon = Argon2::new(
             argon2::Algorithm::Argon2id,

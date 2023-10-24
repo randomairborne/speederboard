@@ -8,9 +8,9 @@ use axum::{extract::FromRequestParts, http::request::Parts};
 use tera::{Tera, Value};
 pub use translate::{get_translations, GetTranslation};
 
-use crate::{model::User, AppState, Error};
+use crate::{config::Config, model::User, AppState, Error};
 
-fn real_tera() -> Tera {
+fn real_tera(config: &Config) -> Tera {
     let translations = get_translations().expect("Failed to load translations");
     let mut tera = match Tera::new("./templates/**/*") {
         Ok(v) => v,
@@ -30,18 +30,20 @@ fn real_tera() -> Tera {
     tera.register_filter("video_embed", VideoEmbedder);
     tera.register_function("devmode", DevModeFunction);
     tera.register_function("gettrans", translate::GetTranslation::new(translations));
+    tera.register_function("getuserlinks", GetUserLinks::new(config));
     tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
     tera
 }
 
 #[cfg(feature = "dev")]
-pub fn tera() -> Arc<RwLock<Tera>> {
-    Arc::new(RwLock::new(real_tera()))
+pub fn tera(config: &Config) -> Arc<RwLock<Tera>> {
+    Arc::new(RwLock::new(real_tera(config)))
 }
 
 #[cfg(not(feature = "dev"))]
-pub fn tera() -> Tera {
-    real_tera()
+#[inline]
+pub fn tera(config: &Config) -> Tera {
+    real_tera(config)
 }
 
 #[derive(serde::Serialize, Debug, Clone)]
@@ -207,23 +209,41 @@ impl tera::Filter for HumanizeDuration {
 }
 
 struct GetUserLinks {
-    base: String,
+    root: String,
+    static_content: String,
+    user_content: String,
 }
 
 impl GetUserLinks {
-    pub fn new(base: String) -> Self {
-        Self { base }
+    pub fn new(config: &Config) -> Self {
+        Self {
+            root: config.root_url.clone(),
+            static_content: config.static_url.clone(),
+            user_content: config.user_content_url.clone(),
+        }
     }
 }
 
 impl tera::Function for GetUserLinks {
     fn call(&self, args: &HashMap<String, Value>) -> tera::Result<Value> {
         let mut json_map = serde_json::Map::with_capacity(8);
-        let Some(Value::Object(obj)) = args.get("user") else {
-            return Err(tera::Error::msg(
-                "getuserlinks() missing `user` or `user` of wrong type",
-            ));
+        let Some(value) = args.get("user") else {
+            return Err(tera::Error::msg("getuserlinks() missing `user` argument"));
         };
+        let ext = "png";
+        let user: User = serde_json::from_value(value.clone())?;
+        json_map.insert(
+            "pfp_url".to_owned(),
+            Value::String(user.pfp_url(&self.user_content, ext)),
+        );
+        json_map.insert(
+            "banner_url".to_owned(),
+            Value::String(user.banner_url(&self.user_content, ext)),
+        );
+        json_map.insert(
+            "stylesheet_url".to_owned(),
+            Value::String(user.stylesheet_url(&self.user_content)),
+        );
         Ok(Value::Object(json_map))
     }
 
