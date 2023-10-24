@@ -115,7 +115,7 @@ impl tera::Filter for MarkdownFilter {
         _args: &std::collections::HashMap<String, tera::Value>,
     ) -> tera::Result<tera::Value> {
         Ok(tera::Value::String(markdown::to_html(
-            value.as_str().unwrap_or(""),
+            value.as_str().unwrap_or("(error)"),
         )))
     }
 
@@ -148,6 +148,7 @@ impl tera::Filter for VideoEmbedder {
         true
     }
 }
+
 #[tracing::instrument(name = "convert_link", level = tracing::Level::TRACE)]
 fn convert_link(input: &str) -> Result<String, Error> {
     let url = url::Url::parse(input)?;
