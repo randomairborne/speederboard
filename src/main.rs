@@ -11,6 +11,7 @@ mod routes;
 mod state;
 mod template;
 mod util;
+mod paths;
 
 #[cfg(feature = "dev")]
 mod dev;

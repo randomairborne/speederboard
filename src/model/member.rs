@@ -37,7 +37,7 @@ impl Member {
         }
         let Some(member) = query!(
             "SELECT u.id, u.username, u.has_stylesheet,
-            u.pfp_ext, u.banner_ext, u.biography, u.admin,
+            u.pfp, u.banner, u.biography, u.admin,
             u.created_at, u.flags, u.language, p.permissions
             FROM users as u LEFT JOIN permissions as p
             ON p.user_id = $1 AND p.game_id = $2 AND u.id = $1",
@@ -54,8 +54,8 @@ impl Member {
             username: member.username,
             has_stylesheet: member.has_stylesheet,
             biography: member.biography,
-            pfp_ext: member.pfp_ext,
-            banner_ext: member.banner_ext,
+            pfp: member.pfp,
+            banner: member.banner,
             admin: member.admin,
             created_at: member.created_at,
             flags: member.flags,

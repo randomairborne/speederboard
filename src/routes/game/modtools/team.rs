@@ -45,8 +45,8 @@ pub async fn get(
     let members = query!(
         "SELECT permissions.permissions,
         users.id, users.username, users.biography,
-        users.admin, users.has_stylesheet, users.banner_ext,
-        users.pfp_ext, users.flags, users.created_at,
+        users.admin, users.has_stylesheet, users.banner,
+        users.pfp, users.flags, users.created_at,
         users.language
         FROM users
         JOIN permissions ON permissions.user_id = users.id
@@ -64,8 +64,8 @@ pub async fn get(
             username: row.username,
             has_stylesheet: row.has_stylesheet,
             biography: row.biography,
-            pfp_ext: row.pfp_ext,
-            banner_ext: row.banner_ext,
+            pfp: row.pfp,
+            banner: row.banner,
             admin: row.admin,
             created_at: row.created_at,
             flags: row.flags,

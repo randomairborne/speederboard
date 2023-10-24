@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT forum_entries.id as forum_entry_id,\n        forum_entries.title as forum_entry_title,\n        forum_entries.content as forum_entry_content,\n        forum_entries.flags as forum_entry_flags,\n        forum_entries.parent as forum_entry_parent,\n        forum_entries.created_at as forum_entry_created_at,\n        users.id as user_id,\n        users.username as user_username,\n        users.biography as user_biography,\n        users.admin as user_admin,\n        users.has_stylesheet as user_has_stylesheet,\n        users.banner_ext as user_banner_ext,\n        users.pfp_ext as user_pfp_ext,\n        users.flags as user_flags,\n        users.created_at as user_created_at,\n        users.language as user_language\n        FROM forum_entries\n        JOIN users ON forum_entries.author = users.id\n        WHERE forum_entries.id = $1 OR forum_entries.parent = $1\n        ORDER BY forum_entries.created_at",
+  "query": "SELECT forum_entries.id as forum_entry_id,\n        forum_entries.title as forum_entry_title,\n        forum_entries.content as forum_entry_content,\n        forum_entries.flags as forum_entry_flags,\n        forum_entries.parent as forum_entry_parent,\n        forum_entries.created_at as forum_entry_created_at,\n        users.id as user_id,\n        users.username as user_username,\n        users.biography as user_biography,\n        users.admin as user_admin,\n        users.has_stylesheet as user_has_stylesheet,\n        users.banner as user_banner,\n        users.pfp as user_pfp,\n        users.flags as user_flags,\n        users.created_at as user_created_at,\n        users.language as user_language\n        FROM forum_entries\n        JOIN users ON forum_entries.author = users.id\n        WHERE forum_entries.id = $1 OR forum_entries.parent = $1\n        ORDER BY forum_entries.created_at",
   "describe": {
     "columns": [
       {
@@ -60,13 +60,13 @@
       },
       {
         "ordinal": 11,
-        "name": "user_banner_ext",
-        "type_info": "Varchar"
+        "name": "user_banner",
+        "type_info": "Bool"
       },
       {
         "ordinal": 12,
-        "name": "user_pfp_ext",
-        "type_info": "Varchar"
+        "name": "user_pfp",
+        "type_info": "Bool"
       },
       {
         "ordinal": 13,
@@ -101,12 +101,12 @@
       false,
       false,
       false,
-      true,
-      true,
+      false,
+      false,
       false,
       false,
       true
     ]
   },
-  "hash": "f43be781ee687e1ed9dfe2487661f3e0aa50bf422389079eabd0630116ef85a9"
+  "hash": "1843b5e151653fb5834ee70575491b19f0fb5fb58b49f601d610a417b252a133"
 }

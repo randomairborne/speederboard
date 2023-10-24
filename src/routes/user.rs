@@ -18,7 +18,7 @@ pub async fn get(
     let user = query_as!(
         User,
         "SELECT
-        id, username, has_stylesheet, pfp_ext, banner_ext,
+        id, username, has_stylesheet, pfp, banner,
         biography, admin, created_at, flags, language
         FROM users WHERE username = $1",
         username

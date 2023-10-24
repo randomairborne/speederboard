@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT g.id, g.name, g.slug,\n        g.url, g.default_category, g.description,\n        g.has_stylesheet, g.banner_ext,\n        g.cover_art_ext, g.flags, p.permissions\n        FROM games as g LEFT JOIN permissions as p\n        ON p.user_id = $1 AND p.game_id = g.id AND g.slug = $2",
+  "query": "SELECT u.id, u.username, u.has_stylesheet,\n            u.pfp, u.banner, u.biography, u.admin,\n            u.created_at, u.flags, u.language, p.permissions\n            FROM users as u LEFT JOIN permissions as p\n            ON p.user_id = $1 AND p.game_id = $2 AND u.id = $1",
   "describe": {
     "columns": [
       {
@@ -10,48 +10,48 @@
       },
       {
         "ordinal": 1,
-        "name": "name",
+        "name": "username",
         "type_info": "Varchar"
       },
       {
         "ordinal": 2,
-        "name": "slug",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 3,
-        "name": "url",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 4,
-        "name": "default_category",
-        "type_info": "Int8"
-      },
-      {
-        "ordinal": 5,
-        "name": "description",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 6,
         "name": "has_stylesheet",
         "type_info": "Bool"
       },
       {
-        "ordinal": 7,
-        "name": "banner_ext",
+        "ordinal": 3,
+        "name": "pfp",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "banner",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "biography",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "admin",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamp"
       },
       {
         "ordinal": 8,
-        "name": "cover_art_ext",
-        "type_info": "Varchar"
+        "name": "flags",
+        "type_info": "Int8"
       },
       {
         "ordinal": 9,
-        "name": "flags",
-        "type_info": "Int8"
+        "name": "language",
+        "type_info": "Varchar"
       },
       {
         "ordinal": 10,
@@ -62,7 +62,7 @@
     "parameters": {
       "Left": [
         "Int8",
-        "Text"
+        "Int8"
       ]
     },
     "nullable": [
@@ -73,11 +73,11 @@
       false,
       false,
       false,
-      true,
-      true,
       false,
+      false,
+      true,
       true
     ]
   },
-  "hash": "2b495f3f01d9251c260a8fe6a1aaeb5d252e80c0a14a90b6247d9815828855c7"
+  "hash": "06a02bece97af7c6a6ff0423d172c86e403688994af67bf3a515715e6aeed614"
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n        id, username, has_stylesheet, pfp_ext, banner_ext,\n        biography, email, admin, created_at, flags, language\n        FROM users WHERE id = $1",
+  "query": "SELECT\n        id, username, has_stylesheet, pfp, banner,\n        biography, email, admin, created_at, flags, language\n        FROM users WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -20,13 +20,13 @@
       },
       {
         "ordinal": 3,
-        "name": "pfp_ext",
-        "type_info": "Varchar"
+        "name": "pfp",
+        "type_info": "Bool"
       },
       {
         "ordinal": 4,
-        "name": "banner_ext",
-        "type_info": "Varchar"
+        "name": "banner",
+        "type_info": "Bool"
       },
       {
         "ordinal": 5,
@@ -68,8 +68,8 @@
       false,
       false,
       false,
-      true,
-      true,
+      false,
+      false,
       false,
       false,
       false,
@@ -78,5 +78,5 @@
       true
     ]
   },
-  "hash": "9c5f0a20bd31f057405da90fb70dd6c6f67abf4dc87cd7522b7ae3032de9db5e"
+  "hash": "56f05469ea6f60d854442ec34dcee5a1dffed2f3b84325f60227457739ae8fff"
 }

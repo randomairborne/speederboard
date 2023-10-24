@@ -51,6 +51,8 @@ pub enum Error {
     CustomFormValidation(String),
     #[error("Failed to parse URL: {0}")]
     UrlParse(#[from] url::ParseError),
+    #[error("Failed to parse or render image: {0}")]
+    Image(#[from] image::ImageError),
     #[error("URL missing query pair {0}")]
     MissingQueryPair(&'static str),
     #[error("This endpoint needs authorization")]
@@ -151,6 +153,7 @@ pub async fn error_middleware<B>(
         | Error::MultiFormValidation(_)
         | Error::Multipart(_)
         | Error::InvalidMultipart(_)
+        | Error::Image(_)
         | Error::TokenHasIdButIdIsUnkown
         | Error::InvalidGameCategoryPair
         | Error::CannotDeleteDefaultCategory

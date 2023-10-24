@@ -8,8 +8,8 @@ CREATE TABLE users (
     biography VARCHAR(4000) NOT NULL,
     admin BOOL NOT NULL DEFAULT false,
     has_stylesheet BOOL NOT NULL,
-    banner_ext VARCHAR(4),
-    pfp_ext VARCHAR(4),
+    banner BOOL NOT NULL,
+    pfp BOOL NOT NULL,
     flags BIGINT NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL,
     language VARCHAR(5)
@@ -27,8 +27,8 @@ CREATE TABLE games (
     default_category BIGINT NOT NULL,
     description VARCHAR(4000) NOT NULL,
     has_stylesheet BOOL NOT NULL,
-    banner_ext VARCHAR(4),
-    cover_art_ext VARCHAR(4),
+    banner BOOL NOT NULL,
+    cover_art BOOL NOT NULL,
     flags BIGINT NOT NULL DEFAULT 0
 );
 

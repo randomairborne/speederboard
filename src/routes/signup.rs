@@ -62,10 +62,10 @@ pub async fn post(
         crate::model::User,
         "INSERT INTO users
         (username, email, password, has_stylesheet, flags,
-            pfp_ext, banner_ext, biography, admin, created_at)
-        VALUES ($1, $2, $3, false, 0, NULL, NULL, '', false, NOW())
-        RETURNING id, username, has_stylesheet, pfp_ext,
-        banner_ext, biography, admin, created_at, flags, language",
+            pfp, banner, biography, admin, created_at)
+        VALUES ($1, $2, $3, false, 0, false, false, '', false, NOW())
+        RETURNING id, username, has_stylesheet, pfp, banner,
+        biography, admin, created_at, flags, language",
         form.username,
         form.email,
         password_hash.to_string()

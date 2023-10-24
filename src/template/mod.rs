@@ -1,11 +1,12 @@
 mod translate;
 
+use std::collections::HashMap;
 use std::fmt::Write;
 #[cfg(feature = "dev")]
 use std::sync::{Arc, RwLock};
 
 use axum::{extract::FromRequestParts, http::request::Parts};
-use tera::Tera;
+use tera::{Tera, Value};
 pub use translate::{get_translations, GetTranslation};
 
 use crate::{model::User, AppState, Error};
@@ -93,11 +94,8 @@ pub struct ConfirmContext {
 struct DevModeFunction;
 
 impl tera::Function for DevModeFunction {
-    fn call(
-        &self,
-        _args: &std::collections::HashMap<String, tera::Value>,
-    ) -> tera::Result<tera::Value> {
-        Ok(tera::Value::Bool(crate::DEV_MODE))
+    fn call(&self, _args: &HashMap<String, Value>) -> tera::Result<Value> {
+        Ok(Value::Bool(crate::DEV_MODE))
     }
 
     fn is_safe(&self) -> bool {
@@ -109,12 +107,8 @@ impl tera::Function for DevModeFunction {
 struct MarkdownFilter;
 
 impl tera::Filter for MarkdownFilter {
-    fn filter(
-        &self,
-        value: &tera::Value,
-        _args: &std::collections::HashMap<String, tera::Value>,
-    ) -> tera::Result<tera::Value> {
-        Ok(tera::Value::String(markdown::to_html(
+    fn filter(&self, value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
+        Ok(Value::String(markdown::to_html(
             value.as_str().unwrap_or("(error)"),
         )))
     }
@@ -131,17 +125,17 @@ impl tera::Filter for VideoEmbedder {
     #[tracing::instrument(name = "embed_video", level = tracing::Level::TRACE, skip(_args))]
     fn filter(
         &self,
-        value: &tera::Value,
-        _args: &std::collections::HashMap<String, tera::Value>,
-    ) -> tera::Result<tera::Value> {
-        let tera::Value::String(input) = value else {
+        value: &Value,
+        _args: &std::collections::HashMap<String, Value>,
+    ) -> tera::Result<Value> {
+        let Value::String(input) = value else {
             return Ok(value.clone());
         };
         let sanitized_link = tera::escape_html(input);
         trace!(sanitized_link, input, "sanitized link");
         let data = convert_link(input).unwrap_or_else(|_| simple_a(&sanitized_link));
         trace!(data, input, "converted to clickable");
-        Ok(tera::Value::String(data))
+        Ok(Value::String(data))
     }
 
     fn is_safe(&self) -> bool {
@@ -158,7 +152,7 @@ fn convert_link(input: &str) -> Result<String, Error> {
     };
     match domain.as_str() {
         "youtube.com" | "www.youtube.com" => {
-            trace!(?url, "converting YouTube URL");
+            trace!(?url, "converting YouTube.com URL");
             let mut query = url.query_pairs();
             let maybe_id = query.find_map(|v| if v.0 == "v" { Some(v.1) } else { None });
             if let Some(id) = maybe_id {
@@ -196,18 +190,66 @@ fn get_yt_embed_iframe(dangerous_video_id: &str) -> String {
 struct HumanizeDuration;
 
 impl tera::Filter for HumanizeDuration {
-    fn filter(
-        &self,
-        value: &tera::Value,
-        _args: &std::collections::HashMap<String, tera::Value>,
-    ) -> tera::Result<tera::Value> {
+    fn filter(&self, value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
         let total_time = value
             .as_u64()
             .ok_or_else(|| tera::Error::msg("Display duration was not a real number"))?;
         let (days, hours, minutes, seconds, milliseconds) = millis_to_ddhhmmssms(total_time);
         let output = millis_to_long_string(days, hours, minutes, seconds, milliseconds)
             .map_err(|v| tera::Error::msg(format!("Failed formatting string: {v:?}")))?;
-        Ok(tera::Value::String(output))
+        Ok(Value::String(output))
+    }
+
+    fn is_safe(&self) -> bool {
+        false
+    }
+}
+
+struct GetUserLinks {
+    base: String,
+}
+
+impl GetUserLinks {
+    pub fn new(base: String) -> Self {
+        Self { base }
+    }
+}
+
+impl tera::Function for GetUserLinks {
+    fn call(&self, args: &HashMap<String, Value>) -> tera::Result<Value> {
+        let mut json_map = serde_json::Map::with_capacity(8);
+        let Some(Value::Object(obj)) = args.get("user") else {
+            return Err(tera::Error::msg(
+                "getuserlinks() missing `user` or `user` of wrong type",
+            ));
+        };
+        Ok(Value::Object(json_map))
+    }
+
+    fn is_safe(&self) -> bool {
+        false
+    }
+}
+
+struct GetGameLinks {
+    base: String,
+}
+
+impl GetGameLinks {
+    pub fn new(base: String) -> Self {
+        Self { base }
+    }
+}
+
+impl tera::Function for GetGameLinks {
+    fn call(&self, args: &HashMap<String, Value>) -> tera::Result<Value> {
+        let mut json_map = serde_json::Map::with_capacity(8);
+        let Some(Value::Object(obj)) = args.get("game") else {
+            return Err(tera::Error::msg(
+                "getgamelinks() missing `game` or `game` of wrong type",
+            ));
+        };
+        Ok(Value::Object(json_map))
     }
 
     fn is_safe(&self) -> bool {
@@ -218,18 +260,14 @@ impl tera::Filter for HumanizeDuration {
 struct Duration;
 
 impl tera::Filter for Duration {
-    fn filter(
-        &self,
-        value: &tera::Value,
-        _args: &std::collections::HashMap<String, tera::Value>,
-    ) -> tera::Result<tera::Value> {
+    fn filter(&self, value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
         let total_time = value
             .as_u64()
             .ok_or_else(|| tera::Error::msg("Display duration was not a real number"))?;
         let (days, hours, minutes, seconds, milliseconds) = millis_to_ddhhmmssms(total_time);
         let output = millis_to_sr_string(days, hours, minutes, seconds, milliseconds)
             .map_err(|v| tera::Error::msg(format!("Failed formatting string: {v:?}")))?;
-        Ok(tera::Value::String(output))
+        Ok(Value::String(output))
     }
 
     fn is_safe(&self) -> bool {

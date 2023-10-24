@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT u.id, u.username, u.has_stylesheet,\n            u.pfp_ext, u.banner_ext, u.biography, u.admin,\n            u.created_at, u.flags, u.language, p.permissions\n            FROM users as u LEFT JOIN permissions as p\n            ON p.user_id = $1 AND p.game_id = $2 AND u.id = $1",
+  "query": "SELECT g.id, g.name, g.slug,\n        g.url, g.default_category, g.description,\n        g.has_stylesheet, g.banner,\n        g.cover_art, g.flags, p.permissions\n        FROM games as g LEFT JOIN permissions as p\n        ON p.user_id = $1 AND p.game_id = g.id AND g.slug = $2",
   "describe": {
     "columns": [
       {
@@ -10,48 +10,48 @@
       },
       {
         "ordinal": 1,
-        "name": "username",
+        "name": "name",
         "type_info": "Varchar"
       },
       {
         "ordinal": 2,
-        "name": "has_stylesheet",
-        "type_info": "Bool"
+        "name": "slug",
+        "type_info": "Varchar"
       },
       {
         "ordinal": 3,
-        "name": "pfp_ext",
+        "name": "url",
         "type_info": "Varchar"
       },
       {
         "ordinal": 4,
-        "name": "banner_ext",
-        "type_info": "Varchar"
+        "name": "default_category",
+        "type_info": "Int8"
       },
       {
         "ordinal": 5,
-        "name": "biography",
+        "name": "description",
         "type_info": "Varchar"
       },
       {
         "ordinal": 6,
-        "name": "admin",
+        "name": "has_stylesheet",
         "type_info": "Bool"
       },
       {
         "ordinal": 7,
-        "name": "created_at",
-        "type_info": "Timestamp"
+        "name": "banner",
+        "type_info": "Bool"
       },
       {
         "ordinal": 8,
-        "name": "flags",
-        "type_info": "Int8"
+        "name": "cover_art",
+        "type_info": "Bool"
       },
       {
         "ordinal": 9,
-        "name": "language",
-        "type_info": "Varchar"
+        "name": "flags",
+        "type_info": "Int8"
       },
       {
         "ordinal": 10,
@@ -62,22 +62,22 @@
     "parameters": {
       "Left": [
         "Int8",
-        "Int8"
+        "Text"
       ]
     },
     "nullable": [
       false,
       false,
       false,
-      true,
-      true,
       false,
       false,
       false,
       false,
-      true,
+      false,
+      false,
+      false,
       true
     ]
   },
-  "hash": "e836c2b9689ab46d251bd1164e77aba586fc610b44aba1e9e53e77a6aeab4e4f"
+  "hash": "68a182e0517365bddbf78f92484c9a30009369ee7de92bce330b8814505e4ee3"
 }

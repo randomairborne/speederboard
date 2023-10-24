@@ -18,56 +18,16 @@ pub struct User {
     pub username: String,
     pub has_stylesheet: bool,
     pub biography: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub pfp_ext: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub banner_ext: Option<String>,
+    pub pfp: bool,
+    pub banner: bool,
     pub admin: bool,
     pub created_at: chrono::NaiveDateTime,
     pub flags: i64,
     pub language: Option<String>,
 }
 
-const DEFAULT_PFP: &str = "/static/pfp/default.png";
-
 #[allow(dead_code)]
 impl User {
-    pub fn banner_dest_path(&self) -> String {
-        format!("/customfiles/users/{}/banner.png", self.id)
-    }
-
-    pub fn pfp_dest_path(&self) -> String {
-        format!("/customfiles/users/{}/pfp.png", self.id)
-    }
-
-    pub fn stylesheet_dest_path(&self) -> String {
-        format!("/customfiles/users/{}/style.css", self.id)
-    }
-
-    pub fn stylesheet(&self) -> Option<String> {
-        if self.has_stylesheet {
-            Some(self.stylesheet_dest_path())
-        } else {
-            None
-        }
-    }
-
-    pub fn pfp_path(&self) -> String {
-        if self.pfp_ext.is_some() {
-            self.pfp_dest_path()
-        } else {
-            DEFAULT_PFP.to_string()
-        }
-    }
-
-    pub fn banner_path(&self) -> Option<String> {
-        if self.has_stylesheet {
-            Some(self.banner_dest_path())
-        } else {
-            None
-        }
-    }
-
     pub async fn from_db(state: &AppState, id: Id<UserMarker>) -> Result<User, Error> {
         let maybe_user: Option<User> =
             crate::util::get_redis_object(state, format!("user:{id}")).await?;
@@ -75,8 +35,8 @@ impl User {
             return Ok(user);
         }
         let record = query!(
-            "SELECT id, username, has_stylesheet, pfp_ext,
-            banner_ext, biography, admin, created_at, flags,
+            "SELECT id, username, has_stylesheet, pfp,
+            banner, biography, admin, created_at, flags,
             language
             FROM users WHERE id = $1",
             id.get()
@@ -87,8 +47,8 @@ impl User {
             id: record.id.into(),
             username: record.username,
             has_stylesheet: record.has_stylesheet,
-            pfp_ext: record.pfp_ext,
-            banner_ext: record.banner_ext,
+            pfp: record.pfp,
+            banner: record.banner,
             biography: record.biography,
             admin: record.admin,
             created_at: record.created_at,
@@ -120,8 +80,8 @@ impl User {
             id: record.id.into(),
             username: record.username,
             has_stylesheet: record.has_stylesheet,
-            pfp_ext: record.pfp_ext,
-            banner_ext: record.banner_ext,
+            pfp: record.pfp,
+            banner: record.banner,
             biography: record.biography,
             admin: record.admin,
             created_at: record.created_at,
@@ -195,8 +155,8 @@ pub struct UserUpdate {
     username: Option<String>,
     has_stylesheet: Option<bool>,
     biography: Option<String>,
-    pfp_ext: MaybeNullUpdate<String>,
-    banner_ext: MaybeNullUpdate<String>,
+    pfp: Option<bool>,
+    banner: Option<bool>,
     admin: Option<bool>,
     flags: Option<i64>,
     language: MaybeNullUpdate<Language>,
@@ -210,8 +170,8 @@ impl UserUpdate {
             username: None,
             has_stylesheet: None,
             biography: None,
-            pfp_ext: MaybeNullUpdate::None,
-            banner_ext: MaybeNullUpdate::None,
+            pfp: None,
+            banner: None,
             admin: None,
             flags: None,
             language: MaybeNullUpdate::None,
@@ -226,22 +186,20 @@ impl UserUpdate {
                 username = COALESCE($2, username),
                 has_stylesheet = COALESCE($3, has_stylesheet),
                 biography = COALESCE($4, biography),
-                pfp_ext = CASE WHEN $5 THEN NULL ELSE COALESCE($6, pfp_ext) END,
-                banner_ext = CASE WHEN $7 THEN NULL ELSE COALESCE($8, banner_ext) END,
-                language = CASE WHEN $9 THEN NULL ELSE COALESCE($10, language) END,
-                admin = COALESCE($11, admin),
-                flags = COALESCE($12, flags)
+                pfp = COALESCE($5, pfp),
+                banner = COALESCE($6, banner),
+                language = CASE WHEN $7 THEN NULL ELSE COALESCE($8, language) END,
+                admin = COALESCE($9, admin),
+                flags = COALESCE($10, flags)
             WHERE id = $1
             RETURNING id, username, has_stylesheet, flags,
-            pfp_ext, banner_ext, biography, admin, created_at, language",
+            pfp, banner, biography, admin, created_at, language",
             self.id.get(),
             self.username,
             self.has_stylesheet,
             self.biography,
-            self.pfp_ext.is_null(),
-            self.pfp_ext.into_option(),
-            self.banner_ext.is_null(),
-            self.banner_ext.into_option(),
+            self.pfp,
+            self.banner,
             self.language.is_null(),
             self.language.into_option().map(Language::lang_code),
             self.admin,
@@ -284,16 +242,16 @@ impl UserUpdate {
         }
     }
 
-    pub fn pfp_ext(self, pfp_ext: Option<String>) -> Self {
+    pub fn pfp(self, pfp: bool) -> Self {
         Self {
-            pfp_ext: pfp_ext.into(),
+            pfp: Some(pfp),
             ..self
         }
     }
 
-    pub fn banner_ext(self, banner_ext: Option<String>) -> Self {
+    pub fn banner(self, banner: bool) -> Self {
         Self {
-            banner_ext: banner_ext.into(),
+            banner: Some(banner),
             ..self
         }
     }

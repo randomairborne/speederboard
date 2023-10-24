@@ -40,13 +40,13 @@
       },
       {
         "ordinal": 7,
-        "name": "banner_ext",
-        "type_info": "Varchar"
+        "name": "banner",
+        "type_info": "Bool"
       },
       {
         "ordinal": 8,
-        "name": "cover_art_ext",
-        "type_info": "Varchar"
+        "name": "cover_art",
+        "type_info": "Bool"
       },
       {
         "ordinal": 9,
@@ -65,8 +65,8 @@
       false,
       false,
       false,
-      true,
-      true,
+      false,
+      false,
       false
     ]
   },

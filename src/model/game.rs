@@ -12,10 +12,8 @@ pub struct Game {
     pub default_category: Id<CategoryMarker>,
     pub description: String,
     pub has_stylesheet: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub banner_ext: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub cover_art_ext: Option<String>,
+    pub banner: bool,
+    pub cover_art: bool,
     pub flags: i64,
 }
 
