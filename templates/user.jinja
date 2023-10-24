@@ -3,7 +3,7 @@
 {% block body %}
 <h1>{{ gettrans(lang=language, key="user.heading", user=user.username) }}</h1>
 {% if user.pfp_ext %}
-<img src="{{ cdn_url }}/customfiles/users/{{ user.id }}/pfp.png" alt="{{ gettrans(lang=language, key="signup.title", user=user.username) }}" />
+<img src="{{ user_content_url }}/users/{{ user.id }}/pfp.png" alt="{{ gettrans(lang=language, key="signup.title", user=user.username) }}" />
 {% endif %}
 <div>{{ user.biography | markdown }}</div>
 {% endblock body %}

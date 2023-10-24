@@ -52,7 +52,7 @@
     <form method="post" action="/settings/pfp/delete">
       <td><button>{{ gettrans(lang=language, key="settings.pfp.delete") }}</button></td>
     </form>
-    <td><img src="{{ cdn_url }}/customfiles/users/{{ user.id }}/pfp.png" /></td>
+    <td><img src="{{ user_content_url }}/users/{{ user.id }}/pfp.png" /></td>
     {% endif %}
   </tr>
 
@@ -69,7 +69,7 @@
     <form method="post" action="/settings/banner/delete">
       <td><button>{{ gettrans(lang=language, key="settings.banner.delete") }}</button></td>
     </form>
-    <td><img src="{{ cdn_url }}/customfiles/users/{{ user.id }}/banner.png" /></td>
+    <td><img src="{{ user_content_url }}/users/{{ user.id }}/banner.png" /></td>
     {% endif %}
   </tr>
 

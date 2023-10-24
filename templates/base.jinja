@@ -5,11 +5,11 @@
     <meta charset="utf-8">
     <title>{{ gettrans(lang=language, key="base.name") }} - {% block title %}{% endblock title %}</title>
     <meta name="description" content="{% block description %}{% endblock description %}" />
-    <link rel="stylesheet" href="{{ cdn_url }}/public/style.css">
-    <link rel="icon" href="{{ cdn_url }}/public/favicon.png" type="image/png">
+    <link rel="stylesheet" href="{{ static_url }}/style.css">
+    <link rel="icon" href="{{ static_url }}/favicon.png" type="image/png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {% if logged_in_user and logged_in_user.has_custom_stylesheet %}
-    <link rel="stylesheet" href="{{ cdn_url }}/customfiles/users/{{ logged_in_user.id }}/style.css">
+    <link rel="stylesheet" href="{{ user_content_url }}/users/{{ logged_in_user.id }}/style.css">
     {% endif %}
     {% block extraheaders %}{% endblock %}
 </head>
