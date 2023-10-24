@@ -22,7 +22,7 @@ This command will near-instantly update templates and public, and update src wit
 
 ## windows
 
-On windows, you can also download the exe: [speederboard.exe](https://cdn.speederboard.org/executables/speederboard.exe).
+On windows, you can also download the exe: [speederboard.exe](https://user-content.speederboard.org/executables/speederboard.exe).
 it requires certain environment variables, but most of them have sane localhost-y defaults or will be pointed out to you on run.
 You will need to clone the repository and run speederboard.exe in the speederboard root directory, but you need to do this for
 development anyway
