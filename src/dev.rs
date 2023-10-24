@@ -55,22 +55,37 @@ fn check_event_interest(event: &Event) -> bool {
         ))
 }
 
-pub async fn cdn() {
+pub async fn cdn_user_content() {
+    let router = axum::Router::new()
+        .nest_service(
+            "/",
+            tower_http::services::ServeDir::new("/tmp/speederboard-assets/"),
+        )
+        .layer(tower_http::cors::CorsLayer::permissive());
+    info!("Starting user-content CDN on http://localhost:8001");
+    axum::Server::bind(&([0, 0, 0, 0], 8001).into())
+        .serve(router.into_make_service())
+        .with_graceful_shutdown(crate::shutdown_signal())
+        .await
+        .expect("Failed to start user-content CDN");
+}
+
+pub async fn cdn_static() {
     let router = axum::Router::new()
         .nest_service("/", tower_http::services::ServeDir::new("./assets/"))
         .layer(tower_http::cors::CorsLayer::permissive());
-    info!("Starting CDN on http://localhost:8000");
+    info!("Starting static CDN on http://localhost:8000");
     axum::Server::bind(&([0, 0, 0, 0], 8000).into())
         .serve(router.into_make_service())
         .with_graceful_shutdown(crate::shutdown_signal())
         .await
-        .expect("Failed to start CDN");
+        .expect("Failed to start static CDN");
 }
 
 pub async fn fakes3() {
     let router = axum::Router::new().route("/*unused", axum::routing::put(put).delete(delete));
     info!("Starting FakeS3 on http://localhost:8001");
-    axum::Server::bind(&([0, 0, 0, 0], 8001).into())
+    axum::Server::bind(&([0, 0, 0, 0], 8002).into())
         .serve(router.into_make_service())
         .with_graceful_shutdown(crate::shutdown_signal())
         .await
@@ -82,7 +97,7 @@ async fn put(uri: Uri, body: Bytes) -> Result<(), Error> {
     if uri_path.contains("..") {
         return Err(Error::DoubleDotInPath);
     }
-    let dest_path = format!("./assets{uri_path}");
+    let dest_path = format!("/tmp/speederboard-assets{uri_path}");
     let path = Path::new(&dest_path);
     let parent = path.parent().ok_or(Error::PathHasNoParent)?;
     trace!(uri_path = ?uri_path, dest_path, "Got fakes3 create request");
@@ -97,7 +112,7 @@ async fn delete(uri: Uri) -> Result<(), Error> {
     if uri_path.contains("..") {
         return Err(Error::DoubleDotInPath);
     }
-    let dest_path = format!("./assets{uri_path}");
+    let dest_path = format!("/tmp/speederboard-assets{uri_path}");
     let path = Path::new(&dest_path);
     trace!(uri_path = ?uri_path, dest_path, "Got fakes3 delete request");
     tokio::fs::remove_file(&path).await?;
