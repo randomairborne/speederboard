@@ -49,7 +49,11 @@ impl Game {
         root.to_owned() + &self.banner_path(ext)
     }
 
-    pub fn cover_art_url(&self, root: &str, ext: &str) -> String {
-        root.to_owned() + &self.cover_art_path(ext)
+    pub fn cover_art_url(&self, user_content: &str, static_root: &str, ext: &str) -> String {
+        if self.cover_art {
+            user_content.to_owned() + &self.cover_art_path(ext)
+        } else {
+            static_root.to_owned() + "/defaults/coverart.svg"
+        }
     }
 }

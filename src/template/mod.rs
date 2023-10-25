@@ -1,3 +1,4 @@
+mod linkify;
 mod translate;
 
 #[cfg(feature = "dev")]
@@ -8,7 +9,12 @@ use axum::{extract::FromRequestParts, http::request::Parts};
 use tera::{Tera, Value};
 pub use translate::{get_translations, GetTranslation};
 
-use crate::{config::Config, model::User, AppState, Error};
+use crate::{
+    config::Config,
+    model::User,
+    template::linkify::{GetGameLinks, GetUserLinks},
+    AppState, Error,
+};
 
 fn real_tera(config: &Config) -> Tera {
     let translations = get_translations().expect("Failed to load translations");
@@ -29,8 +35,9 @@ fn real_tera(config: &Config) -> Tera {
     tera.register_filter("duration", Duration);
     tera.register_filter("video_embed", VideoEmbedder);
     tera.register_function("devmode", DevModeFunction);
-    tera.register_function("gettrans", translate::GetTranslation::new(translations));
+    tera.register_function("gettrans", GetTranslation::new(translations));
     tera.register_function("getuserlinks", GetUserLinks::new(config));
+    tera.register_function("getgamelinks", GetGameLinks::new(config));
     tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
     tera
 }
@@ -201,76 +208,6 @@ impl tera::Filter for HumanizeDuration {
         let output = millis_to_long_string(days, hours, minutes, seconds, milliseconds)
             .map_err(|v| tera::Error::msg(format!("Failed formatting string: {v:?}")))?;
         Ok(Value::String(output))
-    }
-
-    fn is_safe(&self) -> bool {
-        false
-    }
-}
-
-struct GetUserLinks {
-    root: String,
-    static_content: String,
-    user_content: String,
-}
-
-impl GetUserLinks {
-    pub fn new(config: &Config) -> Self {
-        Self {
-            root: config.root_url.clone(),
-            static_content: config.static_url.clone(),
-            user_content: config.user_content_url.clone(),
-        }
-    }
-}
-
-impl tera::Function for GetUserLinks {
-    fn call(&self, args: &HashMap<String, Value>) -> tera::Result<Value> {
-        let mut json_map = serde_json::Map::with_capacity(8);
-        let Some(value) = args.get("user") else {
-            return Err(tera::Error::msg("getuserlinks() missing `user` argument"));
-        };
-        let ext = "png";
-        let user: User = serde_json::from_value(value.clone())?;
-        json_map.insert(
-            "pfp_url".to_owned(),
-            Value::String(user.pfp_url(&self.user_content, ext)),
-        );
-        json_map.insert(
-            "banner_url".to_owned(),
-            Value::String(user.banner_url(&self.user_content, ext)),
-        );
-        json_map.insert(
-            "stylesheet_url".to_owned(),
-            Value::String(user.stylesheet_url(&self.user_content)),
-        );
-        Ok(Value::Object(json_map))
-    }
-
-    fn is_safe(&self) -> bool {
-        false
-    }
-}
-
-struct GetGameLinks {
-    base: String,
-}
-
-impl GetGameLinks {
-    pub fn new(base: String) -> Self {
-        Self { base }
-    }
-}
-
-impl tera::Function for GetGameLinks {
-    fn call(&self, args: &HashMap<String, Value>) -> tera::Result<Value> {
-        let mut json_map = serde_json::Map::with_capacity(8);
-        let Some(Value::Object(obj)) = args.get("game") else {
-            return Err(tera::Error::msg(
-                "getgamelinks() missing `game` or `game` of wrong type",
-            ));
-        };
-        Ok(Value::Object(json_map))
     }
 
     fn is_safe(&self) -> bool {
