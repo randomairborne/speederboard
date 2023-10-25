@@ -212,7 +212,9 @@ impl InnerAppState {
                 endpoint: config
                     .s3_endpoint
                     .clone()
-                    .expect("Must have a S3_ENDPOINT in config if R2_ACCOUNT_ID is not present!"),
+                    .expect("Must have a S3_ENDPOINT in config if R2_ACCOUNT_ID is not present!")
+                    .trim_end_matches('/')
+                    .to_owned(),
             }
         };
         let mut bucket = s3::Bucket::new(
