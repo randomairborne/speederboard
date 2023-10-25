@@ -80,16 +80,16 @@ impl InnerAppState {
     ) -> Result<(), Error> {
         trace!(location, content_type, "creating R2 file");
         let resp = self.bucket.put_object(location, file).await?;
-        Self::s3_status_success(resp.status_code())?;
         trace!(?resp, "got response on file creation");
+        Self::s3_status_success(resp.status_code())?;
         Ok(())
     }
 
     pub async fn delete_r2_file(&self, location: &str) -> Result<(), Error> {
         trace!(location, "deleting R2 file");
         let resp = self.bucket.delete_object(location).await?;
-        Self::s3_status_success(resp.status_code())?;
         trace!(?resp, "got response on file deletion");
+        Self::s3_status_success(resp.status_code())?;
         Ok(())
     }
 
