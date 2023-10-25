@@ -4,10 +4,11 @@ use argon2::Argon2;
 use axum::response::Redirect;
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
 use rayon::{ThreadPool, ThreadPoolBuilder};
+use s3::creds::Credentials;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tera::Tera;
 
-use crate::{config::Config, template::GetTranslation, Error};
+use crate::{config::Config, Error};
 
 pub type AppState = Arc<InnerAppState>;
 
@@ -26,6 +27,7 @@ pub struct InnerAppState {
     rayon: Arc<ThreadPool>,
     pub argon: Argon2<'static>,
     pub http: reqwest::Client,
+    bucket: s3::Bucket,
 }
 
 impl InnerAppState {
@@ -37,6 +39,7 @@ impl InnerAppState {
         rayon: Arc<ThreadPool>,
         argon: Argon2<'static>,
         http: reqwest::Client,
+        bucket: s3::Bucket,
     ) -> Self {
         Self {
             config,
@@ -46,6 +49,7 @@ impl InnerAppState {
             rayon,
             argon,
             http,
+            bucket,
         }
     }
 
@@ -71,34 +75,30 @@ impl InnerAppState {
     pub async fn put_r2_file(
         &self,
         location: &str,
-        file: reqwest::Body,
+        file: &[u8],
         content_type: &str,
     ) -> Result<(), Error> {
         trace!(location, content_type, "creating R2 file");
-        let resp = self
-            .http
-            .put(format!("{}{}", self.config.fakes3_endpoint, location))
-            .bearer_auth(&self.config.fakes3_token)
-            .header("content-type", content_type)
-            .body(file)
-            .send()
-            .await?
-            .error_for_status()?;
-        trace!(?resp, "got response on creation");
+        let resp = self.bucket.put_object(location, file).await?;
+        Self::s3_status_success(resp.status_code())?;
+        trace!(?resp, "got response on file creation");
         Ok(())
     }
 
     pub async fn delete_r2_file(&self, location: &str) -> Result<(), Error> {
         trace!(location, "deleting R2 file");
-        let resp = self
-            .http
-            .delete(format!("{}{}", self.config.fakes3_endpoint, location))
-            .bearer_auth(&self.config.fakes3_token)
-            .send()
-            .await?
-            .error_for_status()?;
-        trace!(?resp, "got response on deletion");
+        let resp = self.bucket.delete_object(location).await?;
+        Self::s3_status_success(resp.status_code())?;
+        trace!(?resp, "got response on file deletion");
         Ok(())
+    }
+
+    fn s3_status_success(status: u16) -> Result<(), Error> {
+        if (200u16..300u16).contains(&status) {
+            Ok(())
+        } else {
+            Err(Error::S3Status(status))
+        }
     }
 
     pub fn redirect(&self, location: impl AsRef<str>) -> Redirect {
@@ -161,7 +161,10 @@ impl InnerAppState {
         self.tera
             .write()
             .expect("Tera write lock poisoned, check logs for previous panics!")
-            .register_function("gettrans", GetTranslation::new(translations));
+            .register_function(
+                "gettrans",
+                crate::template::GetTranslation::new(translations),
+            );
     }
 
     pub async fn from_environment() -> AppState {
@@ -169,12 +172,10 @@ impl InnerAppState {
         let root_url = config.root_url.trim_end_matches('/').to_string();
         let static_url = config.static_url.trim_end_matches('/').to_string();
         let user_content_url = config.user_content_url.trim_end_matches('/').to_string();
-        let fakes3_endpoint = config.fakes3_endpoint.trim_end_matches('/').to_string();
         let config = Config {
             root_url,
             static_url,
             user_content_url,
-            fakes3_endpoint,
             ..config
         };
         let postgres = PgPoolOptions::new()
@@ -200,6 +201,36 @@ impl InnerAppState {
             .timeout(Duration::from_secs(10))
             .build()
             .unwrap();
+        let region = if let Some(account_id) = config.r2_account_id.clone() {
+            s3::Region::R2 { account_id }
+        } else {
+            s3::Region::Custom {
+                region: config
+                    .s3_region
+                    .clone()
+                    .expect("Must have a S3_REGION in config if R2_ACCOUNT_ID is not present!"),
+                endpoint: config
+                    .s3_endpoint
+                    .clone()
+                    .expect("Must have a S3_ENDPOINT in config if R2_ACCOUNT_ID is not present!"),
+            }
+        };
+        let mut bucket = s3::Bucket::new(
+            &config.s3_bucket_name,
+            region,
+            Credentials::new(
+                config.s3_access_key.as_deref(),
+                config.s3_secret_key.as_deref(),
+                None,
+                None,
+                None,
+            )
+            .expect("Invalid S3 credentials"),
+        )
+        .expect("Invalid bucket (this is a bug)");
+        if config.s3_path_style {
+            bucket.set_path_style();
+        }
         Arc::new(InnerAppState::new(
             config.clone(),
             tera,
@@ -208,6 +239,7 @@ impl InnerAppState {
             rayon,
             argon,
             http,
+            bucket,
         ))
     }
 }

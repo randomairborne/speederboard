@@ -1,6 +1,3 @@
-#![warn(clippy::all, clippy::pedantic)]
-#![allow(clippy::module_name_repetitions)]
-
 mod config;
 mod error;
 mod id;
@@ -49,21 +46,13 @@ async fn main() {
         .init();
     let state = InnerAppState::from_environment().await;
     #[cfg(feature = "dev")]
-    let (tera_jh, translations_jh, static_jh, user_content_jh, fakes3_jh) = {
+    let (tera_jh, translations_jh, static_jh) = {
         let s2 = state.clone();
         let s3 = state.clone();
         let tera_jh = tokio::spawn(dev::reload_tera(s2));
         let translations_jh = tokio::spawn(dev::reload_translations(s3));
         let static_jh = tokio::spawn(dev::cdn_static());
-        let user_content_jh = tokio::spawn(dev::cdn_user_content());
-        let fakes3_jh = tokio::spawn(dev::fakes3());
-        (
-            tera_jh,
-            translations_jh,
-            static_jh,
-            user_content_jh,
-            fakes3_jh,
-        )
+        (tera_jh, translations_jh, static_jh)
     };
     info!("Starting server on http://localhost:{}", state.config.port);
     axum::Server::bind(&([0, 0, 0, 0], state.config.port).into())
@@ -74,8 +63,6 @@ async fn main() {
     #[cfg(feature = "dev")]
     {
         static_jh.await.unwrap();
-        user_content_jh.await.unwrap();
-        fakes3_jh.await.unwrap();
         tera_jh.await.unwrap();
         translations_jh.await.unwrap();
     }

@@ -1,9 +1,0 @@
-name = "cdn-upload-worker"
-main = "src/worker.ts"
-compatibility_date = "2023-08-07"
-
-
-[[r2_buckets]]
-binding = "DEAR_GOD"
-bucket_name = "speederboard"
-preview_bucket_name = "speederboard"

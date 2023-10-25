@@ -1,9 +1,8 @@
 use std::path::Path;
 
-use axum::{body::Bytes, http::Uri};
 use notify::{Event, Watcher};
 
-use crate::{AppState, Error};
+use crate::AppState;
 
 pub async fn reload_tera(state: AppState) {
     let mut watcher = notify::recommended_watcher(move |res: Result<Event, notify::Error>| {
@@ -55,24 +54,9 @@ fn check_event_interest(event: &Event) -> bool {
         ))
 }
 
-pub async fn cdn_user_content() {
-    let router = axum::Router::new()
-        .nest_service(
-            "/",
-            tower_http::services::ServeDir::new("/tmp/speederboard-assets/"),
-        )
-        .layer(tower_http::cors::CorsLayer::permissive());
-    info!("Starting user-content CDN on http://localhost:8001");
-    axum::Server::bind(&([0, 0, 0, 0], 8001).into())
-        .serve(router.into_make_service())
-        .with_graceful_shutdown(crate::shutdown_signal())
-        .await
-        .expect("Failed to start user-content CDN");
-}
-
 pub async fn cdn_static() {
     let router = axum::Router::new()
-        .nest_service("/", tower_http::services::ServeDir::new("./assets/"))
+        .nest_service("/", tower_http::services::ServeDir::new("./assets/public/"))
         .layer(tower_http::cors::CorsLayer::permissive());
     info!("Starting static CDN on http://localhost:8000");
     axum::Server::bind(&([0, 0, 0, 0], 8000).into())
@@ -80,42 +64,4 @@ pub async fn cdn_static() {
         .with_graceful_shutdown(crate::shutdown_signal())
         .await
         .expect("Failed to start static CDN");
-}
-
-pub async fn fakes3() {
-    let router = axum::Router::new().route("/*unused", axum::routing::put(put).delete(delete));
-    info!("Starting FakeS3 on http://localhost:8001");
-    axum::Server::bind(&([0, 0, 0, 0], 8002).into())
-        .serve(router.into_make_service())
-        .with_graceful_shutdown(crate::shutdown_signal())
-        .await
-        .expect("Failed to start fakeS3");
-}
-
-async fn put(uri: Uri, body: Bytes) -> Result<(), Error> {
-    let uri_path = uri.path();
-    if uri_path.contains("..") {
-        return Err(Error::DoubleDotInPath);
-    }
-    let dest_path = format!("/tmp/speederboard-assets{uri_path}");
-    let path = Path::new(&dest_path);
-    let parent = path.parent().ok_or(Error::PathHasNoParent)?;
-    trace!(uri_path = ?uri_path, dest_path, "Got fakes3 create request");
-    tokio::fs::create_dir_all(parent).await?;
-    tokio::fs::write(&path, body).await?;
-    trace!(?path, "Created file");
-    Ok(())
-}
-
-async fn delete(uri: Uri) -> Result<(), Error> {
-    let uri_path = uri.path();
-    if uri_path.contains("..") {
-        return Err(Error::DoubleDotInPath);
-    }
-    let dest_path = format!("/tmp/speederboard-assets{uri_path}");
-    let path = Path::new(&dest_path);
-    trace!(uri_path = ?uri_path, dest_path, "Got fakes3 delete request");
-    tokio::fs::remove_file(&path).await?;
-    trace!(?path, "Removed file");
-    Ok(())
 }

@@ -27,6 +27,8 @@ pub enum Error {
     SerdeJson(#[from] serde_json::Error),
     #[error("reqwest error: {0}")]
     Reqwest(#[from] reqwest::Error),
+    #[error("rust-s3 error: {0}")]
+    S3(#[from] s3::error::S3Error),
     #[error("multipart upload error: {0}")]
     Multipart(#[from] axum_extra::extract::multipart::MultipartError),
     #[error("dependency tokio task panicked: {0}")]
@@ -57,6 +59,8 @@ pub enum Error {
     MissingQueryPair(&'static str),
     #[error("This endpoint needs authorization")]
     NeedsLogin(String),
+    #[error("rust-s3 got bad status code: {0}")]
+    S3Status(u16),
     #[error("Query expected to return {0} rows returned {1}")]
     TooManyRows(usize, usize),
     #[error("Username or password is incorrect")]
@@ -133,6 +137,8 @@ pub async fn error_middleware<B>(
         | Error::OneshotRecv(_)
         | Error::SerdeJson(_)
         | Error::Reqwest(_)
+        | Error::S3(_)
+        | Error::S3Status(_)
         | Error::Impossible(_)
         | Error::TaskJoin(_)
         | Error::Io(_)

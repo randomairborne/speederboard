@@ -87,9 +87,7 @@ async fn multipart_into_s3(
         }
         // todo: validate and convert images
         // let img_data = image::load_from_memory(&bytes)?;
-        state
-            .put_r2_file(dest, reqwest::Body::from(bytes), &content_type)
-            .await?;
+        state.put_r2_file(dest, &bytes, &content_type).await?;
     }
     Ok(())
 }
