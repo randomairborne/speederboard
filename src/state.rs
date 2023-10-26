@@ -7,6 +7,7 @@ use rayon::{ThreadPool, ThreadPoolBuilder};
 use s3::creds::Credentials;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tera::Tera;
+use url::Url;
 
 use crate::{config::Config, Error};
 
@@ -212,6 +213,13 @@ impl InnerAppState {
         bucket
     }
 
+    fn url_to_origin(input: &str) -> String {
+        Url::parse(input)
+            .expect("ROOT_URL is not a valid URL")
+            .origin()
+            .ascii_serialization()
+    }
+
     pub async fn from_environment() -> AppState {
         let config: Config = envy::from_env().expect("Failed to read config");
         let root_url = config.root_url.trim_end_matches('/').to_string();
@@ -223,7 +231,14 @@ impl InnerAppState {
             user_content_url,
             ..config
         };
-        let csp = HeaderValue::from_str(&format!("default-src {0} {1} {2}; script-src {1}; object-src 'none'; frame-src https://youtube.com https://clips.twitch.tv", config.root_url, config.static_url, config.user_content_url)).expect("Invalid csp header value (check your STATIC_URL)");
+        let csp = HeaderValue::from_str(&format!(
+            "default-src {0} {1} {2}; script-src {1}; object-src 'none'; \
+            frame-src https://youtube.com https://clips.twitch.tv",
+            Self::url_to_origin(&config.root_url),
+            Self::url_to_origin(&config.static_url),
+            Self::url_to_origin(&config.user_content_url)
+        ))
+        .expect("Invalid csp header value (check your STATIC_URL)");
         let postgres = PgPoolOptions::new()
             .connect(&config.database_url)
             .await
