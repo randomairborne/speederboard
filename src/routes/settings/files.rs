@@ -1,6 +1,10 @@
+use axum::body::Bytes;
 use axum::{extract::State, response::Redirect};
 use axum_extra::extract::multipart::Multipart;
+use image::codecs::jpeg::JpegEncoder;
+use image::codecs::png::PngEncoder;
 
+use crate::util::MAX_CSS_LEN;
 use crate::{
     model::{User, UserUpdate},
     AppState, Error,
@@ -11,7 +15,7 @@ pub async fn pfp(
     user: User,
     multipart: Multipart,
 ) -> Result<Redirect, Error> {
-    multipart_into_s3(&state, multipart, "pfp", &user.pfp_path("png")).await?;
+    let (_ctype, bytes) = multipart_into_bytes(multipart, "pfp").await?;
     let update = UserUpdate::new(user.id).pfp(true);
     update.execute(&state).await?;
     Ok(state.redirect("/settings"))
@@ -29,7 +33,12 @@ pub async fn banner(
     user: User,
     multipart: Multipart,
 ) -> Result<Redirect, Error> {
-    multipart_into_s3(&state, multipart, "banner", &user.banner_path("png")).await?;
+    let (_ctype, bytes) = multipart_into_bytes(multipart, "banner").await?;
+
+    let img_data = image::load_from_memory(&bytes)?;
+    let jpeg_buf: Vec<u8> = Vec::with_capacity(1024 * 1024);
+    img_data.write_with_encoder(JpegEncoder::new()?)?;
+    state.put_r2_file(dest, &bytes, &content_type).await?;
     let update = UserUpdate::new(user.id).banner(true);
     update.execute(&state).await?;
     Ok(state.redirect("/settings"))
@@ -47,7 +56,15 @@ pub async fn stylesheet(
     user: User,
     multipart: Multipart,
 ) -> Result<Redirect, Error> {
-    multipart_into_s3(&state, multipart, "stylesheet", &user.stylesheet_path()).await?;
+    let (content_type, bytes) = multipart_into_bytes(multipart, "stylesheet").await?;
+    if bytes.len() > MAX_CSS_LEN {
+        return Err(Error::CustomFormValidation(format!(
+            "stylesheet too large (must be less then {MAX_CSS_LEN} bytes)"
+        )));
+    }
+    state
+        .put_r2_file(&user.stylesheet_path(), &bytes, &content_type)
+        .await?;
     let update = UserUpdate::new(user.id).has_stylesheet(true);
     update.execute(&state).await?;
     Ok(state.redirect("/settings"))
@@ -60,14 +77,10 @@ pub async fn stylesheet_del(State(state): State<AppState>, user: User) -> Result
     Ok(state.redirect("/settings"))
 }
 
-const SIZE_LIMIT: usize = 1024 * 512;
-
-async fn multipart_into_s3(
-    state: &AppState,
+async fn multipart_into_bytes(
     mut multipart: Multipart,
     target_name: &str,
-    dest: &str,
-) -> Result<(), Error> {
+) -> Result<(String, Bytes), Error> {
     while let Some(field) = multipart.next_field().await? {
         let Some(name) = field.name().map(ToOwned::to_owned) else {
             continue;
@@ -80,14 +93,9 @@ async fn multipart_into_s3(
             ctype.unwrap_or("application/octet-stream").to_string()
         };
         let bytes = field.bytes().await?;
-        if bytes.len() > SIZE_LIMIT {
-            return Err(Error::CustomFormValidation(format!(
-                "File was expected to be less then {SIZE_LIMIT} bytes",
-            )));
-        }
-        // todo: validate and convert images
-        // let img_data = image::load_from_memory(&bytes)?;
-        state.put_r2_file(dest, &bytes, &content_type).await?;
+        return Ok((content_type, bytes));
     }
-    Ok(())
+    Err(Error::CustomFormValidation(format!(
+        "Missing field {target_name}"
+    )))
 }

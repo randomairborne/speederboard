@@ -51,6 +51,9 @@ pub const MIN_FORUM_POST_LEN: usize = 1;
 pub const MAX_FORUM_COMMENT_LEN: usize = 4000;
 pub const MIN_FORUM_COMMENT_LEN: usize = 1;
 
+pub const MAX_IMAGE_LEN: usize = 1024 * 512;
+pub const MAX_CSS_LEN: usize = 1024 * 50;
+
 pub const AUTHTOKEN_COOKIE: &str = "token";
 pub const AUTHTOKEN_TTL: usize = 24 * 60 * 60 * 7;
 pub const AUTHTOKEN_TTL_I64: i64 = 24 * 60 * 60 * 7;
