@@ -27,6 +27,10 @@ pub fn build(state: AppState) -> Router {
                     state.clone(),
                     crate::error::error_middleware,
                 ))
+                .layer(axum::middleware::from_fn_with_state(
+                    state.clone(),
+                    crate::util::csp_middleware,
+                ))
                 .layer(CompressionLayer::new())
                 .layer(DecompressionLayer::new()),
         )

@@ -1,5 +1,8 @@
 {% extends "base.jinja" %}
 {% block title %}{{ gettrans(lang=language, key="settings.title") }}{% endblock title %}
+{% block extraheaders %}
+<script src="{{ static_url }}/page-scripts/settings.js"></script>
+{% endblock extraheaders %}
 {% block body %}
 <h1>{{ gettrans(lang=language, key="settings.heading") }}</h1>
 <form method="post" action="/settings">
@@ -42,13 +45,12 @@
   <tr>
     <form method="post" action="/settings/pfp" enctype="multipart/form-data" id="pfp-form">
       <td><label for="pfp">{{ gettrans(lang=language, key="settings.pfp") }}</label></td>
-      <td><input name="pfp" id="pfp" type="file" accept=".png,image/png"
-          onchange="document.getElementById('pfp-form').submit();" /></td>
+      <td><input name="pfp" id="pfp" type="file" accept=".png,image/png" /></td>
       <noscript>
         <td><button>{{ gettrans(lang=language, key="settings.pfp.submit") }}</button></td>
       </noscript>
     </form>
-    {% if user.pfp_ext %}
+    {% if user.pfp %}
     <form method="post" action="/settings/pfp/delete">
       <td><button>{{ gettrans(lang=language, key="settings.pfp.delete") }}</button></td>
     </form>
@@ -59,13 +61,12 @@
   <tr>
     <form method="post" action="/settings/banner" enctype="multipart/form-data" id="banner-form">
       <td><label for="banner">{{ gettrans(lang=language, key="settings.banner") }}</label></td>
-      <td><input name="banner" id="banner" type="file" accept=".png,image/png"
-          onchange="document.getElementById('banner-form').submit();" /></td>
+      <td><input name="banner" id="banner" type="file" accept=".png,image/png" /></td>
       <noscript>
         <td><button>{{ gettrans(lang=language, key="settings.banner.submit") }}</button></td>
       </noscript>
     </form>
-    {% if user.banner_ext %}
+    {% if user.banner %}
     <form method="post" action="/settings/banner/delete">
       <td><button>{{ gettrans(lang=language, key="settings.banner.delete") }}</button></td>
     </form>
@@ -76,8 +77,7 @@
   <tr>
     <form method="post" action="/settings/stylesheet" enctype="multipart/form-data" id="css-form">
       <td><label for="stylesheet">{{ gettrans(lang=language, key="settings.css") }}</label></td>
-      <td><input name="stylesheet" id="stylesheet" type="file" accept=".css,.txt,text/css"
-          onchange="document.getElementById('css-form').submit();" /></td>
+      <td><input name="stylesheet" id="stylesheet" type="file" accept=".css,.txt,text/css" /></td>
       <noscript>
         <td><button>{{ gettrans(lang=language, key="settings.css.submit") }}</button></td>
       </noscript>

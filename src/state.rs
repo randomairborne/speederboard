@@ -1,7 +1,7 @@
-use std::{sync::Arc, time::Duration};
+use std::{num::NonZeroUsize, sync::Arc, time::Duration};
 
 use argon2::Argon2;
-use axum::response::Redirect;
+use axum::{http::HeaderValue, response::Redirect};
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use s3::creds::Credentials;
@@ -28,9 +28,12 @@ pub struct InnerAppState {
     pub argon: Argon2<'static>,
     pub http: reqwest::Client,
     bucket: s3::Bucket,
+    csp: HeaderValue,
 }
 
 impl InnerAppState {
+    const DEFAULT_THREADPOOL_SIZE: NonZeroUsize = unsafe { NonZeroUsize::new_unchecked(8) };
+
     pub fn new(
         config: Config,
         tera: InnerTera,
@@ -40,6 +43,7 @@ impl InnerAppState {
         argon: Argon2<'static>,
         http: reqwest::Client,
         bucket: s3::Bucket,
+        csp: HeaderValue,
     ) -> Self {
         Self {
             config,
@@ -50,6 +54,7 @@ impl InnerAppState {
             argon,
             http,
             bucket,
+            csp,
         }
     }
 
@@ -133,6 +138,10 @@ impl InnerAppState {
         Ok(axum::response::Html(html_text))
     }
 
+    pub fn csp(&self) -> HeaderValue {
+        self.csp.clone()
+    }
+
     #[cfg(feature = "dev")]
     pub fn reload_tera(&self) {
         if let Err(source) = self
@@ -167,40 +176,7 @@ impl InnerAppState {
             );
     }
 
-    pub async fn from_environment() -> AppState {
-        let config: Config = envy::from_env().expect("Failed to read config");
-        let root_url = config.root_url.trim_end_matches('/').to_string();
-        let static_url = config.static_url.trim_end_matches('/').to_string();
-        let user_content_url = config.user_content_url.trim_end_matches('/').to_string();
-        let config = Config {
-            root_url,
-            static_url,
-            user_content_url,
-            ..config
-        };
-        let postgres = PgPoolOptions::new()
-            .connect(&config.database_url)
-            .await
-            .expect("Failed to connect to the database");
-        sqlx::migrate!().run(&postgres).await.unwrap();
-        let redis_mgr = Manager::new(config.redis_url.clone()).expect("failed to connect to redis");
-        let redis = deadpool_redis::Pool::builder(redis_mgr)
-            .runtime(Runtime::Tokio1)
-            .build()
-            .unwrap();
-        redis.get().await.expect("Failed to load redis");
-        let tera = crate::template::tera(&config);
-        let rayon = Arc::new(ThreadPoolBuilder::new().num_threads(8).build().unwrap());
-        let argon = Argon2::new(
-            argon2::Algorithm::Argon2id,
-            argon2::Version::V0x13,
-            argon2::Params::new(16384, 192, 8, Some(64)).unwrap(),
-        );
-        let http = reqwest::ClientBuilder::new()
-            .user_agent("speederboard/http")
-            .timeout(Duration::from_secs(10))
-            .build()
-            .unwrap();
+    async fn get_s3_bucket_from_config(config: &Config) -> s3::Bucket {
         let region = if let Some(account_id) = config.r2_account_id.clone() {
             s3::Region::R2 { account_id }
         } else {
@@ -233,6 +209,54 @@ impl InnerAppState {
         if config.s3_path_style {
             bucket.set_path_style();
         }
+        bucket
+    }
+
+    pub async fn from_environment() -> AppState {
+        let config: Config = envy::from_env().expect("Failed to read config");
+        let root_url = config.root_url.trim_end_matches('/').to_string();
+        let static_url = config.static_url.trim_end_matches('/').to_string();
+        let user_content_url = config.user_content_url.trim_end_matches('/').to_string();
+        let config = Config {
+            root_url,
+            static_url,
+            user_content_url,
+            ..config
+        };
+        let csp = HeaderValue::from_str(&format!("default-src {0} {1} {2}; script-src {1}; object-src 'none'; frame-src https://youtube.com https://clips.twitch.tv", config.root_url, config.static_url, config.user_content_url)).expect("Invalid csp header value (check your STATIC_URL)");
+        let postgres = PgPoolOptions::new()
+            .connect(&config.database_url)
+            .await
+            .expect("Failed to connect to the database");
+        sqlx::migrate!().run(&postgres).await.unwrap();
+        let redis_mgr = Manager::new(config.redis_url.clone()).expect("failed to connect to redis");
+        let redis = deadpool_redis::Pool::builder(redis_mgr)
+            .runtime(Runtime::Tokio1)
+            .build()
+            .unwrap();
+        redis.get().await.expect("Failed to load redis");
+        let tera = crate::template::tera(&config);
+        let rayon = Arc::new(
+            ThreadPoolBuilder::new()
+                .num_threads(
+                    std::thread::available_parallelism()
+                        .unwrap_or(Self::DEFAULT_THREADPOOL_SIZE)
+                        .get(),
+                )
+                .build()
+                .unwrap(),
+        );
+        let argon = Argon2::new(
+            argon2::Algorithm::Argon2id,
+            argon2::Version::V0x13,
+            argon2::Params::new(16384, 192, 8, Some(64)).unwrap(),
+        );
+        let http = reqwest::ClientBuilder::new()
+            .user_agent("speederboard/http")
+            .timeout(Duration::from_secs(10))
+            .build()
+            .unwrap();
+        let bucket = Self::get_s3_bucket_from_config(&config).await;
         Arc::new(InnerAppState::new(
             config.clone(),
             tera,
@@ -242,6 +266,7 @@ impl InnerAppState {
             argon,
             http,
             bucket,
+            csp,
         ))
     }
 }

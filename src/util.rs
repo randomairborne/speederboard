@@ -1,7 +1,13 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, time::Duration};
 
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
-use axum::extract::FromRequest;
+use axum::{
+    extract::{FromRequest, State},
+    http::Request,
+    middleware::Next,
+    response::Response,
+};
+use axum_extra::extract::cookie::{Cookie, SameSite};
 use rand::rngs::OsRng;
 use redis::AsyncCommands;
 
@@ -46,7 +52,8 @@ pub const MAX_FORUM_COMMENT_LEN: usize = 4000;
 pub const MIN_FORUM_COMMENT_LEN: usize = 1;
 
 pub const AUTHTOKEN_COOKIE: &str = "token";
-pub const AUTHTOKEN_TTL: usize = 24 * 60 * 60;
+pub const AUTHTOKEN_TTL: usize = 24 * 60 * 60 * 7;
+pub const AUTHTOKEN_TTL_I64: i64 = 24 * 60 * 60 * 7;
 
 pub fn default_return_to() -> String {
     String::from('/')
@@ -88,7 +95,8 @@ pub fn hash_password(password: &[u8], argon: &Argon2) -> Result<String, ArgonErr
         .map(|v| v.to_string())
 }
 
-#[allow(clippy::too_many_arguments)]
+// TODO: move this to an associated function on User
+
 pub fn opt_user(
     id: Option<Id<UserMarker>>,
     name: Option<String>,
@@ -183,6 +191,8 @@ pub async fn game_n_member(
     Ok((game, member))
 }
 
+// TODO: Move these two functions to methods of state
+
 pub async fn get_redis_object<
     T: for<'de> serde::Deserialize<'de>,
     K: redis::ToRedisArgs + Send + Sync,
@@ -198,6 +208,7 @@ pub async fn get_redis_object<
         Ok(None)
     }
 }
+
 pub async fn set_redis_object<K: redis::ToRedisArgs + Send + Sync, V: serde::Serialize>(
     state: &AppState,
     key: K,
@@ -212,4 +223,24 @@ pub async fn set_redis_object<K: redis::ToRedisArgs + Send + Sync, V: serde::Ser
         .set_ex(key, game_str, expiry)
         .await?;
     Ok(())
+}
+
+pub async fn csp_middleware<B>(
+    State(state): State<AppState>,
+    request: Request<B>,
+    next: Next<B>,
+) -> Response {
+    let mut resp = next.run(request).await;
+    resp.headers_mut()
+        .insert("content-security-policy", state.csp());
+    resp
+}
+
+pub fn auth_cookie<'a>(token: String) -> Cookie<'a> {
+    Cookie::build(AUTHTOKEN_COOKIE, token)
+        .secure(true)
+        .http_only(true)
+        .max_age(s3::creds::time::Duration::seconds(AUTHTOKEN_TTL_I64))
+        .same_site(SameSite::Strict)
+        .finish()
 }

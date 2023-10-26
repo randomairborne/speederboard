@@ -8,7 +8,7 @@ use redis::AsyncCommands;
 
 use crate::{
     template::BaseRenderInfo,
-    util::{ValidatedForm, AUTHTOKEN_COOKIE, AUTHTOKEN_TTL},
+    util::{auth_cookie, ValidatedForm, AUTHTOKEN_TTL},
     AppState, Error, HandlerResult,
 };
 
@@ -89,8 +89,5 @@ pub async fn post(
             AUTHTOKEN_TTL,
         )
         .await?;
-    Ok((
-        cookies.add(Cookie::new(AUTHTOKEN_COOKIE, token)),
-        state.redirect("/"),
-    ))
+    Ok((cookies.add(auth_cookie(token)), state.redirect("/")))
 }
