@@ -2,7 +2,7 @@ use axum::{
     extract::{Query, State},
     response::Redirect,
 };
-use axum_extra::extract::{cookie::Cookie, CookieJar};
+use axum_extra::extract::CookieJar;
 use rand::distributions::DistString;
 use redis::AsyncCommands;
 

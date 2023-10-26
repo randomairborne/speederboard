@@ -1,4 +1,4 @@
-use std::{fmt::Debug, time::Duration};
+use std::fmt::Debug;
 
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use axum::{
