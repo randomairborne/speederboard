@@ -1,4 +1,4 @@
-const pfp_picker = document.getElementById("pfp")
+const pfp_picker = document.getElementById("pfp");
 const pfp_form = document.getElementById("pfp-form");
 const banner_picker = document.getElementById("banner");
 const banner_form = document.getElementById("banner-form");
