@@ -2,15 +2,17 @@
 
 ## development info
 
-speederboard's `dev` feature flag (enabled by default) **when run from the root directory of speederboard** will automagically start a CDN service task
-which reads from and writes to `/tmp/speederboard-assets/`.
+speederboard's `dev` feature flag (enabled by default) **when run from the root directory of speederboard** will automagically
+start a CDN task for assets/public. You need to set up an S3-compatible (I use [minio](https://min.io)) server on your device,
+with public bucket access and point `S3_ENDPOINT` at it. Most S3-compatible services do away with
+`S3_REGION`, but setting it to `us-east-1` is usually sufficient.
+
+`S3_ACCESS_KEY` should be set to your access key, and `S3_SECRET_KEY` to your secret key.
 
 ## prod info
 
 The supported CDN configuration for speederboard is a Cloudflare R2 bucket. This bucket should be public,
-with the cdn-upload-worker worker applied to it. This worker takes a SHA256 hash of some random string.
-`openssl rand -hex 32` is sufficient to generate the secret, and `echo -n "input" | shasum -a 256` should generate
-the shasum which can be passed in as a secret on your worker settings page.
+with your cloudflare `R2_ACCOUNT_ID` in that config variable.
 
 ## structure
 

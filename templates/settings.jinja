@@ -45,7 +45,7 @@
   <tr>
     <form method="post" action="/settings/pfp" enctype="multipart/form-data" id="pfp-form">
       <td><label for="pfp">{{ gettrans(lang=language, key="settings.pfp") }}</label></td>
-      <td><input name="pfp" id="pfp" type="file" accept=".png,image/png" /></td>
+      <td><input name="pfp" id="pfp" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpg,image/jpeg,image/webp" /></td>
       <noscript>
         <td><button>{{ gettrans(lang=language, key="settings.pfp.submit") }}</button></td>
       </noscript>
@@ -61,7 +61,7 @@
   <tr>
     <form method="post" action="/settings/banner" enctype="multipart/form-data" id="banner-form">
       <td><label for="banner">{{ gettrans(lang=language, key="settings.banner") }}</label></td>
-      <td><input name="banner" id="banner" type="file" accept=".png,image/png" /></td>
+      <td><input name="banner" id="banner" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpg,image/jpeg,image/webp" /></td>
       <noscript>
         <td><button>{{ gettrans(lang=language, key="settings.banner.submit") }}</button></td>
       </noscript>
