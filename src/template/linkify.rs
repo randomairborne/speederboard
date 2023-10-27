@@ -29,7 +29,7 @@ impl tera::Function for GetUserLinks {
         let Some(value) = args.get("user") else {
             return Err(tera::Error::msg("getuserlinks() missing `user` argument"));
         };
-        let ext = "png";
+        let ext = "webp";
         let user: User = serde_json::from_value(value.clone())?;
         json_map.insert(
             "pfp_url".to_owned(),
@@ -37,7 +37,7 @@ impl tera::Function for GetUserLinks {
         );
         json_map.insert(
             "banner_url".to_owned(),
-            Value::String(user.banner_url(&self.user_content, ext)),
+            Value::String(user.banner_url(&self.user_content, &self.static_content, ext)),
         );
         json_map.insert(
             "stylesheet_url".to_owned(),
@@ -81,18 +81,10 @@ impl tera::Function for GetGameLinks {
         let ext = "webp";
         let game: Game = serde_json::from_value(value.clone())?;
 
-        let cover_art = if game.cover_art {
-            game.cover_art_url(&self.user_content, &self.static_content, ext)
-        } else {
-            format!("{}/defaults/coverart.svg", self.static_content)
-        };
+        let cover_art = game.cover_art_url(&self.user_content, &self.static_content, ext);
         json_map.insert("cover_art_url".to_owned(), Value::String(cover_art));
 
-        let banner = if game.cover_art {
-            game.banner_url(&self.user_content, ext)
-        } else {
-            format!("{}/defaults/banner.svg", self.static_content)
-        };
+        let banner = game.banner_url(&self.user_content, &self.static_content, ext);
 
         json_map.insert("banner_url".to_owned(), Value::String(banner));
 

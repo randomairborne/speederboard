@@ -120,12 +120,16 @@ impl User {
         if self.pfp {
             user_content.to_owned() + &self.pfp_path(ext)
         } else {
-            static_root.to_owned() + "/defaults/pfp.svg"
+            static_root.to_owned() + "/defaults/user/pfp.svg"
         }
     }
 
-    pub fn banner_url(&self, root: &str, ext: &str) -> String {
-        root.to_owned() + &self.banner_path(ext)
+    pub fn banner_url(&self, user_content: &str, static_root: &str, ext: &str) -> String {
+        if self.banner {
+            user_content.to_owned() + &self.banner_path(ext)
+        } else {
+            static_root.to_owned() + "/defaults/user/banner.svg"
+        }
     }
 }
 
