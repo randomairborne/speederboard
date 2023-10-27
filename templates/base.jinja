@@ -6,12 +6,13 @@
     <title>{{ gettrans(lang=language, key="base.name") }} - {% block title %}{% endblock title %}</title>
     <meta name="description" content="{% block description %}{% endblock description %}" />
     <link rel="stylesheet" href="{{ static_url }}/style.css">
-    <link rel="icon" href="{{ static_url }}/favicon.png" type="image/png">
+    <link rel="icon" href="{{ static_url }}/favicon.svg" type="image/svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    {% if logged_in_user and logged_in_user.has_custom_stylesheet and not custom_styles_disabled %}
-    <link rel="stylesheet" href="{{ user_content_url }}/users/{{ logged_in_user.id }}/style.css">
+    {% if logged_in_user and logged_in_user.has_stylesheet and not custom_styles_disabled %}
+    {% set userlinks = getuserlinks(user=logged_in_user) %}
+    <link rel="stylesheet" href="{{ userlinks.stylesheet_url }}">
     {% endif %}
-    {% block extraheaders %}{% endblock %}
+    {% block extraheaders %}{% endblock extraheaders %}
 </head>
 
 <body>
@@ -30,7 +31,7 @@
         </div>
     </nav>
     <div class="body">
-        {% if devmode() %}
+        {% if devmode() -%}
         <details>
             <summary>tera context</summary>
             <div class="codeblock">{{ __tera_context }}</div>
