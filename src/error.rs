@@ -63,9 +63,9 @@ pub enum Error {
     S3Status(u16),
     #[error("Query expected to return {0} rows returned {1}")]
     TooManyRows(usize, usize),
-    #[error("Image was too tall (height {}, expected less then {}", .0.actual, .0.max)]
+    #[error("Image was too tall (height {}, expected less then {})", .0.actual, .0.max)]
     ImageTooTall(ImageTooBig),
-    #[error("Image was too wide (width {}, expected less then {}", .0.actual, .0.max)]
+    #[error("Image was too wide (width {}, expected less then {})", .0.actual, .0.max)]
     ImageTooWide(ImageTooBig),
     #[error("Username or password is incorrect")]
     InvalidPassword,
