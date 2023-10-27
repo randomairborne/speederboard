@@ -66,14 +66,14 @@ pub async fn stylesheet(
     user: User,
     multipart: Multipart,
 ) -> Result<Redirect, Error> {
-    let (content_type, bytes) = multipart_into_bytes(multipart, "stylesheet").await?;
+    let (_ctype, bytes) = multipart_into_bytes(multipart, "stylesheet").await?;
     if bytes.len() > MAX_CSS_LEN {
         return Err(Error::CustomFormValidation(format!(
             "stylesheet too large (must be less then {MAX_CSS_LEN} bytes)"
         )));
     }
     state
-        .put_r2_file(&user.stylesheet_path(), &bytes, &content_type)
+        .put_r2_file(&user.stylesheet_path(), &bytes, "text/css")
         .await?;
     UserUpdate::new(user.id)
         .has_stylesheet(true)

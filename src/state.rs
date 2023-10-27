@@ -87,7 +87,10 @@ impl InnerAppState {
         content_type: &str,
     ) -> Result<(), Error> {
         trace!(location, content_type, "creating R2 file");
-        let resp = self.bucket.put_object(location, file).await?;
+        let resp = self
+            .bucket
+            .put_object_with_content_type(location, file, content_type)
+            .await?;
         trace!(?resp, "got response on file creation");
         Self::s3_status_success(resp.status_code())?;
         Ok(())
