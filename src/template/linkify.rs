@@ -78,7 +78,7 @@ impl tera::Function for GetGameLinks {
         let Some(value) = args.get("game") else {
             return Err(tera::Error::msg("getgamelinks() missing `game` argument"));
         };
-        let ext = "png";
+        let ext = "webp";
         let game: Game = serde_json::from_value(value.clone())?;
 
         let cover_art = if game.cover_art {
