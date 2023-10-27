@@ -23,6 +23,7 @@ pub struct SettingsPage {
     user: PrivateUser,
     incorrect: bool,
     languages: Vec<LanguageMetadata>,
+    custom_styles_disabled: bool,
 }
 
 #[derive(serde::Serialize, Debug, Clone)]
@@ -111,6 +112,7 @@ pub async fn get(
                 name: lang.display(),
             })
             .collect(),
+        custom_styles_disabled: true,
     };
     state.render("settings.jinja", ctx)
 }
