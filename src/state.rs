@@ -61,19 +61,21 @@ impl InnerAppState {
 
     /// # Errors
     /// If somehow the channel hangs up, this can error.
-    pub async fn spawn_rayon<O, F>(
+    pub async fn spawn_rayon<O, F, S>(
         &self,
         func: F,
+        state: S,
     ) -> Result<O, tokio::sync::oneshot::error::RecvError>
     where
         O: Send + 'static,
-        F: FnOnce(InnerAppState) -> O + Send + 'static,
+        S: Send + 'static,
+        F: Fn(InnerAppState, S) -> O + Send + 'static,
     {
         trace!("spawning blocking task on rayon threadpool");
-        let state = self.clone();
+        let app_state = self.clone();
         let (tx, rx) = tokio::sync::oneshot::channel();
         self.rayon.spawn(move || {
-            let _ = tx.send(func(state));
+            let _ = tx.send(func(app_state, state));
         });
         rx.await
     }

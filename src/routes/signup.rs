@@ -53,11 +53,13 @@ pub async fn post(
     cookies: CookieJar,
     ValidatedForm(form): ValidatedForm<SignUpForm>,
 ) -> Result<(CookieJar, Redirect), Error> {
-    let password_hash = state
-        .spawn_rayon(move |state| {
-            crate::util::hash_password(form.password.as_bytes(), &state.argon)
-        })
-        .await??;
+    let password_hash_res = state
+        .spawn_rayon(
+            |state, password| crate::util::hash_password(password.as_bytes(), &state.argon),
+            form.password,
+        )
+        .await?;
+    let password_hash = password_hash_res?;
     let user = query_as!(
         crate::model::User,
         "INSERT INTO users

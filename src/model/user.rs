@@ -69,11 +69,16 @@ impl User {
             return Ok(Err(()));
         };
         let password_result = state
-            .spawn_rayon(move |state| {
-                let hash = PasswordHash::new(&record.password)?;
-                state.argon.verify_password(password.as_ref(), &hash)
-            })
-            .await?;
+            .spawn_rayon(
+                |state,
+                 (phc_string, password)|
+                 -> Result<Result<(), argon2::password_hash::Error>, Error> {
+                    let hash = PasswordHash::new(&phc_string)?;
+                    Ok(state.argon.verify_password(password.as_ref(), &hash))
+                },
+                (record.password, password),
+            )
+            .await??;
         let user = User {
             id: record.id.into(),
             username: record.username,

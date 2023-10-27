@@ -63,6 +63,10 @@ pub enum Error {
     S3Status(u16),
     #[error("Query expected to return {0} rows returned {1}")]
     TooManyRows(usize, usize),
+    #[error("Image was too tall (height {}, expected less then {}", .0.actual, .0.max)]
+    ImageTooTall(ImageTooBig),
+    #[error("Image was too wide (width {}, expected less then {}", .0.actual, .0.max)]
+    ImageTooWide(ImageTooBig),
     #[error("Username or password is incorrect")]
     InvalidPassword,
     #[error("Invalid auth cookie")]
@@ -101,6 +105,12 @@ pub enum Error {
     RowDoesNotMatchInputGame,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct ImageTooBig {
+    pub actual: u32,
+    pub max: u32,
+}
+
 impl From<Error> for std::io::Error {
     fn from(value: Error) -> Self {
         std::io::Error::new(std::io::ErrorKind::InvalidData, value)
@@ -115,6 +125,7 @@ impl IntoResponse for Error {
         resp
     }
 }
+
 pub async fn error_middleware<B>(
     State(state): State<AppState>,
     uri: OriginalUri,
@@ -128,7 +139,7 @@ pub async fn error_middleware<B>(
     } else {
         return response;
     };
-    let status = match &error {
+    let status = match error {
         Error::Sqlx(_)
         | Error::DeadpoolRedis(_)
         | Error::Redis(_)
@@ -163,7 +174,9 @@ pub async fn error_middleware<B>(
         | Error::TokenHasIdButIdIsUnkown
         | Error::InvalidGameCategoryPair
         | Error::CannotDeleteDefaultCategory
-        | Error::DoubleDotInPath => StatusCode::BAD_REQUEST,
+        | Error::DoubleDotInPath
+        | Error::ImageTooTall(_)
+        | Error::ImageTooWide(_) => StatusCode::BAD_REQUEST,
         Error::InvalidPassword | Error::InsufficientPermissions => StatusCode::UNAUTHORIZED,
         Error::InvalidCookie => return state.redirect("/login").into_response(),
         Error::NeedsLogin(return_to) => {
