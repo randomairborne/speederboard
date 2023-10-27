@@ -987,9 +987,9 @@ dependencies = [
 
 [[package]]
 name = "garde"
-version = "0.16.0"
+version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94320acdd9159591d0f8079eb347fb52c2ffbe206b5214f6f4d482f2866e4d91"
+checksum = "d16596022bab79d38f74999f49b2fa08db8e4e568b43a95a2bd78afbee13f55c"
 dependencies = [
  "card-validate",
  "compact_str",
