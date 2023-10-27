@@ -44,7 +44,7 @@ impl tera::Function for GetUserLinks {
             Value::String(user.stylesheet_url(&self.user_content)),
         );
         json_map.insert(
-            "ui_link".to_owned(),
+            "ui_url".to_owned(),
             Value::String(format!("{}/user/{}", self.root, user.username)),
         );
 
@@ -97,7 +97,7 @@ impl tera::Function for GetGameLinks {
         json_map.insert("banner_url".to_owned(), Value::String(banner));
 
         json_map.insert(
-            "ui_link".to_owned(),
+            "ui_url".to_owned(),
             Value::String(format!("{}/game/{}", self.root, game.slug)),
         );
 
