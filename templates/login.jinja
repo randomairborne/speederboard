@@ -1,7 +1,7 @@
 {% extends "base.jinja" %}
 {% block title %}{{ gettrans(lang=language, key="login.title") }}{% endblock title %}
 {% block body %}
-<form method="post" action="/login">
+<form method="post" action="{{ root_url }}/login">
     <table>
         <tr>
             <td><label for="email">{{ gettrans(lang=language, key="login.email") }}</label></td>

@@ -2,11 +2,11 @@
 {% block title %}{{ gettrans(lang=language, key="edit_category.title", name=category.name) }}{% endblock title %}
 {% block body %}
 <h2>{{ gettrans(lang=language, key="edit_category.subtitle", category_name=category.name) }}</h2>
-<h3><a href="/game/{{ game.slug }}">
+<h3><a href="{{ root_url }}/game/{{ game.slug }}">
         {{ gettrans(lang=language, key="edit_category.parent", game_name=game.name, game_slug=game.slug) }}
     </a>
 </h3>
-<form action="/game/{{ game.slug }}/category/{{ category.id }}/edit" method="post">
+<form action="{{ root_url }}/game/{{ game.slug }}/category/{{ category.id }}/edit" method="post">
     <table>
         <tr>
             <td><label for="name">{{ gettrans(lang=language, key="edit_category.name_label") }}</label></td>

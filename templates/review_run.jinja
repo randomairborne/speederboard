@@ -11,10 +11,10 @@
 {{ gettrans(lang=language, key="review_run.score", score=run.score) }}
 {% endif %}
 {{ run.description | markdown }}
-<form method="POST" action="/game/{{ run.game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}/verify">
+<form method="POST" action="{{ root_url }}/game/{{ run.game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}/verify">
     <button>{{ gettrans(lang=language, key="review_run.verify") }}</button>
 </form>
-<form method="POST" action="/game/{{ run.game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}/reject">
+<form method="POST" action="{{ root_url }}/game/{{ run.game.slug }}/category/{{ run.category.id }}/run/{{ run.id }}/reject">
     <button>{{ gettrans(lang=language, key="review_run.reject") }}</button>
 </form>
 

@@ -8,6 +8,8 @@
 <div class="forum-posts">
 {% for post in posts %}
 <a class="forum-post-card" href="{{ root_url }}/forum/{{ game.slug }}/post/{{ post.id }}">
+    {% set userlinks = getuserlinks(user=post.author) %}
+    <img class="forum-post-card-author-img" src="{{ userlinks.pfp_url }}">
     {{ post.title }}
     <hr>
     {{ post.content | truncate(length=100) | markdown }}

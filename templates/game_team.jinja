@@ -8,8 +8,9 @@
 <ul>
 {% for member in members %}
 <li>
+    {% set memberlinks = getuserlinks(user=member.user) %}
     {# TODO: Figure out how to translate permissions #}
-    {{ member.name }} {{ member.perms }}
+    <a href="{{ memberlinks.ui_url }}"><img src="{{ memberlinks.pfp_url }}" />{{ member.name }}</a> {{ member.perms }}
 </li>
 {% endfor %}
 </div>

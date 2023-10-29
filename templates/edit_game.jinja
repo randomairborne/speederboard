@@ -12,7 +12,7 @@
     {% else %}
     <tr>
         <td>
-            <form action="/game/{{ game.slug }}/category/{{ category.id }}/edit/makedefault" method="post">
+            <form action="{{ root_url }}/game/{{ game.slug }}/category/{{ category.id }}/edit/makedefault" method="post">
                 {{ gettrans(lang=language, key="edit_game.categories.list_name", name=category.name) }}
                 <button>{{ gettrans(lang=language, key="edit_game.categories.make_default") }}</button>
                 <a href="/game/{{ game.slug }}/category/{{ category.id }}/edit"><button type="button">{{ gettrans(lang=language, key="edit_game.categories.edit") }}</button></a>
@@ -26,7 +26,7 @@
     {% endfor %}
 </table>
 <h3>{{ gettrans(lang=language, key="edit_game.categories.create_new") }}</h3>
-<form action="/game/{{ game.slug }}/edit/new-category" method="post">
+<form action="{{ root_url }}/game/{{ game.slug }}/edit/new-category" method="post">
     <table>
         <tr>
             <td><label for="name">{{ gettrans(lang=language, key="edit_game.categories.new.name") }}</label></td>

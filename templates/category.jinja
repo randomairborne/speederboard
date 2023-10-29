@@ -21,8 +21,9 @@
         <th>{{ gettrans(lang=language, key="category.link") }}</th>
     </tr>
     {% for run in runs %}
+    {% set userlinks = getuserlinks(user=run.submitter) %}
     <tr>
-        <td><a href="{{ root_url }}/user/{{ run.submitter.username }}">{{ run.submitter.username }}</a></td>
+        <td><a href="{{ userlinks.ui_url }} ">{{ run.submitter.username }}</a></td>
         {% if run.category.scoreboard %}
         <td>{{ run.score }}</td>
         {% else %}

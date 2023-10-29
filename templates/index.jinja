@@ -5,12 +5,9 @@
 <div class="game-list">
 {% for game in games %}
 <div class="root-game-card">
+    {% set gamelinks = getgamelinks(game=game) %}
     <a href="{{ root_url }}/game/{{ game.slug }}" class="coverart-anchor">
-        {% if game.cover_art_ext %}
-        <img src="{{ user_content_url }}/games/{{ game.id }}/coverart.png" alt="{{ gettrans(lang=language, key="index.coverart.alt", game=game.name) }}" width="180" height="240" class="coverart-img"/>
-        {% else %}
-        <img src="{{ static_url }}/default-coverart.svg" alt="{{ gettrans(lang=language, key="index.coverart.alt.default", game=game.name) }}" width="180" height="240" class="coverart-img" />
-        {% endif %}
+        <img src="{{ gamelinks.cover_art_url }}" alt="{{ gettrans(lang=language, key="index.coverart.alt", game=game.name) }}" width="180" height="240" class="coverart-img"/>
         <div class="coverart-tag">{{ game.name }}</div>
     </a>
 </div>

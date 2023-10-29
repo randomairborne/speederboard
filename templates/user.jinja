@@ -1,9 +1,10 @@
 {% extends "base.jinja" %}
 {% block title %}{{ gettrans(lang=language, key="user.title", user=user.username) }}{% endblock title %}
 {% block body %}
+{% set userlinks = getuserlinks(user=user) %}
 <h1>{{ gettrans(lang=language, key="user.heading", user=user.username) }}</h1>
-{% if user.pfp_ext %}
-<img src="{{ user_content_url }}/users/{{ user.id }}/pfp.png" alt="{{ gettrans(lang=language, key="signup.title", user=user.username) }}" />
+{% if user.pfp %}
+<img src="{{ userlinks.pfp_url }}" alt="{{ gettrans(lang=language, key="signup.title", user=user.username) }}" />
 {% endif %}
 <div>{{ user.biography | markdown }}</div>
 {% endblock body %}
