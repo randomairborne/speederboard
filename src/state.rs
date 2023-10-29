@@ -238,7 +238,7 @@ impl InnerAppState {
         };
         let csp = HeaderValue::from_str(&format!(
             "default-src {0} {1} {2}; script-src {1}; object-src 'none'; \
-            frame-src https://youtube.com https://clips.twitch.tv",
+            frame-src https://youtube.com https://clips.twitch.tv {2}",
             Self::url_to_origin(&config.root_url),
             Self::url_to_origin(&config.static_url),
             Self::url_to_origin(&config.user_content_url)
