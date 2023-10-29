@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n        id, username, has_stylesheet, pfp, banner,\n        biography, admin, created_at, flags, language\n        FROM users WHERE username = $1",
+  "query": "INSERT INTO users\n        (username, email, password, stylesheet, flags,\n            pfp, banner, biography, admin, created_at)\n        VALUES ($1, $2, $3, false, 0, false, false, '', false, NOW())\n        RETURNING id, username, stylesheet, pfp, banner,\n        biography, admin, created_at, flags, language",
   "describe": {
     "columns": [
       {
@@ -15,7 +15,7 @@
       },
       {
         "ordinal": 2,
-        "name": "has_stylesheet",
+        "name": "stylesheet",
         "type_info": "Bool"
       },
       {
@@ -56,7 +56,9 @@
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Varchar",
+        "Varchar",
+        "Varchar"
       ]
     },
     "nullable": [
@@ -72,5 +74,5 @@
       true
     ]
   },
-  "hash": "f32302c00d65e68d100b96f2cffc8e9932ccfb6cdd7d926e71ce66e38e4e9751"
+  "hash": "16d45070f9efd14715ca5fc9aef4a7910286599f11e3810a3327e73bfd914d64"
 }

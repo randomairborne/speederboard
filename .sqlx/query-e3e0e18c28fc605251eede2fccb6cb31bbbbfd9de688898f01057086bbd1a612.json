@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE users SET\n                username = COALESCE($2, username),\n                has_stylesheet = COALESCE($3, has_stylesheet),\n                biography = COALESCE($4, biography),\n                pfp = COALESCE($5, pfp),\n                banner = COALESCE($6, banner),\n                language = CASE WHEN $7 THEN NULL ELSE COALESCE($8, language) END,\n                admin = COALESCE($9, admin),\n                flags = COALESCE($10, flags)\n            WHERE id = $1\n            RETURNING id, username, has_stylesheet, flags,\n            pfp, banner, biography, admin, created_at, language",
+  "query": "SELECT\n        id, username, stylesheet, pfp, banner,\n        biography, email, admin, created_at, flags, language\n        FROM users WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -15,27 +15,27 @@
       },
       {
         "ordinal": 2,
-        "name": "has_stylesheet",
+        "name": "stylesheet",
         "type_info": "Bool"
       },
       {
         "ordinal": 3,
-        "name": "flags",
-        "type_info": "Int8"
-      },
-      {
-        "ordinal": 4,
         "name": "pfp",
         "type_info": "Bool"
       },
       {
-        "ordinal": 5,
+        "ordinal": 4,
         "name": "banner",
         "type_info": "Bool"
       },
       {
-        "ordinal": 6,
+        "ordinal": 5,
         "name": "biography",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "email",
         "type_info": "Varchar"
       },
       {
@@ -50,21 +50,17 @@
       },
       {
         "ordinal": 9,
+        "name": "flags",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
         "name": "language",
         "type_info": "Varchar"
       }
     ],
     "parameters": {
       "Left": [
-        "Int8",
-        "Varchar",
-        "Bool",
-        "Varchar",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Varchar",
-        "Bool",
         "Int8"
       ]
     },
@@ -78,8 +74,9 @@
       false,
       false,
       false,
+      false,
       true
     ]
   },
-  "hash": "11029edec0f3be123d66e4a5db78574cea858803417593f1b3a6e7871e82f186"
+  "hash": "e3e0e18c28fc605251eede2fccb6cb31bbbbfd9de688898f01057086bbd1a612"
 }

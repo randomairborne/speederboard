@@ -14,7 +14,7 @@ use crate::{
 pub struct User {
     pub id: Id<UserMarker>,
     pub username: String,
-    pub has_stylesheet: bool,
+    pub stylesheet: bool,
     pub biography: String,
     pub pfp: bool,
     pub banner: bool,
@@ -33,7 +33,7 @@ impl User {
             return Ok(user);
         }
         let record = query!(
-            "SELECT id, username, has_stylesheet, pfp,
+            "SELECT id, username, stylesheet, pfp,
             banner, biography, admin, created_at, flags,
             language
             FROM users WHERE id = $1",
@@ -44,7 +44,7 @@ impl User {
         let user = User {
             id: record.id.into(),
             username: record.username,
-            has_stylesheet: record.has_stylesheet,
+            stylesheet: record.stylesheet,
             pfp: record.pfp,
             banner: record.banner,
             biography: record.biography,
@@ -82,7 +82,7 @@ impl User {
         let user = User {
             id: record.id.into(),
             username: record.username,
-            has_stylesheet: record.has_stylesheet,
+            stylesheet: record.stylesheet,
             pfp: record.pfp,
             banner: record.banner,
             biography: record.biography,
@@ -98,6 +98,14 @@ impl User {
         // a password, we want to report it, but differently then if the password is *wrong*
         password_result?;
         Ok(Ok(user))
+    }
+
+    pub fn check_admin(&self) -> Result<(), Error> {
+        if self.admin {
+            Ok(())
+        } else {
+            Err(Error::InsufficientPermissions)
+        }
     }
 
     pub fn stylesheet_path(&self) -> String {
@@ -188,7 +196,7 @@ impl FromRequestParts<AppState> for Admin {
 pub struct UserUpdate {
     id: Id<UserMarker>,
     username: Option<String>,
-    has_stylesheet: Option<bool>,
+    stylesheet: Option<bool>,
     biography: Option<String>,
     pfp: Option<bool>,
     banner: Option<bool>,
@@ -203,7 +211,7 @@ impl UserUpdate {
         Self {
             id,
             username: None,
-            has_stylesheet: None,
+            stylesheet: None,
             biography: None,
             pfp: None,
             banner: None,
@@ -219,7 +227,7 @@ impl UserUpdate {
             User,
             "UPDATE users SET
                 username = COALESCE($2, username),
-                has_stylesheet = COALESCE($3, has_stylesheet),
+                stylesheet = COALESCE($3, stylesheet),
                 biography = COALESCE($4, biography),
                 pfp = COALESCE($5, pfp),
                 banner = COALESCE($6, banner),
@@ -227,11 +235,11 @@ impl UserUpdate {
                 admin = COALESCE($9, admin),
                 flags = COALESCE($10, flags)
             WHERE id = $1
-            RETURNING id, username, has_stylesheet, flags,
+            RETURNING id, username, stylesheet, flags,
             pfp, banner, biography, admin, created_at, language",
             self.id.get(),
             self.username,
-            self.has_stylesheet,
+            self.stylesheet,
             self.biography,
             self.pfp,
             self.banner,
@@ -263,9 +271,9 @@ impl UserUpdate {
         }
     }
 
-    pub fn has_stylesheet(self, has_stylesheet: bool) -> Self {
+    pub fn stylesheet(self, stylesheet: bool) -> Self {
         Self {
-            has_stylesheet: Some(has_stylesheet),
+            stylesheet: Some(stylesheet),
             ..self
         }
     }

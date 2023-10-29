@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT u.id, u.username, u.has_stylesheet,\n            u.pfp, u.banner, u.biography, u.admin,\n            u.created_at, u.flags, u.language, p.permissions\n            FROM users as u LEFT JOIN permissions as p\n            ON p.user_id = $1 AND p.game_id = $2 AND u.id = $1",
+  "query": "UPDATE users SET\n                username = COALESCE($2, username),\n                stylesheet = COALESCE($3, stylesheet),\n                biography = COALESCE($4, biography),\n                pfp = COALESCE($5, pfp),\n                banner = COALESCE($6, banner),\n                language = CASE WHEN $7 THEN NULL ELSE COALESCE($8, language) END,\n                admin = COALESCE($9, admin),\n                flags = COALESCE($10, flags)\n            WHERE id = $1\n            RETURNING id, username, stylesheet, flags,\n            pfp, banner, biography, admin, created_at, language",
   "describe": {
     "columns": [
       {
@@ -15,53 +15,56 @@
       },
       {
         "ordinal": 2,
-        "name": "has_stylesheet",
+        "name": "stylesheet",
         "type_info": "Bool"
       },
       {
         "ordinal": 3,
+        "name": "flags",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
         "name": "pfp",
         "type_info": "Bool"
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "banner",
         "type_info": "Bool"
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "biography",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 6,
+        "ordinal": 7,
         "name": "admin",
         "type_info": "Bool"
       },
       {
-        "ordinal": 7,
+        "ordinal": 8,
         "name": "created_at",
         "type_info": "Timestamp"
-      },
-      {
-        "ordinal": 8,
-        "name": "flags",
-        "type_info": "Int8"
       },
       {
         "ordinal": 9,
         "name": "language",
         "type_info": "Varchar"
-      },
-      {
-        "ordinal": 10,
-        "name": "permissions",
-        "type_info": "Int8"
       }
     ],
     "parameters": {
       "Left": [
         "Int8",
+        "Varchar",
+        "Bool",
+        "Varchar",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Varchar",
+        "Bool",
         "Int8"
       ]
     },
@@ -75,9 +78,8 @@
       false,
       false,
       false,
-      true,
       true
     ]
   },
-  "hash": "06a02bece97af7c6a6ff0423d172c86e403688994af67bf3a515715e6aeed614"
+  "hash": "98df6318dea0875c5aeb87badf5390b908dc5f3c00930bd82b338e649a0de164"
 }

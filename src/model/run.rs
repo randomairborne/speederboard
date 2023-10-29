@@ -207,11 +207,11 @@ impl ResolvedRun {
             r#"SELECT runs.id, runs.game, runs.category, runs.video,
             runs.description, runs.score, runs.time, runs.status,
             runs.created_at, runs.verified_at, runs.flags,
-            verifier.id, verifier.username, verifier.has_stylesheet,
+            verifier.id, verifier.username, verifier.stylesheet,
             verifier.biography, verifier.pfp, verifier.banner,
             verifier.admin, verifier.created_at, verifier.flags, 
             verifier.language,
-            submitter.id, submitter.username, submitter.has_stylesheet,
+            submitter.id, submitter.username, submitter.stylesheet,
             submitter.biography, submitter.pfp, submitter.banner,
             submitter.admin, submitter.created_at, submitter.flags,
             submitter.language,
@@ -223,7 +223,7 @@ impl ResolvedRun {
             query.push(concat!(
                 ',',
                 "game.id, game.name, game.description, game.slug, game.url,",
-                "game.has_stylesheet, game.banner, game.cover_art,",
+                "game.banner, game.cover_art,",
                 "game.default_category, game.flags ",
             ));
         }
@@ -304,7 +304,7 @@ impl ResolvedRun {
 
         let verifier_id: Option<Id<UserMarker>> = row.try_get(11)?;
         let verifier_name: Option<String> = row.try_get(12)?;
-        let verifier_has_stylesheet: Option<bool> = row.try_get(13)?;
+        let verifier_stylesheet: Option<bool> = row.try_get(13)?;
         let verifier_bio: Option<String> = row.try_get(14)?;
         let verifier_pfp: Option<bool> = row.try_get(15)?;
         let verifier_banner: Option<bool> = row.try_get(16)?;
@@ -315,7 +315,7 @@ impl ResolvedRun {
 
         let submitter_id: Id<UserMarker> = row.try_get(21)?;
         let submitter_name: String = row.try_get(22)?;
-        let submitter_has_stylesheet: bool = row.try_get(23)?;
+        let submitter_stylesheet: bool = row.try_get(23)?;
         let submitter_bio: String = row.try_get(24)?;
         let submitter_pfp: bool = row.try_get(25)?;
         let submitter_banner: bool = row.try_get(26)?;
@@ -334,7 +334,7 @@ impl ResolvedRun {
         let verifier = opt_user(
             verifier_id,
             verifier_name,
-            verifier_has_stylesheet,
+            verifier_stylesheet,
             verifier_bio,
             verifier_pfp,
             verifier_banner,
@@ -346,7 +346,7 @@ impl ResolvedRun {
         let submitter = User {
             id: submitter_id,
             username: submitter_name,
-            has_stylesheet: submitter_has_stylesheet,
+            stylesheet: submitter_stylesheet,
             biography: submitter_bio,
             pfp: submitter_pfp,
             banner: submitter_banner,
@@ -388,11 +388,10 @@ impl ResolvedRun {
         let description: String = row.try_get(39)?;
         let slug: String = row.try_get(40)?;
         let url: String = row.try_get(41)?;
-        let has_stylesheet: bool = row.try_get(42)?;
-        let banner: bool = row.try_get(43)?;
-        let cover_art: bool = row.try_get(44)?;
-        let default_category: Id<CategoryMarker> = row.try_get(45)?;
-        let flags: i64 = row.try_get(46)?;
+        let banner: bool = row.try_get(42)?;
+        let cover_art: bool = row.try_get(43)?;
+        let default_category: Id<CategoryMarker> = row.try_get(44)?;
+        let flags: i64 = row.try_get(45)?;
         Ok(Arc::new(Game {
             id,
             name,
@@ -400,7 +399,6 @@ impl ResolvedRun {
             url,
             default_category,
             description,
-            has_stylesheet,
             banner,
             cover_art,
             flags,

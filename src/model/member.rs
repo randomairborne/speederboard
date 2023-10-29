@@ -36,7 +36,7 @@ impl Member {
             }
         }
         let Some(member) = query!(
-            "SELECT u.id, u.username, u.has_stylesheet,
+            "SELECT u.id, u.username, u.stylesheet,
             u.pfp, u.banner, u.biography, u.admin,
             u.created_at, u.flags, u.language, p.permissions
             FROM users as u LEFT JOIN permissions as p
@@ -52,7 +52,7 @@ impl Member {
         let user = User {
             id: member.id.into(),
             username: member.username,
-            has_stylesheet: member.has_stylesheet,
+            stylesheet: member.stylesheet,
             biography: member.biography,
             pfp: member.pfp,
             banner: member.banner,

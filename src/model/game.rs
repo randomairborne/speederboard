@@ -11,7 +11,6 @@ pub struct Game {
     pub url: String,
     pub default_category: Id<CategoryMarker>,
     pub description: String,
-    pub has_stylesheet: bool,
     pub banner: bool,
     pub cover_art: bool,
     pub flags: i64,

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ static_url }}/style.css">
     <link rel="icon" href="{{ static_url }}/favicon.svg" type="image/svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    {% if logged_in_user and logged_in_user.has_stylesheet and not custom_styles_disabled %}
+    {% if logged_in_user and logged_in_user.stylesheet and not custom_styles_disabled %}
     {% set userlinks = getuserlinks(user=logged_in_user) %}
     <link rel="stylesheet" href="{{ userlinks.stylesheet_url }}">
     {% endif %}

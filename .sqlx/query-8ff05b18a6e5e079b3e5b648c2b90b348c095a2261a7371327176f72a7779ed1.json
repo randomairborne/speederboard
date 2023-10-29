@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, username, has_stylesheet, pfp,\n            banner, biography, admin, created_at, flags,\n            language\n            FROM users WHERE id = $1",
+  "query": "SELECT id, username, stylesheet, pfp,\n            banner, biography, admin, created_at, flags,\n            language\n            FROM users WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -15,7 +15,7 @@
       },
       {
         "ordinal": 2,
-        "name": "has_stylesheet",
+        "name": "stylesheet",
         "type_info": "Bool"
       },
       {
@@ -72,5 +72,5 @@
       true
     ]
   },
-  "hash": "ba47f3a44487b05bab0d969d6180f9111d9dda57a4bcec37d02dac3e1bcc5ac7"
+  "hash": "8ff05b18a6e5e079b3e5b648c2b90b348c095a2261a7371327176f72a7779ed1"
 }

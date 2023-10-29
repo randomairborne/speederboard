@@ -34,22 +34,25 @@ pub struct GameCreatePage {
 
 #[allow(clippy::unused_async)]
 pub async fn get(State(state): State<AppState>, user: User, base: BaseRenderInfo) -> HandlerResult {
+    user.check_admin()?;
     let ctx = GameCreatePage { base, user };
     state.render("create_game.jinja", ctx)
 }
 
 pub async fn post(
     State(state): State<AppState>,
+    user: User,
     ValidatedForm(newgame): ValidatedForm<GameCreateForm>,
 ) -> Result<Redirect, Error> {
+    user.check_admin()?;
     let mut trans = state.postgres.begin().await?;
     let game_id = query!(
         "INSERT INTO games
         (
             name, slug, url, description,
-            has_stylesheet, default_category
+            banner, cover_art, default_category
         )
-        VALUES ($1, $2, $3, $4, false, -1) RETURNING id",
+        VALUES ($1, $2, $3, $4, false, false, -1) RETURNING id",
         newgame.name,
         newgame.slug,
         newgame.url,

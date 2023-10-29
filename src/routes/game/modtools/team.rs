@@ -45,7 +45,7 @@ pub async fn get(
     let members = query!(
         "SELECT permissions.permissions,
         users.id, users.username, users.biography,
-        users.admin, users.has_stylesheet, users.banner,
+        users.admin, users.stylesheet, users.banner,
         users.pfp, users.flags, users.created_at,
         users.language
         FROM users
@@ -62,7 +62,7 @@ pub async fn get(
         user: User {
             id: Id::new(row.id),
             username: row.username,
-            has_stylesheet: row.has_stylesheet,
+            stylesheet: row.stylesheet,
             biography: row.biography,
             pfp: row.pfp,
             banner: row.banner,

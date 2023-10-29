@@ -35,7 +35,7 @@
       },
       {
         "ordinal": 6,
-        "name": "has_stylesheet",
+        "name": "stylesheet",
         "type_info": "Bool"
       },
       {

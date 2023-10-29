@@ -7,7 +7,7 @@ CREATE TABLE users (
     password VARCHAR(1024) NOT NULL,
     biography VARCHAR(4000) NOT NULL,
     admin BOOL NOT NULL DEFAULT false,
-    has_stylesheet BOOL NOT NULL,
+    stylesheet BOOL NOT NULL,
     banner BOOL NOT NULL,
     pfp BOOL NOT NULL,
     flags BIGINT NOT NULL DEFAULT 0,
@@ -26,7 +26,6 @@ CREATE TABLE games (
     url VARCHAR(128) NOT NULL,
     default_category BIGINT NOT NULL,
     description VARCHAR(4000) NOT NULL,
-    has_stylesheet BOOL NOT NULL,
     banner BOOL NOT NULL,
     cover_art BOOL NOT NULL,
     flags BIGINT NOT NULL DEFAULT 0

@@ -31,7 +31,7 @@ pub async fn get(
             users.username as user_username,
             users.biography as user_biography,
             users.admin as user_admin,
-            users.has_stylesheet as user_has_stylesheet,
+            users.stylesheet as user_stylesheet,
             users.banner as user_banner,
             users.pfp as user_pfp,
             users.flags as user_flags,
@@ -51,7 +51,7 @@ pub async fn get(
         let author = User {
             id: Id::new(row.user_id),
             username: row.user_username,
-            has_stylesheet: row.user_has_stylesheet,
+            stylesheet: row.user_stylesheet,
             biography: row.user_biography,
             pfp: row.user_pfp,
             banner: row.user_banner,

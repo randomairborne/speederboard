@@ -118,7 +118,7 @@ pub fn hash_password(password: &[u8], argon: &Argon2) -> Result<String, ArgonErr
 pub fn opt_user(
     id: Option<Id<UserMarker>>,
     name: Option<String>,
-    has_stylesheet: Option<bool>,
+    stylesheet: Option<bool>,
     bio: Option<String>,
     pfp: Option<bool>,
     banner: Option<bool>,
@@ -130,7 +130,7 @@ pub fn opt_user(
     Some(User {
         id: id?,
         username: name?,
-        has_stylesheet: has_stylesheet?,
+        stylesheet: stylesheet?,
         biography: bio?,
         pfp: pfp?,
         banner: banner?,
@@ -171,8 +171,7 @@ pub async fn game_n_member(
     let data = query!(
         "SELECT g.id, g.name, g.slug,
         g.url, g.default_category, g.description,
-        g.has_stylesheet, g.banner,
-        g.cover_art, g.flags, p.permissions
+        g.banner, g.cover_art, g.flags, p.permissions
         FROM games as g LEFT JOIN permissions as p
         ON p.user_id = $1 AND p.game_id = g.id AND g.slug = $2",
         user.id.get(),
@@ -201,7 +200,6 @@ pub async fn game_n_member(
         url: data.url,
         default_category: data.default_category.into(),
         description: data.description,
-        has_stylesheet: data.has_stylesheet,
         banner: data.banner,
         cover_art: data.cover_art,
         flags: data.flags,

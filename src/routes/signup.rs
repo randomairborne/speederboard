@@ -63,10 +63,10 @@ pub async fn post(
     let user = query_as!(
         crate::model::User,
         "INSERT INTO users
-        (username, email, password, has_stylesheet, flags,
+        (username, email, password, stylesheet, flags,
             pfp, banner, biography, admin, created_at)
         VALUES ($1, $2, $3, false, 0, false, false, '', false, NOW())
-        RETURNING id, username, has_stylesheet, pfp, banner,
+        RETURNING id, username, stylesheet, pfp, banner,
         biography, admin, created_at, flags, language",
         form.username,
         form.email,

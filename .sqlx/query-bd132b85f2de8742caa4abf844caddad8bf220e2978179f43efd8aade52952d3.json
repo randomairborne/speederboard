@@ -35,21 +35,16 @@
       },
       {
         "ordinal": 6,
-        "name": "has_stylesheet",
-        "type_info": "Bool"
-      },
-      {
-        "ordinal": 7,
         "name": "banner",
         "type_info": "Bool"
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "cover_art",
         "type_info": "Bool"
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "flags",
         "type_info": "Int8"
       }
@@ -60,7 +55,6 @@
       ]
     },
     "nullable": [
-      false,
       false,
       false,
       false,

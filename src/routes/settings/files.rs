@@ -76,7 +76,7 @@ pub async fn stylesheet(
         .put_r2_file(&user.stylesheet_path(), &bytes, "text/css")
         .await?;
     UserUpdate::new(user.id)
-        .has_stylesheet(true)
+        .stylesheet(true)
         .execute(&state)
         .await?;
     Ok(state.redirect("/settings"))
@@ -85,7 +85,7 @@ pub async fn stylesheet(
 pub async fn stylesheet_del(State(state): State<AppState>, user: User) -> Result<Redirect, Error> {
     state.delete_r2_file(&user.stylesheet_path()).await?;
     UserUpdate::new(user.id)
-        .has_stylesheet(false)
+        .stylesheet(false)
         .execute(&state)
         .await?;
     Ok(state.redirect("/settings"))

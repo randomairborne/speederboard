@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT g.id, g.name, g.slug,\n        g.url, g.default_category, g.description,\n        g.has_stylesheet, g.banner,\n        g.cover_art, g.flags, p.permissions\n        FROM games as g LEFT JOIN permissions as p\n        ON p.user_id = $1 AND p.game_id = g.id AND g.slug = $2",
+  "query": "SELECT g.id, g.name, g.slug,\n        g.url, g.default_category, g.description,\n        g.banner, g.cover_art, g.flags, p.permissions\n        FROM games as g LEFT JOIN permissions as p\n        ON p.user_id = $1 AND p.game_id = g.id AND g.slug = $2",
   "describe": {
     "columns": [
       {
@@ -35,26 +35,21 @@
       },
       {
         "ordinal": 6,
-        "name": "has_stylesheet",
-        "type_info": "Bool"
-      },
-      {
-        "ordinal": 7,
         "name": "banner",
         "type_info": "Bool"
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "cover_art",
         "type_info": "Bool"
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "flags",
         "type_info": "Int8"
       },
       {
-        "ordinal": 10,
+        "ordinal": 9,
         "name": "permissions",
         "type_info": "Int8"
       }
@@ -75,9 +70,8 @@
       false,
       false,
       false,
-      false,
       true
     ]
   },
-  "hash": "68a182e0517365bddbf78f92484c9a30009369ee7de92bce330b8814505e4ee3"
+  "hash": "7fb00b7eda6aec736eca5482917ac995ff5bae509e8ef6e66d4fb8646e52422f"
 }

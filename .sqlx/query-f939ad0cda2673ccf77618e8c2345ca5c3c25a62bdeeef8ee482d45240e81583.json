@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO users\n        (username, email, password, has_stylesheet, flags,\n            pfp, banner, biography, admin, created_at)\n        VALUES ($1, $2, $3, false, 0, false, false, '', false, NOW())\n        RETURNING id, username, has_stylesheet, pfp, banner,\n        biography, admin, created_at, flags, language",
+  "query": "SELECT u.id, u.username, u.stylesheet,\n            u.pfp, u.banner, u.biography, u.admin,\n            u.created_at, u.flags, u.language, p.permissions\n            FROM users as u LEFT JOIN permissions as p\n            ON p.user_id = $1 AND p.game_id = $2 AND u.id = $1",
   "describe": {
     "columns": [
       {
@@ -15,7 +15,7 @@
       },
       {
         "ordinal": 2,
-        "name": "has_stylesheet",
+        "name": "stylesheet",
         "type_info": "Bool"
       },
       {
@@ -52,13 +52,17 @@
         "ordinal": 9,
         "name": "language",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "permissions",
+        "type_info": "Int8"
       }
     ],
     "parameters": {
       "Left": [
-        "Varchar",
-        "Varchar",
-        "Varchar"
+        "Int8",
+        "Int8"
       ]
     },
     "nullable": [
@@ -71,8 +75,9 @@
       false,
       false,
       false,
+      true,
       true
     ]
   },
-  "hash": "241cabc0bb83e6137b6528ffdd2bae5667afb5c6e5a88f64a890d6e5c8215a8b"
+  "hash": "f939ad0cda2673ccf77618e8c2345ca5c3c25a62bdeeef8ee482d45240e81583"
 }

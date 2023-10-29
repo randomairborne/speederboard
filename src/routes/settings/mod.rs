@@ -78,7 +78,7 @@ pub async fn get(
 ) -> HandlerResult {
     let record = query!(
         "SELECT
-        id, username, has_stylesheet, pfp, banner,
+        id, username, stylesheet, pfp, banner,
         biography, email, admin, created_at, flags, language
         FROM users WHERE id = $1",
         user.id.get()
@@ -89,7 +89,7 @@ pub async fn get(
     let base_user = User {
         id: Id::new(record.id),
         username: record.username,
-        has_stylesheet: record.has_stylesheet,
+        stylesheet: record.stylesheet,
         biography: record.biography,
         pfp: record.pfp,
         banner: record.banner,

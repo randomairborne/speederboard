@@ -84,7 +84,7 @@
         <td><button>{{ gettrans(lang=language, key="settings.css.submit") }}</button></td>
       </noscript>
     </form>
-    {% if user.has_stylesheet %}
+    {% if user.stylesheet %}
     <iframe src="{{ userlinks.stylesheet_url }}" width="400" height="400"></iframe>
     <form method="post" action="{{ root_url }}/settings/stylesheet/delete">
       <td><button>{{ gettrans(lang=language, key="settings.css.delete") }}</button></td>
