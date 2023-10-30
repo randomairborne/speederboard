@@ -1,6 +1,6 @@
-use markdown::mdast::Node;
 use std::{collections::HashMap, fmt::Write, sync::Arc};
 
+use markdown::mdast::Node;
 use simpleinterpolation::Interpolation;
 use tera::Value;
 
@@ -94,7 +94,7 @@ impl tera::Function for GetTranslation {
     }
 
     fn is_safe(&self) -> bool {
-        false
+        true
     }
 }
 
@@ -103,9 +103,9 @@ fn stringify_value(value: &Value) -> String {
         Value::Null => "nil".to_owned(),
         Value::Bool(val) => val.to_string(),
         Value::Number(val) => val.to_string(),
-        Value::String(string) => string.clone(),
-        Value::Array(val) => format!("{val:?}"),
-        Value::Object(val) => format!("{val:?}"),
+        Value::String(string) => tera::escape_html(string),
+        Value::Array(val) => tera::escape_html(&format!("{val:?}")),
+        Value::Object(val) => tera::escape_html(&format!("{val:?}")),
     }
 }
 
