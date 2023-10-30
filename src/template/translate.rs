@@ -1,4 +1,5 @@
-use std::{collections::HashMap, sync::Arc};
+use markdown::mdast::Node;
+use std::{collections::HashMap, fmt::Write, sync::Arc};
 
 use simpleinterpolation::Interpolation;
 use tera::Value;
@@ -108,7 +109,7 @@ fn stringify_value(value: &Value) -> String {
     }
 }
 
-pub fn get_translations() -> Result<Vec<Translation>, crate::Error> {
+pub fn get_translations() -> Result<Vec<Translation>, Error> {
     trace!("Reading translations");
     let files = std::fs::read_dir("./translations/")
         .expect("Failed to open ./translations/")
@@ -134,10 +135,96 @@ pub fn get_translations() -> Result<Vec<Translation>, crate::Error> {
         let translations_for_lang: HashMap<String, String> =
             serde_json::from_slice(&file_contents)?;
         for (key, contents) in translations_for_lang {
+            let contents =
+                convert_markdown_to_html(contents).expect("Failed to convert markdown to HTML");
             let translation = Translation::new(lang, key, contents);
             translations.push(translation);
         }
     }
     trace!("Read and parsed translations");
     Ok(translations)
+}
+
+fn convert_markdown_to_html(contents: String) -> Result<String, Error> {
+    let ast = markdown::to_mdast(&contents, &Default::default())
+        .expect("Markdown compile errors should be impossible");
+
+    let mut translated = String::with_capacity(1024);
+    node_to_string(&mut translated, ast)?;
+    Ok(translated)
+}
+
+fn node_to_string(txt: &mut String, node: Node) -> std::fmt::Result {
+    match node {
+        Node::Root(v) => nodes_to_string(txt, v.children)?,
+        Node::BlockQuote(v) => nodes_to_string(txt, v.children)?,
+        Node::FootnoteDefinition(v) => nodes_to_string(txt, v.children)?,
+        Node::MdxJsxFlowElement(v) => nodes_to_string(txt, v.children)?,
+        Node::List(v) => nodes_to_string(txt, v.children)?,
+        Node::MdxjsEsm(v) => txt.write_str(&v.value)?,
+        Node::Toml(v) => txt.write_str(&v.value)?,
+        Node::Yaml(v) => txt.write_str(&v.value)?,
+        Node::Break(_) => txt.write_str("<br>")?,
+        Node::InlineCode(v) => txt.write_str(&v.value)?,
+        Node::InlineMath(v) => txt.write_str(&v.value)?,
+        Node::Delete(v) => surround_nodes_with_tag(txt, "s", v.children)?,
+        Node::Emphasis(v) => surround_nodes_with_tag(txt, "i", v.children)?,
+        Node::MdxTextExpression(v) => txt.write_str(&v.value)?,
+        Node::FootnoteReference(v) => txt.write_str(&v.identifier)?,
+        Node::Html(v) => txt.write_str(&tera::escape_html(&v.value))?,
+        Node::Image(v) => write!(txt, "<img src=\"{}\" alt=\"{}\" />", v.url, v.alt)?,
+        Node::ImageReference(v) => txt.write_str(&v.alt)?,
+        Node::MdxJsxTextElement(v) => nodes_to_string(txt, v.children)?,
+        Node::Link(v) => write!(
+            txt,
+            "<a href=\"{}\">{}</a>",
+            v.url,
+            children_to_string(v.children)?
+        )?,
+        Node::LinkReference(v) => txt.write_str(&v.identifier)?,
+        Node::Strong(v) => surround_nodes_with_tag(txt, "strong", v.children)?,
+        Node::Text(v) => txt.push_str(&v.value),
+        Node::Code(v) => surround_str_with_tag(txt, "code", &v.value)?,
+        Node::Math(v) => txt.push_str(&v.value),
+        Node::MdxFlowExpression(v) => txt.push_str(&v.value),
+        Node::Heading(v) => write!(
+            txt,
+            "<h{0}>{1}</h{0}",
+            v.depth,
+            &children_to_string(v.children)?
+        )?,
+        Node::Table(v) => nodes_to_string(txt, v.children)?,
+        Node::ThematicBreak(_) => txt.write_str("<hr>")?,
+        Node::TableRow(v) => nodes_to_string(txt, v.children)?,
+        Node::TableCell(v) => nodes_to_string(txt, v.children)?,
+        Node::ListItem(v) => nodes_to_string(txt, v.children)?,
+        Node::Definition(v) => write!(txt, "[{}]: {}", v.identifier, v.url)?,
+        Node::Paragraph(v) => nodes_to_string(txt, v.children)?,
+    }
+    Ok(())
+}
+
+fn nodes_to_string(txt: &mut String, children: Vec<Node>) -> std::fmt::Result {
+    for child in children {
+        node_to_string(txt, child)?;
+    }
+    Ok(())
+}
+
+fn surround_nodes_with_tag(txt: &mut String, tag: &str, children: Vec<Node>) -> std::fmt::Result {
+    write!(txt, "<{tag}>")?;
+    nodes_to_string(txt, children)?;
+    write!(txt, "</{tag}>")?;
+    Ok(())
+}
+
+fn surround_str_with_tag(txt: &mut String, tag: &str, child: &str) -> std::fmt::Result {
+    write!(txt, "<{tag}>{child}</{tag}>")?;
+    Ok(())
+}
+
+fn children_to_string(nodes: Vec<Node>) -> Result<String, std::fmt::Error> {
+    let mut string = String::with_capacity(1024);
+    nodes_to_string(&mut string, nodes)?;
+    Ok(string)
 }
