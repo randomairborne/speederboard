@@ -353,12 +353,25 @@ impl<T: Clone> From<MaybeNullUpdate<T>> for Option<T> {
 
 #[cfg(test)]
 mod tests {
-    use sqlx::PgPool;
-
+    use super::*;
+    use crate::state::InnerAppState;
     use crate::Error;
+    use sqlx::{query, PgPool};
 
-    // #[sqlx::test(fixtures("add_user"))]
+    #[sqlx::test(fixtures("add_user"))]
     async fn basic_user(db: PgPool) -> Result<(), Error> {
+        let state = InnerAppState::test(db).await;
+        let id = query!("SELECT id FROM users LIMIT 1")
+            .fetch_one(&state.postgres)
+            .await
+            .unwrap();
+        let user = User::from_db(&state, Id::new(id.id)).await.unwrap();
+        assert!(!user.pfp);
+        assert!(!user.banner);
+        assert!(!user.stylesheet);
+        assert_eq!(user.username, "test_user");
+        assert_eq!(user.biography, "biography");
+        assert!(!user.admin);
         Ok(())
     }
 }

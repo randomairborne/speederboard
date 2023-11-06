@@ -1,2 +1,2 @@
-INSERT INTO users (email, username, password, biography, has_stylesheet, banner_ext, pfp_ext, created_at, language)
-    VALUES ('test@example.com', 'test_user', '$argon2id$v=19$m=4096,t=3,p=1$c2FsdG5wZXBwZXI$HSWAIFe7el+sIlef8Un8420qYOzYhouxfvHUbHG/q3s', 'biography', false, false, false, '2023-11-5 19:58:00', 'en')
+INSERT INTO users (email, username, password, biography, stylesheet, banner, pfp, created_at, language)
+    VALUES ('test@example.com', 'test_user', '$argon2id$v=19$m=4096,t=3,p=1$c2FsdG5wZXBwZXI$HSWAIFe7el+sIlef8Un8420qYOzYhouxfvHUbHG/q3s', 'biography', false, false, false, NOW(), 'en')

@@ -225,7 +225,18 @@ impl InnerAppState {
             .ascii_serialization()
     }
 
+    #[cfg(test)]
+    pub async fn test(db: PgPool) -> AppState {
+        let mut me = Self::inner_from_environment().await;
+        me.postgres = db;
+        Arc::new(me)
+    }
+
     pub async fn from_environment() -> AppState {
+        Arc::new(Self::inner_from_environment().await)
+    }
+
+    pub async fn inner_from_environment() -> Self {
         let config: Config = envy::from_env().expect("Failed to read config");
         let root_url = config.root_url.trim_end_matches('/').to_string();
         let static_url = config.static_url.trim_end_matches('/').to_string();
@@ -277,7 +288,7 @@ impl InnerAppState {
             .build()
             .unwrap();
         let bucket = Self::get_s3_bucket_from_config(&config).await;
-        Arc::new(InnerAppState::new(
+        InnerAppState::new(
             config.clone(),
             tera,
             redis,
@@ -287,6 +298,6 @@ impl InnerAppState {
             http,
             bucket,
             csp,
-        ))
+        )
     }
 }
