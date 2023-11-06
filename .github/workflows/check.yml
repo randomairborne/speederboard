@@ -52,6 +52,14 @@ jobs:
         with:
           key: "check"
 
+      - name: Install sqlx-cli
+        run: cargo install sqlx-cli
+
+      - name: Run migrations
+        run: cargo sqlx migrate run
+        env:
+          DATABASE_URL: postgres://postgres:postgres@postgres/postgres
+
       - name: Check formatting
         run: cargo fmt --check
 
