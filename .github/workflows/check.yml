@@ -73,13 +73,13 @@ jobs:
         run: cargo test
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/postgres
-          REDIS_URL: redis://127.0.0.1/
+          REDIS_URL: redis://redis/
           ROOT_URL: http://127.0.0.1:8080
-          USER_CONTENT_URL: http://127.0.0.1:9000/speederboard/
+          USER_CONTENT_URL: http://minio:9000/speederboard/
           STATIC_URL: http://127.0.0.1:8000/
           LOG: trace
           S3_PATH_STYLE: true
-          S3_ENDPOINT: http://127.0.0.1:9000/
+          S3_ENDPOINT: http://minio:9000/
           S3_REGION: us-east-1
           S3_BUCKET_NAME: speederboard
           S3_ACCESS_KEY: minioadmin
