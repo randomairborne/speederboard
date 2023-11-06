@@ -27,8 +27,7 @@ jobs:
       minio:
         image: minio/minio:latest
         options: >- 
-          --mount type=bind,source="$(pwd)"/target,target=/tmp/minio/
-          --health-cmd "/usr/bin/mc ping localhost:9000"
+          --entrypoint="" minio/minio:latest /bin/bash -c 'mkdir /data/test && /usr/bin/minio'
       redis:
         image: redis:latest
         options: >-
