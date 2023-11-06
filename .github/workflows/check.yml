@@ -41,7 +41,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install curl
-        run: apt update && apt install curl
+        run: apt update -y && apt install curl -y
 
       - uses: dtolnay/rust-toolchain@stable
         with:
