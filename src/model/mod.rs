@@ -11,5 +11,5 @@ pub use forum::{ForumComment, ForumPost};
 pub use game::Game;
 pub use member::Member;
 pub use permissions::Permissions;
-pub use run::{DateSort, ResolvedRun, Run, RunStatus, SortBy};
+pub use run::{DateSort, ResolvedRun, RunStatus, SortBy};
 pub use user::{User, UserUpdate};

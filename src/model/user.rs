@@ -350,3 +350,15 @@ impl<T: Clone> From<MaybeNullUpdate<T>> for Option<T> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use sqlx::PgPool;
+
+    use crate::Error;
+
+    // #[sqlx::test(fixtures("add_user"))]
+    async fn basic_user(db: PgPool) -> Result<(), Error> {
+        Ok(())
+    }
+}
