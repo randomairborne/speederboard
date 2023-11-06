@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install curl
+      - name: Install various depdendencies
         run: apt update -y && apt install pkg-config curl build-essential openssl libssl-dev -y
 
       - uses: dtolnay/rust-toolchain@stable
