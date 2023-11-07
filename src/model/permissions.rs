@@ -4,6 +4,7 @@ use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign};
 pub struct Permissions(i64);
 
 impl Permissions {
+    // TODO: Stupid rustfmt should stop reordering my constants
     pub const ADMINISTRATOR: Self = Self(0b1 << 63);
     pub const BLOCK_USERS: Self = Self(0b1 << 1);
     pub const EMPTY: Self = Self(0b0);

@@ -353,10 +353,10 @@ impl<T: Clone> From<MaybeNullUpdate<T>> for Option<T> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::state::InnerAppState;
-    use crate::Error;
     use sqlx::{query, PgPool};
+
+    use super::*;
+    use crate::{state::InnerAppState, Error};
 
     #[sqlx::test(fixtures("add_user"))]
     async fn basic_user(db: PgPool) -> Result<(), Error> {
