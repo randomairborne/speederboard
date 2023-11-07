@@ -256,6 +256,7 @@ impl InnerAppState {
         ))
         .expect("Invalid csp header value (check your STATIC_URL)");
         let postgres = PgPoolOptions::new()
+            .max_connections(15)
             .connect(&config.database_url)
             .await
             .expect("Failed to connect to the database");
