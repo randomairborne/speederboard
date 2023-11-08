@@ -3,14 +3,16 @@ use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign};
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, sqlx::Type)]
 pub struct Permissions(i64);
 
+#[rustfmt::skip]
 impl Permissions {
-    // TODO: Stupid rustfmt should stop reordering my constants
-    pub const ADMINISTRATOR: Self = Self(0b1 << 63);
-    pub const BLOCK_USERS: Self = Self(0b1 << 1);
     pub const EMPTY: Self = Self(0b0);
-    pub const MANAGE_CATEGORIES: Self = Self(0b1 << 2);
     pub const VERIFY_RUNS: Self = Self(0b1 << 0);
+    pub const BLOCK_USERS: Self = Self(0b1 << 1);
+    pub const MANAGE_CATEGORIES: Self = Self(0b1 << 2);
+    pub const ADMINISTRATOR: Self = Self(0b1 << 63);
+}
 
+impl Permissions {
     pub fn new(input: i64) -> Self {
         Self(input)
     }
