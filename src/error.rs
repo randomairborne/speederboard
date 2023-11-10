@@ -89,8 +89,6 @@ pub enum Error {
     CannotDeleteDefaultCategory,
     #[error("URL being parsed does not have a domain!")]
     NoDomainInUrl,
-    #[error("URL being parsed has `..`, which could indicate a directory traversal attack!")]
-    DoubleDotInPath,
     #[error("Translation file did not have stem!")]
     NoFileStem,
     #[error("Invalid translation filename OS string!")]
@@ -171,12 +169,11 @@ pub async fn error_middleware<B>(
         | Error::Multipart(_)
         | Error::InvalidMultipart(_)
         | Error::Image(_)
+        | Error::ImageTooTall(_)
+        | Error::ImageTooWide(_)
         | Error::TokenHasIdButIdIsUnkown
         | Error::InvalidGameCategoryPair
-        | Error::CannotDeleteDefaultCategory
-        | Error::DoubleDotInPath
-        | Error::ImageTooTall(_)
-        | Error::ImageTooWide(_) => StatusCode::BAD_REQUEST,
+        | Error::CannotDeleteDefaultCategory => StatusCode::BAD_REQUEST,
         Error::InvalidPassword | Error::InsufficientPermissions => StatusCode::UNAUTHORIZED,
         Error::InvalidCookie => return state.redirect("/login").into_response(),
         Error::NeedsLogin(return_to) => {
