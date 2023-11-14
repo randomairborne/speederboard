@@ -1,3 +1,5 @@
+mod translate;
+
 use std::fmt::Display;
 
 use axum::{
