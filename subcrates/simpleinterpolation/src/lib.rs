@@ -64,7 +64,6 @@ struct InterpolationCompiler {
     escaped: bool,
 }
 
-// TODO: figure out why the heck this is outputting extra strings
 impl InterpolationCompiler {
     fn compile(input: String) -> Result<Interpolation, Error> {
         let mut compiler = Self {
@@ -81,8 +80,11 @@ impl InterpolationCompiler {
         }
 
         // Push the final part and return self
-        compiler.parts.push((compiler.next, String::new()));
+        if !compiler.next.is_empty() {
+            compiler.parts.push((compiler.next, String::new()));
+        }
         compiler.parts.shrink_to_fit();
+
         Ok(Interpolation {
             parts: compiler.parts,
         })
