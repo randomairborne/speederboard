@@ -27,7 +27,7 @@ impl Error {
             Self::Image(err) => todo!(),
             Self::MissingQueryPair(err) => todo!(),
             Self::NeedsLogin(err) => todo!(),
-            Self::S3Status(err) => todo!(),
+            Self::S3Status(err) => translate_s3(*err),
             Self::TooManyRows(_, _) => todo!(),
             Self::ImageTooTall(err) => todo!(),
             Self::ImageTooWide(err) => todo!(),
@@ -70,5 +70,24 @@ fn translate_sqlx(err: &sqlx::Error) -> &'static str {
         sqlx::Error::WorkerCrashed => "error.sqlx.worker_crash",
         sqlx::Error::Migrate(_) => "error.sqlx.migrate",
         _ => "error.sqlx.unknown",
+    }
+}
+
+fn translate_s3(status: u16) -> &'static str {
+    match status {
+        100 => "error.s3.continue",
+        304 => "error.s3.not_modified",
+        400 => "error.s3.bad_request",
+        403 => "error.s3.forbidden",
+        404 => "error.s3.not_found",
+        405 => "error.s3.method_not_allowed",
+        408 => "error.s3.timed_out",
+        409 => "error.s3.conflict",
+        411 => "error.s3.length_required",
+        412 => "error.s3.precondition_failed",
+        416 => "error.s3.invalid_range",
+        422 => "error.s3.unprocessable_entity",
+        500 => "error.s3.internal_server_error",
+        _ => "error.s3.unknown"
     }
 }
