@@ -88,6 +88,6 @@ fn translate_s3(status: u16) -> &'static str {
         416 => "error.s3.invalid_range",
         422 => "error.s3.unprocessable_entity",
         500 => "error.s3.internal_server_error",
-        _ => "error.s3.unknown"
+        _ => "error.s3.unknown",
     }
 }

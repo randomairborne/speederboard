@@ -10,6 +10,7 @@ pub struct GetTranslation {
     translations: Arc<HashMap<(Language, String), Interpolation>>,
 }
 
+#[derive(Debug, Clone)]
 pub struct Translation {
     lang: Language,
     key: String,
@@ -109,13 +110,20 @@ fn stringify_value(value: &Value) -> String {
     }
 }
 
+#[derive(serde::Deserialize, Clone)]
+#[serde(untagged)]
+enum TranslationLeaf {
+    Leaf(String),
+    Branch(HashMap<String, TranslationLeaf>),
+}
+
 pub fn get_translations() -> Result<Vec<Translation>, Error> {
     trace!("Reading translations");
     let files = std::fs::read_dir("./translations/")
         .expect("Failed to open ./translations/")
         .collect::<Result<Vec<std::fs::DirEntry>, std::io::Error>>()
         .expect("Failed to read ./translations/");
-    let mut translations: Vec<Translation> = Vec::with_capacity(files.len());
+    let mut translations: Vec<Translation> = Vec::new();
     for file in files {
         let file_name = file.path();
         if !file_name
@@ -132,17 +140,43 @@ pub fn get_translations() -> Result<Vec<Translation>, Error> {
             .map_err(|_| Error::InvalidOsString)?;
         let lang = Language::from_lang_code(&lang_string).unwrap_or_default();
         let file_contents = std::fs::read(file.path())?;
-        let translations_for_lang: HashMap<String, String> =
+        let translations_for_lang: HashMap<String, TranslationLeaf> =
             serde_json::from_slice(&file_contents)?;
-        for (key, contents) in translations_for_lang {
-            let contents =
-                convert_markdown_to_html(contents).expect("Failed to convert markdown to HTML");
-            let translation = Translation::new(lang, key, contents);
-            translations.push(translation);
-        }
+        let mut flattened_translations = flatten_translations(lang, None, translations_for_lang);
+        translations.append(&mut flattened_translations);
     }
-    trace!("Read and parsed translations");
+    debug!("Read and parsed translations");
+    trace!(?translations, "got translations");
     Ok(translations)
+}
+
+fn flatten_translations(
+    lang: Language,
+    prefix: Option<&str>,
+    map: HashMap<String, TranslationLeaf>,
+) -> Vec<Translation> {
+    let mut translations: Vec<Translation> = Vec::new();
+    for (key, value) in map.into_iter() {
+        let trans_key = if let Some(prefix) = prefix {
+            format!("{prefix}.{key}")
+        } else {
+            key
+        };
+        match value {
+            TranslationLeaf::Leaf(contents) => {
+                let contents =
+                    convert_markdown_to_html(contents).expect("Failed to convert markdown to HTML");
+                let translation = Translation::new(lang, trans_key, contents);
+                translations.push(translation);
+            }
+            TranslationLeaf::Branch(inner_map) => {
+                let mut inner_translations =
+                    flatten_translations(lang, Some(&trans_key), inner_map);
+                translations.append(&mut inner_translations);
+            }
+        };
+    }
+    translations
 }
 
 fn convert_markdown_to_html(contents: String) -> Result<String, Error> {

@@ -64,6 +64,7 @@ struct InterpolationCompiler {
     escaped: bool,
 }
 
+// TODO: figure out why the heck this is outputting extra strings
 impl InterpolationCompiler {
     fn compile(input: String) -> Result<Interpolation, Error> {
         let mut compiler = Self {
