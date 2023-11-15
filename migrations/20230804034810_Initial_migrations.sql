@@ -16,7 +16,7 @@ CREATE TABLE users (
 );
 
 CREATE INDEX users_name_index ON users USING HASH (username);
-CREATE UNIQUE INDEX case_insensitive_name_index ON users USING HASH (lower(username));
+CREATE UNIQUE INDEX case_insensitive_name_index ON users (lower(username));
 CREATE INDEX users_email_index ON users USING HASH (email);
 
 CREATE TABLE games (
