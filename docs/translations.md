@@ -13,7 +13,7 @@ keys which map to translation values. A dot is inserted at each level of indirec
 }
 ```
 
-In the above example, you would use `foo` to reference `one`, and `bar.baz` to reference `two`
+In the above example, you would use `foo` to reference `one`, and `bar.baz` to reference `two`.
 
 You can also use `{name}` to reference a variable. You can view the english file, which also
 serves as a source of truth for the keys, [here](https://github.com/speederboard/speederboard/blob/main/translations/en.lang).
