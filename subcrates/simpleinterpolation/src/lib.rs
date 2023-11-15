@@ -100,8 +100,10 @@ impl InterpolationCompiler {
             self.escaped = true;
         } else if ch == '{' {
             self.index += 1;
-            let ident = self.make_identifier()?.shrink_to_fit();
-            let to_push = std::mem::take(&mut self.next).shrink_to_fit();
+            let mut ident = self.make_identifier()?;
+            let mut to_push = std::mem::take(&mut self.next);
+            ident.shrink_to_fit();
+            to_push.shrink_to_fit();
             self.parts.push((to_push, ident));
         } else {
             self.next.push(ch);
