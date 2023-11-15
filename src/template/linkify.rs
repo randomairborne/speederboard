@@ -7,6 +7,8 @@ use crate::{
     model::{Game, User},
 };
 
+// TODO: Linkify other resources
+
 pub struct GetUserLinks {
     root: String,
     static_content: String,
