@@ -36,7 +36,18 @@ impl GetTranslation {
         let mut inners: HashMap<(Language, String), Interpolation> =
             HashMap::with_capacity(translations.len());
         for translation in translations {
-            inners.insert((translation.lang, translation.key), translation.contents);
+            if inners
+                .insert(
+                    (translation.lang, translation.key.clone()),
+                    translation.contents,
+                )
+                .is_some()
+            {
+                panic!(
+                    "Translation collision: ({:?}, {})",
+                    translation.lang, translation.key
+                );
+            }
         }
         Self {
             translations: Arc::new(inners),

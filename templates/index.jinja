@@ -7,7 +7,7 @@
 <div class="root-game-card">
     {% set gamelinks = getgamelinks(game=game) %}
     <a href="{{ root_url }}/game/{{ game.slug }}" class="coverart-anchor">
-        <img src="{{ gamelinks.cover_art_url }}" alt="{{ gettrans(lang=language, key="index.coverart.alt", game=game.name) }}" width="180" height="240" class="coverart-img"/>
+        <img src="{{ gamelinks.cover_art_url }}" alt="{{ gettrans(lang=language, key="index.coverart", game=game.name) }}" width="180" height="240" class="coverart-img"/>
         <div class="coverart-tag">{{ game.name }}</div>
     </a>
 </div>

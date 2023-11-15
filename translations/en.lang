@@ -1,142 +1,211 @@
 {
-    "base.name": "speederboard",
-    "base.login": "log in",
-    "base.logout": "log out",
-    "base.signup": "sign up",
-    "base.settings": "settings",
-    "404.title": "not found",
-    "404.message": "404 page not found",
-    "404.joke": "bad link RNG",
-    "category.title": "game runs",
-    "category.discuss_on_forum": "discuss on the forum",
-    "category.empty": "no runs yet!",
-    "category.submitter": "submitter",
-    "category.time": "time",
-    "category.scoreboard": "scoreboard",
-    "category.link": "link",
-    "category.link.view": "view",
-    "confirm.title": "are you sure?",
-    "confirm.yes": "yes, i'm sure",
-    "confirm.no": "no, take me back",
-    "confirm.warning": "are you sure you want to {action}? this action is **irreversible!!**",
-    "category.confirm.delete": "delete this category",
-    "create_game.title": "create new game",
-    "create_game.game.name_label": "game name",
-    "create_game.game.slug_label": "game slug",
-    "create_game.game.url_label": "game website url",
-    "create_game.game.description_label": "game description",
-    "create_game.category.name_label": "category name",
-    "create_game.category.description_label": "category description",
-    "create_game.category.rules_label": "category rules",
-    "create_game.category.scoreboard_label": "sort by score rather then time",
-    "create_game.submit": "submit",
-    "create_run.title": "submit a new run",
-    "create_run.video_url_label": "video url",
-    "create_run.description_label": "A description of this run",
-    "create_run.score_label": "score",
-    "create_run.time_label": "time",
-    "create_run.hours_label": "h",
-    "create_run.minutes_label": "m",
-    "create_run.seconds_label": "s",
-    "create_run.milliseconds_label": "ms",
-    "create_run.submit": "submit",
-    "edit_category.title": "edit category {name}",
-    "edit_category.subtitle": "{category_name} category settings",
-    "edit_category.parent": "editing category {game_name} ({game_slug})",
-    "edit_category.name_label": "category name",
-    "edit_category.description_label": "category description",
-    "edit_category.rules_label": "category rules",
-    "edit_category.scoreboard_label": "sort by score rather then time",
-    "edit_category.submit": "submit!",
-    "edit_game.title": "editing {name}",
-    "edit_game.heading": "settings for {name}",
-    "edit_game.categories.heading": "categories",
-    "edit_game.categories.default": "{name} (default)",
-    "edit_game.categories.list_name": "{name}",
-    "edit_game.categories.make_default": "make default",
-    "edit_game.categories.edit": "edit",
-    "edit_game.categories.delete": "delete",
-    "edit_game.categories.create_new": "create new category",
-    "edit_game.categories.new.name": "category name",
-    "edit_game.categories.new.description": "category description",
-    "edit_game.categories.new.rules": "category rules",
-    "edit_game.categories.new.scoreboard": "sort by score rather then time",
-    "edit_game.categories.new.submit": "submit",
-    "error.title": "error",
-    "error.heading": "oops, we encountered an error:",
-    "error.ask_report": "make a bug report?",
-    "error.internal": "error",
-    "forum.title": "{name} forums",
-    "forum.heading": "{name} forums",
-    "forum.post.new": "new post",
-    "forum_post.author": "{name}",
-    "forum_post.submit": "submit",
-    "game_team.title": "{game} team",
-    "game_team.heading": "{game} team members",
-    "index.title": "speedruns and game leaderboards",
-    "index.intro": "welcome. speederboard is a free and open-source project to create an improved speedrun and leaderboard tracking website. check out our current games below, or request a new one by emailing",
-    "index.coverart.alt": "{game} cover art",
-    "index.coverart.alt.default": "speederboard's default cover art for {game}",
-    "login.title": "log in",
-    "login.email": "email",
-    "login.password": "password",
-    "login.button": "log in",
-    "login.incorrect": "incorrect email or password",
-    "moderation_feed.title": "moderation feed for {game}",
-    "moderation_feed.empty": "the queue for this leaderboard is empty. thank you for moderating.",
-    "moderation_feed.user": "user",
-    "moderation_feed.score": "score",
-    "moderation_feed.time": "time",
-    "moderation_feed.link": "link",
-    "moderation_feed.view": "view details",
-    "moderation_feed.status": "status",
-    "new_post.title": "{game} forum | create new post",
-    "new_post.heading": "new forum post in {game}",
-    "new_post.submit": "submit ",
-    "notifications.title": "notifications",
-    "review_run.title": "reviewing run of {game} by {user}",
-    "review_run.heading": "review - {user}'s run of {game}",
-    "review_run.time": "time: {duration}",
-    "review_run.score": "score: {score}",
-    "review_run.verify": "verify",
-    "review_run.reject": "reject",
-    "run.title": "run of {game} by {user}",
-    "run.heading": "{user}'s run of {game}",
-    "run.time": "time: {duration}",
-    "run.score": "score: {score}",
-    "settings.title": "manage your account",
-    "settings.heading": "change profile info",
-    "settings.username": "username",
-    "settings.biography": "biography",
-    "settings.language.summary": "pick language",
-    "settings.language.update": "update language",
-    "settings.language.unset": "unset (browser default)",
-    "settings.pfp": "profile picture",
-    "settings.pfp.submit": "update",
-    "settings.pfp.delete": "delete profile picture",
-    "settings.banner": "banner",
-    "settings.banner.submit": "update",
-    "settings.banner.delete": "delete banner",
-    "settings.css": "custom stylesheet",
-    "settings.css.submit": "set custom stylesheet",
-    "settings.css.delete": "delete custom stylesheet",
-    "settings.email.summary": "change email",
-    "settings.email.new": "new email",
-    "settings.email.password": "password",
-    "settings.email.submit": "change email",
-    "settings.password.summary": "change password",
-    "settings.password.old": "old password",
-    "settings.password.new": "new password",
-    "settings.password.change": "change password",
-    "signup.title": "sign up",
-    "signup.email": "email",
-    "signup.username": "username",
-    "signup.password": "password",
-    "signup.submit": "sign up",
-    "status.approved": "approved",
-    "status.pending": "pending verification",
-    "status.denied": "denied",
-    "user.title": "@{user}",
-    "user.heading": "{user}'s profile",
-    "user.pfp.alt": "{user}'s profile picture"
+    "404": {
+        "title": "not found",
+        "message": "404 page not found",
+        "joke": "bad link RNG"
+    },
+    "base": {
+        "name": "speederboard",
+        "login": "log in",
+        "logout": "log out",
+        "signup": "sign up",
+        "settings": "settings"
+    },
+    "category": {
+        "title": "game runs",
+        "discuss_on_forum": "discuss on the forum",
+        "empty": "no runs yet!",
+        "submitter": "submitter",
+        "time": "time",
+        "scoreboard": "scoreboard",
+        "link": {
+            "head": "link",
+            "view": "view"
+        },
+        "confirm": {
+            "delete": "delete this category"
+        }
+    },
+    "confirm": {
+        "title": "are you sure?",
+        "yes": "yes, i'm sure",
+        "no": "no, take me back",
+        "warning": "are you sure you want to {action}? this action is **irreversible!!**"
+    },
+    "create_game": {
+        "title": "create new game",
+        "game": {
+            "name_label": "game name",
+            "slug_label": "game slug",
+            "url_label": "game website url",
+            "description_label": "game description"
+        },
+        "category": {
+            "name_label": "category name",
+            "description_label": "category description",
+            "rules_label": "category rules",
+            "scoreboard_label": "sort by score rather then time"
+        },
+        "submit": "submit"
+    },
+    "create_run": {
+        "title": "submit a new run",
+        "video_url_label": "video url",
+        "description_label": "A description of this run",
+        "score_label": "score",
+        "time_label": "time",
+        "hours_label": "h",
+        "minutes_label": "m",
+        "seconds_label": "s",
+        "milliseconds_label": "ms",
+        "submit": "submit"
+    },
+    "edit_category": {
+        "title": "edit category {name}",
+        "subtitle": "{category_name} category settings",
+        "parent": "editing category {game_name} ({game_slug})",
+        "name_label": "category name",
+        "description_label": "category description",
+        "rules_label": "category rules",
+        "scoreboard_label": "sort by score rather then time",
+        "submit": "submit!"
+    },
+    "edit_game": {
+        "title": "editing {name}",
+        "heading": "settings for {name}",
+        "categories": {
+            "heading": "categories",
+            "default": "{name} (default)",
+            "list_name": "{name}",
+            "make_default": "make default",
+            "edit": "edit",
+            "delete": "delete",
+            "create_new": "create new category",
+            "new": {
+                "name": "category name",
+                "description": "category description",
+                "rules": "category rules",
+                "scoreboard": "sort by score rather then time",
+                "submit": "submit"
+            }
+        }
+    },
+    "error": {
+        "title": "error",
+        "heading": "oops, we encountered an error:",
+        "ask_report": "make a bug report?",
+        "internal": "error"
+    },
+    "forum": {
+        "title": "{game} forums",
+        "heading": "{game} forums",
+        "new_post": "new post"
+    },
+    "forum_post": {
+        "author": "{name}",
+        "submit": "submit"
+    },
+    "game_team": {
+        "title": "{game} team",
+        "heading": "{game} team members"
+    },
+    "index": {
+        "title": "speedruns and game leaderboards",
+        "intro": "welcome. speederboard is a free and open-source project to create an improved speedrun and leaderboard tracking website. check out our current games below, or request a new one by emailing",
+        "coverart": "{game} cover art"
+    },
+    "login": {
+        "title": "log in",
+        "email": "email",
+        "password": "password",
+        "button": "log in",
+        "incorrect": "incorrect email or password"
+    },
+    "moderation_feed": {
+        "title": "moderation feed for {game}",
+        "empty": "the queue for this leaderboard is empty. thank you for moderating.",
+        "user": "user",
+        "score": "score",
+        "time": "time",
+        "link": "link",
+        "view": "view details",
+        "status": "status"
+    },
+    "new_post": {
+        "title": "{game} forum | create new post",
+        "heading": "new forum post in {game}",
+        "submit": "submit"
+    },
+    "notifications": {
+        "title": "notifications"
+    },
+    "review_run": {
+        "title": "reviewing run of {game} by {user}",
+        "heading": "review - {user}'s run of {game}",
+        "time": "time: {duration}",
+        "score": "score: {score}",
+        "verify": "verify",
+        "reject": "reject"
+    },
+    "run": {
+        "title": "run of {game} by {user}",
+        "heading": "{user}'s run of {game}",
+        "time": "time: {duration}",
+        "score": "score: {score}"
+    },
+    "settings": {
+        "title": "manage your account",
+        "heading": "change profile info",
+        "username": "username",
+        "biography": "biography",
+        "language": {
+            "summary": "pick language",
+            "update": "update language",
+            "unset": "unset (browser default)"
+        },
+        "pfp": {
+            "label": "profile picture",
+            "submit": "update",
+            "delete": "delete profile picture"
+        },
+        "banner": {
+            "label": "banner",
+            "submit": "update",
+            "delete": "delete banner"
+        },
+        "css": {
+            "label": "custom stylesheet",
+            "submit": "set custom stylesheet",
+            "delete": "delete custom stylesheet"
+        },
+        "email": {
+            "summary": "change email",
+            "new": "new email",
+            "password": "password",
+            "submit": "change email"
+        },
+        "password": {
+            "summary": "change password",
+            "old": "old password",
+            "new": "new password",
+            "change": "change password"
+        }
+    },
+    "signup": {
+        "title": "sign up",
+        "email": "email",
+        "username": "username",
+        "password": "password",
+        "submit": "sign up"
+    },
+    "status": {
+        "approved": "approved",
+        "pending": "pending verification",
+        "denied": "denied"
+    },
+    "user": {
+        "title": "@{user}",
+        "heading": "{user}'s profile",
+        "pfp_alt": "{user}'s profile picture"
+    }
 }

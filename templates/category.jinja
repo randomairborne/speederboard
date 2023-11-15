@@ -18,7 +18,7 @@
         {% else %}
         <th>{{ gettrans(lang=language, key="category.time") }}</th>
         {% endif %}
-        <th>{{ gettrans(lang=language, key="category.link") }}</th>
+        <th>{{ gettrans(lang=language, key="category.link.head") }}</th>
     </tr>
     {% for run in runs %}
     {% set userlinks = getuserlinks(user=run.submitter) %}
