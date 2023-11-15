@@ -37,8 +37,6 @@ pub enum Error {
     TaskJoin(#[from] tokio::task::JoinError),
     #[error("integer out of range (this is a bug): {0}")]
     TryFromInt(#[from] std::num::TryFromIntError),
-    #[error("format error: {0}")]
-    InvalidMultipart(&'static str),
     #[error("This should be impossible. {0}")]
     Impossible(#[from] std::convert::Infallible),
     #[error("Formatting error: {0}")]
@@ -169,7 +167,6 @@ pub async fn error_middleware<B>(
         | Error::FormRejection(_)
         | Error::MultiFormValidation(_)
         | Error::Multipart(_)
-        | Error::InvalidMultipart(_)
         | Error::Image(_)
         | Error::ImageTooTall(_)
         | Error::ImageTooWide(_)
@@ -201,7 +198,7 @@ pub async fn error_middleware<B>(
                 .into_response()
         }
     };
-    ctx.insert("error", &error_as_string);
+    ctx.insert("error", &error.translation_key());
     let content = state.render_ctx("error.jinja", &ctx).map_err(|source| {
         error!(?source, "failed to render error");
         format_raw_error(&error_as_string, &source.to_string())
@@ -211,11 +208,11 @@ pub async fn error_middleware<B>(
 
 fn format_raw_error(original: &str, tera: &str) -> String {
     format!(
-        "There was an error handling your request.
-In addition, there was an error attempting to use tera to template said error.
-original error: `{original}`
-tera error: `{tera}`
-Please send an email to valk@randomairborne.dev with a copy of this message."
+        "There was an error handling your request. \n\
+        In addition, there was an error attempting to use tera to template said error. \n\
+        original error: `{original}` \n\
+        tera error: `{tera}` \n\
+        Please send an email to valk@randomairborne.dev with a copy of this message."
     )
 }
 
