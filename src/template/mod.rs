@@ -12,7 +12,7 @@ pub use translate::{get_translations, GetTranslation};
 use crate::{
     config::Config,
     model::User,
-    template::linkify::{GetGameLinks, GetUserLinks},
+    template::linkify::{game::GameLinks, user::UserLinks, GetLinks},
     AppState, Error,
 };
 
@@ -36,8 +36,8 @@ fn real_tera(config: &Config) -> Tera {
     tera.register_filter("video_embed", VideoEmbedder);
     tera.register_function("devmode", DevModeFunction);
     tera.register_function("gettrans", GetTranslation::new(translations));
-    tera.register_function("getuserlinks", GetUserLinks::new(config));
-    tera.register_function("getgamelinks", GetGameLinks::new(config));
+    tera.register_function("getuserlinks", GetLinks::<UserLinks>::new(config));
+    tera.register_function("getgamelinks", GetLinks::<GameLinks>::new(config));
     tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
     tera
 }
