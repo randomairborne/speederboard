@@ -88,14 +88,6 @@ pub fn game_router(state: AppState) -> Router<AppState> {
             post(routes::game::settings::category::new),
         )
         .route_with_tsr(
-            "/game/:gameslug/feed",
-            get(routes::game::modtools::feed::game_feed),
-        )
-        .route_with_tsr(
-            "/game/:gameslug/team",
-            get(routes::game::modtools::team::get).post(routes::game::modtools::team::post),
-        )
-        .route_with_tsr(
             "/game/:gameslug/category/:catid/edit/makedefault",
             post(routes::game::settings::game::set_default_category),
         )
@@ -103,6 +95,14 @@ pub fn game_router(state: AppState) -> Router<AppState> {
             "/game/:gameslug/category/:catid/edit/delete",
             get(routes::game::settings::category::confirm_delete)
                 .post(routes::game::settings::category::delete),
+        )
+        .route_with_tsr(
+            "/game/:gameslug/feed",
+            get(routes::game::modtools::feed::game_feed),
+        )
+        .route_with_tsr(
+            "/game/:gameslug/team",
+            get(routes::game::modtools::team::get).post(routes::game::modtools::team::post),
         )
         .route_with_tsr(
             "/game/:gameslug/category/:catid",

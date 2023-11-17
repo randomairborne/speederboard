@@ -1,9 +1,9 @@
-use std::{collections::HashMap, marker::PhantomData};
+use std::collections::HashMap;
 
 use tera::Value;
 
 use super::GetLinks;
-use crate::{config::Config, model::User};
+use crate::model::User;
 
 #[derive(serde::Serialize)]
 pub struct UserLinks {
@@ -11,17 +11,6 @@ pub struct UserLinks {
     banner_url: String,
     stylesheet_url: String,
     ui_url: String,
-}
-
-impl GetLinks<UserLinks> {
-    pub fn new(config: &Config) -> Self {
-        Self {
-            root: config.root_url.clone(),
-            static_content: config.static_url.clone(),
-            user_content: config.user_content_url.clone(),
-            kind: PhantomData,
-        }
-    }
 }
 
 impl tera::Function for GetLinks<UserLinks> {

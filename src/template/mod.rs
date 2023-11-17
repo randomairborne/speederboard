@@ -12,7 +12,7 @@ pub use translate::{get_translations, GetTranslation};
 use crate::{
     config::Config,
     model::User,
-    template::linkify::{game::GameLinks, user::UserLinks, GetLinks},
+    template::linkify::{CategoryLinks, ForumPostLinks, GameLinks, GetLinks, RunLinks, UserLinks},
     AppState, Error,
 };
 
@@ -37,7 +37,10 @@ fn real_tera(config: &Config) -> Tera {
     tera.register_function("devmode", DevModeFunction);
     tera.register_function("gettrans", GetTranslation::new(translations));
     tera.register_function("getuserlinks", GetLinks::<UserLinks>::new(config));
+    tera.register_function("getcategorylinks", GetLinks::<CategoryLinks>::new(config));
     tera.register_function("getgamelinks", GetLinks::<GameLinks>::new(config));
+    tera.register_function("getpostlinks", GetLinks::<ForumPostLinks>::new(config));
+    tera.register_function("getrunlinks", GetLinks::<RunLinks>::new(config));
     tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
     tera
 }

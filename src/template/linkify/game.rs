@@ -1,26 +1,20 @@
-use std::{collections::HashMap, marker::PhantomData};
+use std::collections::HashMap;
 
 use tera::Value;
 
 use super::GetLinks;
-use crate::{config::Config, model::Game};
+use crate::model::Game;
 
 #[derive(serde::Serialize)]
 pub struct GameLinks {
     cover_art_url: String,
     banner_url: String,
     ui_url: String,
-}
-
-impl GetLinks<GameLinks> {
-    pub fn new(config: &Config) -> Self {
-        Self {
-            root: config.root_url.clone(),
-            static_content: config.static_url.clone(),
-            user_content: config.user_content_url.clone(),
-            kind: PhantomData,
-        }
-    }
+    edit_url: String,
+    feed_url: String,
+    team_url: String,
+    forum_url: String,
+    forum_new_post_url: String,
 }
 
 impl tera::Function for GetLinks<GameLinks> {
@@ -33,12 +27,23 @@ impl tera::Function for GetLinks<GameLinks> {
 
         let cover_art_url = game.cover_art_url(&self.user_content, &self.static_content, ext);
         let banner_url = game.banner_url(&self.user_content, &self.static_content, ext);
+
         let ui_url = format!("{}/game/{}", self.root, game.slug);
+        let edit_url = format!("{ui_url}/edit");
+        let feed_url = format!("{ui_url}/feed");
+        let team_url = format!("{ui_url}/team");
+        let forum_url = format!("{}/forum/{}", self.root, game.slug);
+        let forum_new_post_url = format!("{forum_url}/new");
 
         let links = GameLinks {
             cover_art_url,
             banner_url,
             ui_url,
+            edit_url,
+            feed_url,
+            team_url,
+            forum_url,
+            forum_new_post_url,
         };
         Ok(serde_json::value::to_value(links)?)
     }
