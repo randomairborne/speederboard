@@ -215,16 +215,22 @@ fn translate_io(_err: &IoError) -> &'static str {
     "error.io"
 }
 
-fn translate_form_validation(err: &GardeError) -> &'static str {
-    todo!()
+fn translate_form_validation(_err: &GardeError) -> &'static str {
+    "error.garde.internal"
 }
 
 fn translate_multi_form_validation(err: &GardeReport) -> &'static str {
-    todo!()
+    "error.garde.report"
 }
 
 fn translate_form_rejection(err: &FormRejection) -> &'static str {
-    todo!()
+    match err {
+        FormRejection::InvalidFormContentType(_) => "error.form_rejection.content_type",
+        FormRejection::FailedToDeserializeForm(_) => "error.form_rejection.deserialize",
+        FormRejection::FailedToDeserializeFormBody(_) => "error.form_rejection.body",
+        FormRejection::BytesRejection(_) => "error.form_rejection.bytes",
+        _ => "error.form_rejection.unknown",
+    }
 }
 
 fn translate_custom_form_validation(err: &String) -> &'static str {
