@@ -10,7 +10,7 @@
   <table>
     <tr>
       <td><label for="username">{{ gettrans(lang=language, key="settings.username") }}</label></td>
-      <td><input name="username" id="username" type="username" value="{{ user.username }}" maxlength="16" />
+      <td><input name="username" id="username" type="username" value="{{ user.username }}" maxlength="16" pattern="[0-9A-Za-z_\-]*"/>
       </td>
     </tr>
     <tr>
@@ -38,7 +38,7 @@
   </tr>
   </details>
   <div>
-    <button>{{ gettrans(lang=language, key="settings.language.update") }}</button>
+    <button>{{ gettrans(lang=language, key="settings.update") }}</button>
   </div>
 </form>
 

@@ -186,7 +186,7 @@ pub async fn error_middleware<B>(
         error!(?error, "failed to handle request");
     }
     let error_as_string = error.to_string();
-    let ctx = match tera::Context::from_serialize(base) {
+    let mut ctx = match tera::Context::from_serialize(base) {
         Ok(v) => v,
         Err(source) => {
             return (
@@ -196,6 +196,7 @@ pub async fn error_middleware<B>(
                 .into_response()
         }
     };
+    ctx.insert("error", &error_as_string);
     let content = state.render_ctx("error.jinja", &ctx).map_err(|source| {
         error!(?source, "failed to render error");
         format_raw_error(&error_as_string, &source.to_string())

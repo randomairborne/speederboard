@@ -158,9 +158,9 @@
         "heading": "change profile info",
         "username": "username",
         "biography": "biography",
+        "update": "update",
         "language": {
             "summary": "pick language",
-            "update": "update language",
             "unset": "unset (browser default)"
         },
         "pfp": {

@@ -47,7 +47,7 @@ pub struct PrivateUser {
 
 #[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
 pub struct UserUpdateForm {
-    #[garde(length(min = crate::util::MIN_USERNAME_LEN, max = crate::util::MAX_USERNAME_LEN))]
+    #[garde(length(min = crate::util::MIN_USERNAME_LEN, max = crate::util::MAX_USERNAME_LEN), custom(crate::util::validate_slug))]
     username: String,
     #[garde(length(min = crate::util::MIN_USER_BIOGRAPHY_LEN, max = crate::util::MAX_USER_BIOGRAPHY_LEN))]
     biography: String,
