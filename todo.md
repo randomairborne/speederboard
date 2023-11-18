@@ -4,7 +4,7 @@
 - [ ] Permission translations
 - [ ] Localize durations
 - [ ] Add style.css guidelines in docs
-- [ ] Finish error translation keys
+- [ ] Error translation (Better form validation?)
 - [ ] Localize durations
 - [ ] Validate file sizes clientside
 - [ ] Forum post deletion
