@@ -5,8 +5,10 @@ use axum_extra::extract::multipart::MultipartError;
 use deadpool_redis::PoolError;
 use garde::Report;
 use image::ImageError;
-use redis::RedisError;
+use redis::{ErrorKind as RedisErrorKind, RedisError};
 use s3::error::S3Error;
+use sqlx::Error as SqlxError;
+use tera::ErrorKind as TeraErrorKind;
 use tokio::{sync::oneshot::error::RecvError, task::JoinError};
 use url::ParseError;
 
@@ -59,38 +61,87 @@ impl Error {
     }
 }
 
-fn translate_sqlx(err: &sqlx::Error) -> &'static str {
+fn translate_sqlx(err: &SqlxError) -> &'static str {
     // todo: maybe support further nesting?
     match err {
-        sqlx::Error::Configuration(_) => "error.sqlx.configuration",
-        sqlx::Error::Database(_) => "error.sqlx.database",
-        sqlx::Error::Io(_) => "error.sqlx.io",
-        sqlx::Error::Tls(_) => "error.sqlx.tls",
-        sqlx::Error::Protocol(_) => "error.sqlx.protocol",
-        sqlx::Error::RowNotFound => "error.sqlx.row_not_found",
-        sqlx::Error::TypeNotFound { .. } => "error.sqlx.type_not_found",
-        sqlx::Error::ColumnIndexOutOfBounds { .. } => "error.sqlx.column_index_out_of_bounds",
-        sqlx::Error::ColumnNotFound(_) => "error.sqlx.column_not_found",
-        sqlx::Error::ColumnDecode { .. } => "error.sqlx.column_decode",
-        sqlx::Error::Decode(_) => "error.sqlx.decode",
-        sqlx::Error::AnyDriverError(_) => "error.sqlx.any_driver",
-        sqlx::Error::PoolTimedOut => "error.sqlx.pool_timeout",
-        sqlx::Error::PoolClosed => "error.sqlx.pool_close",
-        sqlx::Error::WorkerCrashed => "error.sqlx.worker_crash",
-        sqlx::Error::Migrate(_) => "error.sqlx.migrate",
+        SqlxError::Configuration(_) => "error.sqlx.configuration",
+        SqlxError::Database(_) => "error.sqlx.database",
+        SqlxError::Io(_) => "error.sqlx.io",
+        SqlxError::Tls(_) => "error.sqlx.tls",
+        SqlxError::Protocol(_) => "error.sqlx.protocol",
+        SqlxError::RowNotFound => "error.sqlx.row_not_found",
+        SqlxError::TypeNotFound { .. } => "error.sqlx.type_not_found",
+        SqlxError::ColumnIndexOutOfBounds { .. } => "error.sqlx.column_index_out_of_bounds",
+        SqlxError::ColumnNotFound(_) => "error.sqlx.column_not_found",
+        SqlxError::ColumnDecode { .. } => "error.sqlx.column_decode",
+        SqlxError::Decode(_) => "error.sqlx.decode",
+        SqlxError::AnyDriverError(_) => "error.sqlx.any_driver",
+        SqlxError::PoolTimedOut => "error.sqlx.pool_timeout",
+        SqlxError::PoolClosed => "error.sqlx.pool_close",
+        SqlxError::WorkerCrashed => "error.sqlx.worker_crash",
+        SqlxError::Migrate(_) => "error.sqlx.migrate",
         _ => "error.sqlx.unknown",
     }
 }
 
 fn translate_deadpool_redis(err: &PoolError) -> &'static str {
-    todo!()
+    match err {
+        PoolError::Timeout(_) => "error.deadpool_redis.timeout",
+        PoolError::Backend(redis_err) => translate_redis(redis_err),
+        PoolError::Closed => "error.deadpool_redis.closed",
+        PoolError::NoRuntimeSpecified => "error.deadpool_redis.no_runtime_specified",
+        PoolError::PostCreateHook(_) => "error.deadpool_redis.post_create_hook",
+    }
 }
 
 fn translate_redis(err: &RedisError) -> &'static str {
-    todo!()
+    match err.kind() {
+        RedisErrorKind::ResponseError => "error.redis.response",
+        RedisErrorKind::AuthenticationFailed => "error.redis.authentication",
+        RedisErrorKind::TypeError => "error.redis.type",
+        RedisErrorKind::ExecAbortError => "error.redis.exec_abort",
+        RedisErrorKind::BusyLoadingError => "error.redis.busy_loading",
+        RedisErrorKind::NoScriptError => "error.redis.no_script",
+        RedisErrorKind::InvalidClientConfig => "error.redis.invalid_client_config",
+        RedisErrorKind::Moved => "error.redis.moved",
+        RedisErrorKind::Ask => "error.redis.ask",
+        RedisErrorKind::TryAgain => "error.redis.try_again",
+        RedisErrorKind::ClusterDown => "error.redis.cluster_down",
+        RedisErrorKind::CrossSlot => "error.redis.cross_slot",
+        RedisErrorKind::MasterDown => "error.redis.master_down",
+        RedisErrorKind::IoError => "error.redis.io",
+        RedisErrorKind::ClientError => "error.redis.client",
+        RedisErrorKind::ExtensionError => "error.redis.extension",
+        RedisErrorKind::ReadOnly => "error.redis.read_only",
+        RedisErrorKind::MasterNameNotFoundBySentinel => "error.redis.master_name_not_found",
+        RedisErrorKind::NoValidReplicasFoundBySentinel => "error.redis.no_valid_replicas_found",
+        RedisErrorKind::EmptySentinelList => "error.redis.empty_sentinel_list",
+        RedisErrorKind::NotBusy => "error.redis.not_busy",
+        _ => "error.redis.unknown",
+    }
 }
 
 fn translate_tera(err: &tera::Error) -> &'static str {
+    match &err.kind {
+        TeraErrorKind::Msg(msg) => translate_tera_custom(msg),
+        TeraErrorKind::CircularExtend { .. } => "error.tera.circular_extend",
+        TeraErrorKind::MissingParent { .. } => "error.tera.missing_parent",
+        TeraErrorKind::TemplateNotFound(_) => "error.tera.template_not_found",
+        TeraErrorKind::FilterNotFound(_) => "error.tera.filter_not_found",
+        TeraErrorKind::TestNotFound(_) => "error.tera.test_not_found",
+        TeraErrorKind::InvalidMacroDefinition(_) => "error.tera.invalid_macro_def",
+        TeraErrorKind::FunctionNotFound(_) => "error.tera.function_not_found",
+        TeraErrorKind::Json(_) => "error.tera.json",
+        TeraErrorKind::CallFunction(_) => "error.tera.function_call",
+        TeraErrorKind::CallFilter(_) => "error.tera.filter_call",
+        TeraErrorKind::CallTest(_) => "error.tera.test_call",
+        TeraErrorKind::Io(_) => "error.tera.io",
+        TeraErrorKind::Utf8Conversion { .. } => "error.tera.utf_8_conversion",
+        _ => "error.tera.unknown",
+    }
+}
+
+fn translate_tera_custom(msg: &str) -> &'static str {
     todo!()
 }
 

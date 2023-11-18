@@ -12,3 +12,4 @@
 - [ ] Run deletion
 - [ ] Run editing
 - [ ] Move link building into models
+- [ ] Make tera messages matchable
