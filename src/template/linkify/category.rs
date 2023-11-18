@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use tera::Value;
 
 use super::GetLinks;
-use crate::model::{Category, Game, MiniCategory};
+use crate::model::{Game, MiniCategory};
 
 #[derive(serde::Serialize)]
 pub struct CategoryLinks {

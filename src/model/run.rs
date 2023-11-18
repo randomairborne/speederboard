@@ -6,7 +6,6 @@ use sqlx::{postgres::PgRow, Row};
 use super::{Category, Game, User};
 use crate::{
     id::{CategoryMarker, GameMarker, Id, RunMarker, UserMarker},
-    util::opt_user,
     AppState, Error,
 };
 
@@ -331,7 +330,7 @@ impl ResolvedRun {
         let category_scoreboard: bool = row.try_get(35)?;
         let category_flags: i64 = row.try_get(36)?;
 
-        let verifier = opt_user(
+        let verifier = User::collapse_optional(
             verifier_id,
             verifier_name,
             verifier_stylesheet,

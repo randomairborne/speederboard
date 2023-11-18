@@ -19,8 +19,7 @@ impl Member {
         user: Id<UserMarker>,
         game: Id<GameMarker>,
     ) -> Result<Option<Self>, Error> {
-        let maybe_user: Option<User> =
-            crate::util::get_redis_object(state, format!("user:{user}")).await?;
+        let maybe_user: Option<User> = state.get_redis_object(format!("user:{user}")).await?;
         let maybe_permissions: Option<i64> = state
             .redis
             .get()

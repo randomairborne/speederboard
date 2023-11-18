@@ -1,9 +1,7 @@
 {% extends "base.jinja" %}
 {% block title %}{{ gettrans(lang=language, key="run.title", game=game.name, user=user.username) }}{% endblock title %}
 {% block body %}
-{# TODO: Translations probably need to be able to set links. ick. #}
 <h1>{{ gettrans(lang=language, key="run.heading", game=game.name, user=user.username) }}</h1>
-{# TODO: Translate video embed stuff #}
 {{ run.video | video_embed }}
 {% if run.time %}
 {% set dur = run.time | duration %}

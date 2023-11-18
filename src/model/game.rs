@@ -18,7 +18,7 @@ pub struct Game {
 
 impl Game {
     pub async fn from_db_slug(state: &AppState, slug: &str) -> Result<Self, Error> {
-        match crate::util::get_redis_object(state, format!("game:{slug}")).await {
+        match state.get_redis_object(format!("game:{slug}")).await {
             Ok(Some(game)) => return Ok(game),
             Ok(None) => trace!(slug, "did not find game slug in redis cache"),
             Err(source) => error!(
@@ -32,7 +32,9 @@ impl Game {
         else {
             return Err(Error::NotFound);
         };
-        crate::util::set_redis_object(state, format!("game:{slug}"), &game, 600).await?;
+        state
+            .set_redis_object(format!("game:{slug}"), &game, 600)
+            .await?;
         Ok(game)
     }
 

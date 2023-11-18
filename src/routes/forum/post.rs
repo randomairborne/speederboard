@@ -26,12 +26,6 @@ pub struct CommentCreateForm {
     content: String,
 }
 
-#[derive(serde::Deserialize, garde::Validate, Clone, Debug)]
-pub struct PostDeleteForm {
-    #[garde(skip)]
-    id: i64,
-}
-
 pub async fn get(
     State(state): State<AppState>,
     base: BaseRenderInfo,
@@ -134,5 +128,3 @@ pub async fn post(
     .id;
     Ok(state.redirect(format!("/forum/{game_slug}/post/{post_id}#comment-{id}")))
 }
-
-// TODO: Post edits and deletions
