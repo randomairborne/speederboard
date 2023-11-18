@@ -4,6 +4,7 @@ use argon2::Argon2;
 use axum::{http::HeaderValue, response::Redirect};
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
 use rayon::{ThreadPool, ThreadPoolBuilder};
+use redis::AsyncCommands;
 use s3::creds::Credentials;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tera::Tera;
@@ -223,6 +224,37 @@ impl InnerAppState {
             .expect("ROOT_URL is not a valid URL")
             .origin()
             .ascii_serialization()
+    }
+
+    pub async fn get_redis_object<
+        T: for<'de> serde::Deserialize<'de>,
+        K: redis::ToRedisArgs + Send + Sync,
+    >(
+        &self,
+        key: K,
+    ) -> Result<Option<T>, Error> {
+        let maybe_object_str: Option<String> = self.redis.get().await?.get(key).await?;
+        if let Some(object_str) = maybe_object_str {
+            let object: T = serde_json::from_str(&object_str)?;
+            Ok(Some(object))
+        } else {
+            Ok(None)
+        }
+    }
+
+    pub async fn set_redis_object<K: redis::ToRedisArgs + Send + Sync, V: serde::Serialize>(
+        &self,
+        key: K,
+        data: &V,
+        expiry: usize,
+    ) -> Result<(), Error> {
+        let game_str = serde_json::to_string(data)?;
+        self.redis
+            .get()
+            .await?
+            .set_ex(key, game_str, expiry)
+            .await?;
+        Ok(())
     }
 
     #[cfg(test)]

@@ -27,8 +27,7 @@ pub struct User {
 #[allow(dead_code)]
 impl User {
     pub async fn from_db(state: &AppState, id: Id<UserMarker>) -> Result<User, Error> {
-        let maybe_user: Option<User> =
-            crate::util::get_redis_object(state, format!("user:{id}")).await?;
+        let maybe_user: Option<User> = state.get_redis_object(format!("user:{id}")).await?;
         if let Some(user) = maybe_user {
             return Ok(user);
         }
@@ -98,6 +97,32 @@ impl User {
         // a password, we want to report it, but differently then if the password is *wrong*
         password_result?;
         Ok(Ok(user))
+    }
+
+    pub fn collapse_optional(
+        id: Option<Id<UserMarker>>,
+        name: Option<String>,
+        stylesheet: Option<bool>,
+        bio: Option<String>,
+        pfp: Option<bool>,
+        banner: Option<bool>,
+        admin: Option<bool>,
+        created_at: Option<chrono::NaiveDateTime>,
+        flags: Option<i64>,
+        language: Option<String>,
+    ) -> Option<User> {
+        Some(User {
+            id: id?,
+            username: name?,
+            stylesheet: stylesheet?,
+            biography: bio?,
+            pfp: pfp?,
+            banner: banner?,
+            admin: admin?,
+            created_at: created_at?,
+            flags: flags?,
+            language,
+        })
     }
 
     pub fn check_admin(&self) -> Result<(), Error> {
