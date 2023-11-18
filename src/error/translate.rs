@@ -1,15 +1,17 @@
-use std::num::TryFromIntError;
+use std::{fmt::Error as FmtError, io::Error as IoError, num::TryFromIntError};
 
 use axum::extract::rejection::FormRejection;
 use axum_extra::extract::multipart::MultipartError;
 use deadpool_redis::PoolError;
-use garde::Report;
+use garde::{Error as GardeError, Report as GardeReport};
 use image::ImageError;
 use redis::{ErrorKind as RedisErrorKind, RedisError};
+use reqwest::Error as ReqwestError;
 use s3::error::S3Error;
+use serde_json::{error::Category as SerdeJsonErrorCategory, Error as SerdeJsonError};
 use sqlx::Error as SqlxError;
 use tera::ErrorKind as TeraErrorKind;
-use tokio::{sync::oneshot::error::RecvError, task::JoinError};
+use tokio::task::JoinError;
 use url::ParseError;
 
 use super::{ArgonError, Error, ImageTooBig};
@@ -22,14 +24,12 @@ impl Error {
             Self::Redis(err) => translate_redis(err),
             Self::Tera(err) => translate_tera(err),
             Self::Argon2(err) => translate_argon(err),
-            Self::OneshotRecv(err) => translate_recv(err),
             Self::SerdeJson(err) => translate_serde_json(err),
             Self::Reqwest(err) => translate_reqwest(err),
             Self::S3(err) => translate_s3(err),
             Self::Multipart(err) => translate_multipart(err),
             Self::TaskJoin(err) => translate_taskjoin(err),
             Self::TryFromInt(err) => translate_tryfromint(err),
-            Self::Impossible(_) => "error.impossible",
             Self::Format(err) => translate_format(err),
             Self::Io(err) => translate_io(err),
             Self::FormValidation(err) => translate_form_validation(err),
@@ -44,6 +44,8 @@ impl Error {
             Self::TooManyRows(expected, actual) => translate_too_many_rows(*expected, *actual),
             Self::ImageTooTall(err) => translate_img_too_tall(err),
             Self::ImageTooWide(err) => translate_img_too_wide(err),
+            Self::OneshotRecv(_) => "error.oneshot_recv",
+            Self::Impossible(_) => "error.impossible",
             Self::InvalidPassword => "error.invalid_password",
             Self::InvalidCookie => "error.invalid_cookie",
             Self::TokenHasIdButIdIsUnkown => "error.token_has_id_but_unknown",
@@ -136,7 +138,7 @@ fn translate_tera(err: &tera::Error) -> &'static str {
         TeraErrorKind::CallFilter(_) => "error.tera.filter_call",
         TeraErrorKind::CallTest(_) => "error.tera.test_call",
         TeraErrorKind::Io(_) => "error.tera.io",
-        TeraErrorKind::Utf8Conversion { .. } => "error.tera.utf_8_conversion",
+        TeraErrorKind::Utf8Conversion { .. } => "error.tera.utf8_conversion",
         _ => "error.tera.unknown",
     }
 }
@@ -146,50 +148,78 @@ fn translate_tera_custom(msg: &str) -> &'static str {
 }
 
 fn translate_argon(err: &ArgonError) -> &'static str {
-    todo!()
+    match err {
+        ArgonError::PasswordHash(_) => "error.argon.password_hash",
+        ArgonError::Argon2(_) => "error.argon.argon2",
+    }
 }
 
-fn translate_recv(err: &RecvError) -> &'static str {
-    todo!()
+fn translate_serde_json(err: &SerdeJsonError) -> &'static str {
+    match err.classify() {
+        SerdeJsonErrorCategory::Io => "error.serde_json.io",
+        SerdeJsonErrorCategory::Syntax => "error.serde_json.syntax",
+        SerdeJsonErrorCategory::Data => "error.serde_json.data",
+        SerdeJsonErrorCategory::Eof => "error.serde_json.eof",
+    }
 }
 
-fn translate_serde_json(err: &serde_json::Error) -> &'static str {
-    todo!()
-}
-
-fn translate_reqwest(err: &reqwest::Error) -> &'static str {
+fn translate_reqwest(err: &ReqwestError) -> &'static str {
     todo!()
 }
 
 fn translate_s3(err: &S3Error) -> &'static str {
-    todo!()
+    match err {
+        S3Error::Utf8(_) => "error.s3.utf8",
+        S3Error::MaxExpiry(_) => "error.s3.max_expiry",
+        S3Error::Http(_, _) => "error.s3.http",
+        S3Error::HttpFail => "error.s3.http_fail",
+        S3Error::Credentials(_) => "error.s3.credentials",
+        S3Error::Region(_) => "error.s3.region",
+        S3Error::HmacInvalidLength(_) => "error.s3.hmac_invalid_length",
+        S3Error::UrlParse(_) => "error.s3.url_parse",
+        S3Error::Io(_) => "error.s3.io",
+        S3Error::Reqwest(_) => "error.s3.reqwest",
+        S3Error::HeaderToStr(_) => "error.s3.header_to_str",
+        S3Error::FromUtf8(_) => "error.s3.from_utf8",
+        S3Error::SerdeXml(_) => "error.s3.serde_xml",
+        S3Error::InvalidHeaderValue(_) => "error.s3.invalid_header_value",
+        S3Error::InvalidHeaderName(_) => "error.s3.invalid_header_name",
+        S3Error::WLCredentials => "error.s3.wl_credentials",
+        S3Error::RLCredentials => "error.s3.rl_credentials",
+        S3Error::TimeFormatError(_) => "error.s3.time_format",
+        S3Error::FmtError(_) => "error.s3.fmt",
+        _ => "error.s3.unknown",
+    }
 }
 
-fn translate_multipart(err: &MultipartError) -> &'static str {
-    todo!()
+fn translate_multipart(_err: &MultipartError) -> &'static str {
+    "error.multipart"
 }
 
 fn translate_taskjoin(err: &JoinError) -> &'static str {
+    if err.is_panic() {
+        return "error.taskjoin.panicked";
+    }
+    "error.taskjoin.unknown"
+}
+
+fn translate_tryfromint(_err: &TryFromIntError) -> &'static str {
+    "error.tryfromint"
+}
+
+fn translate_format(_err: &FmtError) -> &'static str {
+    "error.fmt"
+}
+
+fn translate_io(_err: &IoError) -> &'static str {
+    "error.io"
+}
+
+fn translate_form_validation(err: &GardeError) -> &'static str {
     todo!()
 }
 
-fn translate_tryfromint(err: &TryFromIntError) -> &'static str {
-    todo!()
-}
-
-fn translate_format(err: &std::fmt::Error) -> &'static str {
-    todo!()
-}
-
-fn translate_io(err: &std::io::Error) -> &'static str {
-    todo!()
-}
-
-fn translate_form_validation(err: &garde::Error) -> &'static str {
-    todo!()
-}
-
-fn translate_multi_form_validation(err: &Report) -> &'static str {
+fn translate_multi_form_validation(err: &GardeReport) -> &'static str {
     todo!()
 }
 
@@ -219,20 +249,20 @@ fn translate_needs_login(err: &String) -> &'static str {
 
 fn translate_s3_status(status: u16) -> &'static str {
     match status {
-        100 => "error.s3.continue",
-        304 => "error.s3.not_modified",
-        400 => "error.s3.bad_request",
-        403 => "error.s3.forbidden",
-        404 => "error.s3.not_found",
-        405 => "error.s3.method_not_allowed",
-        408 => "error.s3.timed_out",
-        409 => "error.s3.conflict",
-        411 => "error.s3.length_required",
-        412 => "error.s3.precondition_failed",
-        416 => "error.s3.invalid_range",
-        422 => "error.s3.unprocessable_entity",
-        500 => "error.s3.internal_server_error",
-        _ => "error.s3.unknown",
+        100 => "error.s3_status.continue",
+        304 => "error.s3_status.not_modified",
+        400 => "error.s3_status.bad_request",
+        403 => "error.s3_status.forbidden",
+        404 => "error.s3_status.not_found",
+        405 => "error.s3_status.method_not_allowed",
+        408 => "error.s3_status.timed_out",
+        409 => "error.s3_status.conflict",
+        411 => "error.s3_status.length_required",
+        412 => "error.s3_status.precondition_failed",
+        416 => "error.s3_status.invalid_range",
+        422 => "error.s3_status.unprocessable_entity",
+        500 => "error.s3_status.internal_server_error",
+        _ => "error.s3_status.unknown",
     }
 }
 
