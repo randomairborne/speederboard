@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use tera::Value;
 
 use super::GetLinks;
-use crate::model::{Category, Game};
+use crate::model::{Category, Game, MiniCategory};
 
 #[derive(serde::Serialize)]
 pub struct CategoryLinks {
@@ -27,7 +27,7 @@ impl tera::Function for GetLinks<CategoryLinks> {
         };
 
         let game: Game = serde_json::from_value(game_val.clone())?;
-        let category: Category = serde_json::from_value(category_val.clone())?;
+        let category: MiniCategory = serde_json::from_value(category_val.clone())?;
 
         if category.game != game.id {
             return Err(tera::Error::msg(

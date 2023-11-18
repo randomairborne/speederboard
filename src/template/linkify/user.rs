@@ -9,7 +9,8 @@ use crate::model::User;
 pub struct UserLinks {
     pfp_url: String,
     banner_url: String,
-    stylesheet_url: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    stylesheet_url: Option<String>,
     ui_url: String,
 }
 

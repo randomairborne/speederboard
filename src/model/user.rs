@@ -120,8 +120,12 @@ impl User {
         format!("/users/{}/banner.{ext}", self.id)
     }
 
-    pub fn stylesheet_url(&self, root: &str) -> String {
-        root.to_owned() + &self.stylesheet_path()
+    pub fn stylesheet_url(&self, root: &str) -> Option<String> {
+        if self.stylesheet {
+            Some(root.to_owned() + &self.stylesheet_path())
+        } else {
+            None
+        }
     }
 
     pub fn pfp_url(&self, user_content: &str, static_root: &str, ext: &str) -> String {

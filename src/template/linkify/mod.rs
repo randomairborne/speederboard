@@ -1,4 +1,3 @@
-// TODO: Linkify other resources
 mod category;
 mod forum_post;
 mod game;
