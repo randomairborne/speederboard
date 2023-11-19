@@ -131,3 +131,21 @@ table.outlines-collapse {
     border: 1px solid black;
     border-collapse: collapse;
 }
+
+.flexible-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.flexible-form > * {
+    width: fit-content;
+    margin: 2px;
+}
+
+.edit-game-non-default {
+    display: flex;
+}
+
+.edit-game-non-default > * {
+    margin-right: 1ch;
+}

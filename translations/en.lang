@@ -73,6 +73,10 @@
     "edit_game": {
         "title": "editing {name}",
         "heading": "settings for {name}",
+        "name": "game display name",
+        "url": "game homepage link",
+        "description": "description of this game",
+        "submit": "submit",
         "categories": {
             "heading": "categories",
             "default": "{name} (default)",

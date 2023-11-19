@@ -13,5 +13,4 @@
 - [ ] Run editing
 - [ ] Move link building into models
 - [ ] Make tera messages matchable
-- [ ] Actually allow game editing
 - [ ] Cryptographically signed cookies rather then tokens

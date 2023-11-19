@@ -1,30 +1,37 @@
 {% extends "base.jinja" %}
 {% block title %}{{ gettrans(lang=language, key="edit_game.title", name=game.name) }}{% endblock title %}
 {% block body %}
-<h2>{{ gettrans(lang=language, key="edit_game.heading", name=game.name) }}</h2>
+<h2 xmlns="http://www.w3.org/1999/html">{{ gettrans(lang=language, key="edit_game.heading", name=game.name) }}</h2>
+<form class="flexible-form" method="POST">
+    <label for="game_name">{{ gettrans(lang=language, key="edit_game.name") }}</label>
+    <input name="name" id="game_name" maxlength="128" minlength="1" value="{{ game.name }}" />
+    <label for="game_url">{{ gettrans(lang=language, key="edit_game.url") }}</label>
+    <input name="url" id="game_url" type="url" maxlength="128" minlength="12" value="{{ game.url }}" />
+    <label for="game_description">{{ gettrans(lang=language, key="edit_game.description") }}</label>
+    <textarea name="description" id="game_description" maxlength="4000" >{{ game.description }}</textarea>
+    <button>{{ gettrans(lang=language, key="edit_game.submit") }}</button>
+</form>
 <h3>{{ gettrans(lang=language, key="edit_game.categories.heading") }}</h3>
-<table>
-    {% for category in categories %}
-    {% if game.default_category == category.id %}
-    <tr>
-        <td><strong>{{ gettrans(lang=language, key="edit_game.categories.default", name=category.name) }}</strong></td>
-    </tr>
-    {% else %}
-    <tr>
-        <td>
-            <form action="{{ root_url }}/game/{{ game.slug }}/category/{{ category.id }}/edit/makedefault" method="post">
-                {{ gettrans(lang=language, key="edit_game.categories.list_name", name=category.name) }}
-                <button>{{ gettrans(lang=language, key="edit_game.categories.make_default") }}</button>
-                <a href="/game/{{ game.slug }}/category/{{ category.id }}/edit"><button type="button">{{ gettrans(lang=language, key="edit_game.categories.edit") }}</button></a>
-                <a href="/game/{{ game.slug }}/category/{{ category.id }}/edit/delete">
-") }}</button>
-                </a>
-            </form>
-        </td>
-    </tr>
-    {% endif %}
-    {% endfor %}
-</table>
+{% for category in categories %}
+{% if game.default_category == category.id %}
+<a href="{{ root_url }}/game/{{ game.slug }}/category/{{ category.id }}">
+    <strong>{{ gettrans(lang=language, key="edit_game.categories.default", name=category.name) }}</strong>
+</a>
+{% else %}
+<div class="edit-game-non-default">
+    <a href="{{ root_url }}/game/{{ game.slug }}/category/{{ category.id }}">{{ category.name }}</a>
+    <a href="{{ root_url }}/game/{{ game.slug }}/category/{{ category.id }}/edit/makedefault">
+        <button type="button">{{ gettrans(lang=language, key="edit_game.categories.make_default") }}</button>
+    </a>
+    <a href="{{ root_url }}/game/{{ game.slug }}/category/{{ category.id }}/edit">
+        <button type="button">{{ gettrans(lang=language, key="edit_game.categories.edit") }}</button>
+    </a>
+    <a href="{{ root_url }}/game/{{ game.slug }}/category/{{ category.id }}/edit/delete">
+        <button type="button">{{ gettrans(lang=language, key="edit_game.categories.delete") }}</button>
+    </a>
+</div>
+{% endif %}
+{% endfor %}
 <h3>{{ gettrans(lang=language, key="edit_game.categories.create_new") }}</h3>
 <form action="{{ root_url }}/game/{{ game.slug }}/edit/new-category" method="post">
     <table>

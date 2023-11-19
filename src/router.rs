@@ -1,5 +1,5 @@
 use axum::{
-    routing::{get, post},
+    routing::{any, get, post},
     Router,
 };
 use axum_extra::routing::RouterExt;
@@ -89,7 +89,7 @@ pub fn game_router(state: AppState) -> Router<AppState> {
         )
         .route_with_tsr(
             "/game/:gameslug/category/:catid/edit/makedefault",
-            post(routes::game::settings::game::set_default_category),
+            any(routes::game::settings::game::set_default_category),
         )
         .route_with_tsr(
             "/game/:gameslug/category/:catid/edit/delete",
