@@ -12,4 +12,4 @@ multiple tables.
 ## Naming
 
 templating and form structs should be named with this pattern:
-`(sane endpoint name)(Form|QueryPage)` and **must be public**
+`(sane endpoint name)(Form|Query|Page)` and **must be public**
