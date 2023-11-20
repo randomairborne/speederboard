@@ -13,5 +13,4 @@
 - [ ] Run editing
 - [ ] Move link building into models
 - [ ] Make tera messages matchable
-- [ ] Cryptographically signed cookies rather then tokens
-- 
+- [ ] Cryptographically signed cookies rather then tokens? (bikeshed)
