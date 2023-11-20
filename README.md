@@ -1,11 +1,11 @@
 # speederboard
 
-## if you're a speedrunner, and want to help with input on features, please contact me at valk (at) randomairborne (dot) dev
+### if you're a speedrunner or leaderboard moderator, and want to have input or give feedback on features, please contact me at [valk@randomairborne.dev](mailto:valk@randomairborne.dev).
 
 A game leaderboard website.
 
 If you're looking to contribute, you might want to have a look at [templates.md](https://developer-docs.speederboard.org/templates.html),
-[assets.md](https://developer-docs.speederboard.org/assets.html), or [translations.md](https://developer-docs.speederboard.org/translations.html).
+[assets.md](https://developer-docs.speederboard.org/assets.html), or [translations.md](https://developer-docs.speederboard.org/translations.html). 
 
 
 Docs for contributing are available at [developer-docs.speederboard.org](https://developer-docs.speederboard.org/).
