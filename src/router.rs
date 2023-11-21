@@ -152,11 +152,19 @@ pub fn forum_router(state: AppState) -> Router<AppState> {
         )
         .route_with_tsr(
             "/forum/:gameslug/post/:postid/delete",
-            any(routes::forum::edit_post::delete),
+            any(routes::forum::edit_post::delete_post),
         )
         .route_with_tsr(
             "/forum/:gameslug/post/:postid/edit",
-            post(routes::forum::edit_post::edit),
+            post(routes::forum::edit_post::edit_post),
+        )
+        .route_with_tsr(
+            "/forum/:gameslug/comment/:commentid/delete",
+            any(routes::forum::edit_post::delete_comment),
+        )
+        .route_with_tsr(
+            "/forum/:gameslug/comment/:commentid/edit",
+            post(routes::forum::edit_post::edit_comment),
         )
         .with_state(state)
 }

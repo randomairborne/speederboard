@@ -1,41 +1,41 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT forum_entries.id as forum_entry_id,\n        forum_entries.title as forum_entry_title,\n        forum_entries.content as forum_entry_content,\n        forum_entries.flags as forum_entry_flags,\n        forum_entries.parent as forum_entry_parent,\n        forum_entries.created_at as forum_entry_created_at,\n        forum_entries.edited_at as forum_entry_edited_at,\n        users.id as user_id,\n        users.username as user_username,\n        users.biography as user_biography,\n        users.admin as user_admin,\n        users.stylesheet as user_stylesheet,\n        users.banner as user_banner,\n        users.pfp as user_pfp,\n        users.flags as user_flags,\n        users.created_at as user_created_at,\n        users.language as user_language\n        FROM forum_entries\n        JOIN users ON forum_entries.author = users.id\n        WHERE forum_entries.id = $1 OR forum_entries.parent = $1\n        ORDER BY forum_entries.created_at",
+  "query": "SELECT forum_posts.id as forum_post_id,\n        forum_posts.game as forum_post_game,\n        forum_posts.title as forum_post_title,\n        forum_posts.content as forum_post_content,\n        forum_posts.flags as forum_post_flags,\n        forum_posts.created_at as forum_post_created_at,\n        forum_posts.edited_at as forum_post_edited_at,\n        users.id as user_id,\n        users.username as user_username,\n        users.biography as user_biography,\n        users.admin as user_admin,\n        users.stylesheet as user_stylesheet,\n        users.banner as user_banner,\n        users.pfp as user_pfp,\n        users.flags as user_flags,\n        users.created_at as user_created_at,\n        users.language as user_language\n        FROM forum_posts\n        JOIN users ON forum_posts.author = users.id\n        WHERE game = $1 AND title IS NOT NULL",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "forum_entry_id",
+        "name": "forum_post_id",
         "type_info": "Int8"
       },
       {
         "ordinal": 1,
-        "name": "forum_entry_title",
-        "type_info": "Varchar"
+        "name": "forum_post_game",
+        "type_info": "Int8"
       },
       {
         "ordinal": 2,
-        "name": "forum_entry_content",
+        "name": "forum_post_title",
         "type_info": "Varchar"
       },
       {
         "ordinal": 3,
-        "name": "forum_entry_flags",
-        "type_info": "Int8"
+        "name": "forum_post_content",
+        "type_info": "Varchar"
       },
       {
         "ordinal": 4,
-        "name": "forum_entry_parent",
+        "name": "forum_post_flags",
         "type_info": "Int8"
       },
       {
         "ordinal": 5,
-        "name": "forum_entry_created_at",
+        "name": "forum_post_created_at",
         "type_info": "Timestamp"
       },
       {
         "ordinal": 6,
-        "name": "forum_entry_edited_at",
+        "name": "forum_post_edited_at",
         "type_info": "Timestamp"
       },
       {
@@ -96,10 +96,10 @@
     },
     "nullable": [
       false,
-      true,
       false,
       false,
-      true,
+      false,
+      false,
       false,
       true,
       false,
@@ -114,5 +114,5 @@
       true
     ]
   },
-  "hash": "4f6f2bd8ded78eefd3c74bdb2177bf67906e06c35efd8a6d0c78fadc2ed0714f"
+  "hash": "852338e6f736f179a148620874b7cd7b06c369dddc5aadc3fe7f6845cabbea73"
 }

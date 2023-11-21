@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM forum_entries WHERE id = $1",
+  "query": "SELECT * FROM forum_comments WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -10,41 +10,36 @@
       },
       {
         "ordinal": 1,
-        "name": "title",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 2,
         "name": "parent",
         "type_info": "Int8"
       },
       {
-        "ordinal": 3,
+        "ordinal": 2,
         "name": "game",
         "type_info": "Int8"
       },
       {
-        "ordinal": 4,
+        "ordinal": 3,
         "name": "author",
         "type_info": "Int8"
       },
       {
-        "ordinal": 5,
+        "ordinal": 4,
         "name": "created_at",
         "type_info": "Timestamp"
       },
       {
-        "ordinal": 6,
+        "ordinal": 5,
         "name": "edited_at",
         "type_info": "Timestamp"
       },
       {
-        "ordinal": 7,
+        "ordinal": 6,
         "name": "content",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "flags",
         "type_info": "Int8"
       }
@@ -56,9 +51,8 @@
     },
     "nullable": [
       false,
-      true,
-      true,
-      true,
+      false,
+      false,
       false,
       false,
       true,
@@ -66,5 +60,5 @@
       false
     ]
   },
-  "hash": "2c366ee7e87332b772671d70ac067623665c40b02316c576385af3cdd1f19258"
+  "hash": "a1f2abe1fb28fc8cff83c9e20e99f0c43bf6f08750744f0b7459407c822f53f8"
 }

@@ -46,7 +46,7 @@ pub async fn post(
 ) -> Result<Redirect, Error> {
     let game = Game::from_db_slug(&state, &game_slug).await?;
     let post_id = query!(
-        "INSERT INTO forum_entries
+        "INSERT INTO forum_posts
         (
             title, game, author, content,
             created_at, flags

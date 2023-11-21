@@ -68,7 +68,9 @@ CREATE TABLE runs (
     created_at TIMESTAMP NOT NULL,
     verified_at TIMESTAMP,
     edited_at TIMESTAMP,
-    flags BIGINT NOT NULL DEFAULT 0
+    flags BIGINT NOT NULL DEFAULT 0,
+    CONSTRAINT root_forum_entries_have_titles CHECK
+    ((verifier IS NULL) <> (runs.verified_at IS NULL))
 );
 
 CREATE INDEX runs_category_index ON runs USING HASH (category);
@@ -76,25 +78,32 @@ CREATE INDEX runs_submitter_index ON runs USING HASH (submitter);
 CREATE INDEX runs_score_index ON runs (score);
 CREATE INDEX runs_time_index ON runs (time);
 
-CREATE TABLE forum_entries (
+CREATE TABLE forum_posts (
     id BIGSERIAL PRIMARY KEY,
-    title VARCHAR(256),
-    parent BIGINT REFERENCES forum_entries(id) ON DELETE CASCADE,
-    game BIGINT REFERENCES games(id) ON DELETE CASCADE,
+    title VARCHAR(256) NOT NULL,
+    game BIGINT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
     author BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP NOT NULL,
     edited_at TIMESTAMP,
     content VARCHAR(4000) NOT NULL,
-    flags BIGINT NOT NULL DEFAULT 0,
-    CONSTRAINT root_forum_entries_have_titles CHECK
-    (
-        (title IS NOT NULL AND parent IS NULL)
-        OR
-        (title IS NULL AND parent IS NOT NULL)
-    )
+    flags BIGINT NOT NULL DEFAULT 0
 );
 
-CREATE INDEX forum_comment_parent_index ON forum_entries USING HASH (parent);
-CREATE INDEX forum_post_game_index ON forum_entries USING HASH (game);
-CREATE INDEX forum_by_user_lookup_index ON forum_entries USING HASH (author);
-CREATE INDEX forum_time_sort_index ON forum_entries (created_at);
+CREATE INDEX forum_post_game_index ON forum_posts USING HASH (game);
+CREATE INDEX forum_post_author_index ON forum_posts USING HASH (author);
+CREATE INDEX forum_post_time_sort_index ON forum_posts (created_at);
+
+CREATE TABLE forum_comments (
+     id BIGSERIAL PRIMARY KEY,
+     parent BIGINT NOT NULL REFERENCES forum_posts(id) ON DELETE CASCADE,
+     game BIGINT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+     author BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     created_at TIMESTAMP NOT NULL,
+     edited_at TIMESTAMP,
+     content VARCHAR(4000) NOT NULL,
+     flags BIGINT NOT NULL DEFAULT 0
+);
+
+CREATE INDEX forum_comment_parent_index ON forum_comments USING HASH (parent);
+CREATE INDEX forum_comment_author_index ON forum_comments USING HASH (author);
+CREATE INDEX forum_comment_time_sort_index ON forum_comments (created_at);

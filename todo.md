@@ -7,7 +7,7 @@
 - [ ] Error translation (Better form validation?)
 - [ ] Localize durations
 - [ ] Validate file sizes clientside
-- [ ] Show when posts are edited
+- [ ] Post creation and deletion UI
 - [ ] Run deletion
 - [ ] Run editing
 - [ ] Move link building into models

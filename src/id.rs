@@ -127,5 +127,9 @@ pub struct RunMarker;
 impl IdMarker for RunMarker {}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub struct ForumEntryMarker;
-impl IdMarker for ForumEntryMarker {}
+pub struct ForumPostMarker;
+impl IdMarker for ForumPostMarker {}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct ForumCommentMarker;
+impl IdMarker for ForumCommentMarker {}

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO forum_entries (parent, game, author, content, created_at)\n            VALUES ($1, $2, $3, $4, NOW()) RETURNING id",
+  "query": "INSERT INTO forum_comments (parent, game, author, content, created_at)\n            VALUES ($1, $2, $3, $4, NOW()) RETURNING id",
   "describe": {
     "columns": [
       {
@@ -21,5 +21,5 @@
       false
     ]
   },
-  "hash": "ec61b19942f58881611931a0c0953d60b18fe0f22cb793bf1e4545e5ac2259bc"
+  "hash": "80517238586baf6137469cd3ef34d66aa5198e6d01383a0999bd0317a840258e"
 }
