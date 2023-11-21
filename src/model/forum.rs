@@ -8,6 +8,7 @@ pub struct ForumPost {
     pub author: User,
     pub content: String,
     pub created_at: chrono::NaiveDateTime,
+    pub edited_at: Option<chrono::NaiveDateTime>,
     pub flags: i64,
 }
 
@@ -18,5 +19,6 @@ pub struct ForumComment {
     pub author: User,
     pub content: String,
     pub created_at: chrono::NaiveDateTime,
+    pub edited_at: Option<chrono::NaiveDateTime>,
     pub flags: i64,
 }

@@ -150,6 +150,14 @@ pub fn forum_router(state: AppState) -> Router<AppState> {
             "/forum/:gameslug/post/:postid",
             get(routes::forum::post::get).post(routes::forum::post::post),
         )
+        .route_with_tsr(
+            "/forum/:gameslug/post/:postid/delete",
+            any(routes::forum::edit_post::delete),
+        )
+        .route_with_tsr(
+            "/forum/:gameslug/post/:postid/edit",
+            post(routes::forum::edit_post::edit),
+        )
         .with_state(state)
 }
 

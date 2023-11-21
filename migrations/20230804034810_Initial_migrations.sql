@@ -67,6 +67,7 @@ CREATE TABLE runs (
     status SMALLINT NOT NULL,
     created_at TIMESTAMP NOT NULL,
     verified_at TIMESTAMP,
+    edited_at TIMESTAMP,
     flags BIGINT NOT NULL DEFAULT 0
 );
 
@@ -82,6 +83,7 @@ CREATE TABLE forum_entries (
     game BIGINT REFERENCES games(id) ON DELETE CASCADE,
     author BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP NOT NULL,
+    edited_at TIMESTAMP,
     content VARCHAR(4000) NOT NULL,
     flags BIGINT NOT NULL DEFAULT 0,
     CONSTRAINT root_forum_entries_have_titles CHECK

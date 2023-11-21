@@ -27,6 +27,7 @@ pub async fn get(
             forum_entries.content as forum_entry_content,
             forum_entries.flags as forum_entry_flags,
             forum_entries.created_at as forum_entry_created_at,
+            forum_entries.edited_at as forum_entry_edited_at,
             users.id as user_id,
             users.username as user_username,
             users.biography as user_biography,
@@ -66,6 +67,7 @@ pub async fn get(
             author,
             content: row.forum_entry_content,
             created_at: row.forum_entry_created_at,
+            edited_at: row.forum_entry_edited_at,
             flags: row.forum_entry_flags,
         });
     }

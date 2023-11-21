@@ -97,6 +97,7 @@ pub struct Run {
     pub time: i64,
     pub status: RunStatus,
     pub created_at: NaiveDateTime,
+    pub edited_at: Option<NaiveDateTime>,
     pub verified_at: Option<NaiveDateTime>,
     pub flags: i64,
 }
@@ -115,6 +116,7 @@ pub struct ResolvedRun {
     pub time: i64,
     pub status: RunStatus,
     pub created_at: NaiveDateTime,
+    pub edited_at: Option<NaiveDateTime>,
     pub verified_at: Option<NaiveDateTime>,
     pub flags: i64,
 }
@@ -205,7 +207,7 @@ impl ResolvedRun {
         let mut query = sqlx::QueryBuilder::new(
             r#"SELECT runs.id, runs.game, runs.category, runs.video,
             runs.description, runs.score, runs.time, runs.status,
-            runs.created_at, runs.verified_at, runs.flags,
+            runs.created_at, runs.edited_at, runs.verified_at, runs.flags,
             verifier.id, verifier.username, verifier.stylesheet,
             verifier.biography, verifier.pfp, verifier.banner,
             verifier.admin, verifier.created_at, verifier.flags, 
@@ -293,42 +295,43 @@ impl ResolvedRun {
         let time: i64 = row.try_get(6)?;
         let status_num: i16 = row.try_get(7)?;
         let created_at: NaiveDateTime = row.try_get(8)?;
-        let verified_at: Option<NaiveDateTime> = row.try_get(9)?;
-        let flags: i64 = row.try_get(10)?;
+        let edited_at: Option<NaiveDateTime> = row.try_get(9)?;
+        let verified_at: Option<NaiveDateTime> = row.try_get(10)?;
+        let flags: i64 = row.try_get(11)?;
 
         let status = RunStatus::from(status_num);
         if game_id != game.id {
             return Err(Error::RowDoesNotMatchInputGame);
         }
 
-        let verifier_id: Option<Id<UserMarker>> = row.try_get(11)?;
-        let verifier_name: Option<String> = row.try_get(12)?;
-        let verifier_stylesheet: Option<bool> = row.try_get(13)?;
-        let verifier_bio: Option<String> = row.try_get(14)?;
-        let verifier_pfp: Option<bool> = row.try_get(15)?;
-        let verifier_banner: Option<bool> = row.try_get(16)?;
-        let verifier_admin: Option<bool> = row.try_get(17)?;
-        let verifier_created_at: Option<NaiveDateTime> = row.try_get(18)?;
-        let verifier_flags: Option<i64> = row.try_get(19)?;
-        let verifier_language: Option<String> = row.try_get(20)?;
+        let verifier_id: Option<Id<UserMarker>> = row.try_get(12)?;
+        let verifier_name: Option<String> = row.try_get(13)?;
+        let verifier_stylesheet: Option<bool> = row.try_get(14)?;
+        let verifier_bio: Option<String> = row.try_get(15)?;
+        let verifier_pfp: Option<bool> = row.try_get(16)?;
+        let verifier_banner: Option<bool> = row.try_get(17)?;
+        let verifier_admin: Option<bool> = row.try_get(18)?;
+        let verifier_created_at: Option<NaiveDateTime> = row.try_get(19)?;
+        let verifier_flags: Option<i64> = row.try_get(20)?;
+        let verifier_language: Option<String> = row.try_get(21)?;
 
-        let submitter_id: Id<UserMarker> = row.try_get(21)?;
-        let submitter_name: String = row.try_get(22)?;
-        let submitter_stylesheet: bool = row.try_get(23)?;
-        let submitter_bio: String = row.try_get(24)?;
-        let submitter_pfp: bool = row.try_get(25)?;
-        let submitter_banner: bool = row.try_get(26)?;
-        let submitter_admin: bool = row.try_get(27)?;
-        let submitter_created_at: NaiveDateTime = row.try_get(28)?;
-        let submitter_flags: i64 = row.try_get(29)?;
-        let submitter_language: Option<String> = row.try_get(30)?;
+        let submitter_id: Id<UserMarker> = row.try_get(22)?;
+        let submitter_name: String = row.try_get(23)?;
+        let submitter_stylesheet: bool = row.try_get(24)?;
+        let submitter_bio: String = row.try_get(25)?;
+        let submitter_pfp: bool = row.try_get(26)?;
+        let submitter_banner: bool = row.try_get(27)?;
+        let submitter_admin: bool = row.try_get(28)?;
+        let submitter_created_at: NaiveDateTime = row.try_get(29)?;
+        let submitter_flags: i64 = row.try_get(30)?;
+        let submitter_language: Option<String> = row.try_get(31)?;
 
-        let category_game_id: Id<GameMarker> = row.try_get(31)?;
-        let category_name: String = row.try_get(32)?;
-        let category_description: String = row.try_get(33)?;
-        let category_rules: String = row.try_get(34)?;
-        let category_scoreboard: bool = row.try_get(35)?;
-        let category_flags: i64 = row.try_get(36)?;
+        let category_game_id: Id<GameMarker> = row.try_get(32)?;
+        let category_name: String = row.try_get(33)?;
+        let category_description: String = row.try_get(34)?;
+        let category_rules: String = row.try_get(35)?;
+        let category_scoreboard: bool = row.try_get(36)?;
+        let category_flags: i64 = row.try_get(37)?;
 
         let verifier = User::collapse_optional(
             verifier_id,
@@ -375,6 +378,7 @@ impl ResolvedRun {
             time,
             status,
             created_at,
+            edited_at,
             verified_at,
             flags,
         };

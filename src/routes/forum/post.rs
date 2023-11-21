@@ -39,6 +39,7 @@ pub async fn get(
         forum_entries.flags as forum_entry_flags,
         forum_entries.parent as forum_entry_parent,
         forum_entries.created_at as forum_entry_created_at,
+        forum_entries.edited_at as forum_entry_edited_at,
         users.id as user_id,
         users.username as user_username,
         users.biography as user_biography,
@@ -75,6 +76,7 @@ pub async fn get(
         let id: Id<ForumEntryMarker> = Id::new(run.forum_entry_id);
         let content = run.forum_entry_content;
         let created_at = run.forum_entry_created_at;
+        let edited_at = run.forum_entry_edited_at;
         let flags = run.forum_entry_flags;
         if let Some(forum_entry_title) = run.forum_entry_title {
             post = Some(ForumPost {
@@ -83,6 +85,7 @@ pub async fn get(
                 author,
                 content,
                 created_at,
+                edited_at,
                 flags,
             });
         } else if let Some(parent) = run.forum_entry_parent {
@@ -92,6 +95,7 @@ pub async fn get(
                 author,
                 content,
                 created_at,
+                edited_at,
                 flags,
             });
         }

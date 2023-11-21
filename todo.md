@@ -7,8 +7,7 @@
 - [ ] Error translation (Better form validation?)
 - [ ] Localize durations
 - [ ] Validate file sizes clientside
-- [ ] Forum post deletion
-- [ ] Forum post editing
+- [ ] Show when posts are edited
 - [ ] Run deletion
 - [ ] Run editing
 - [ ] Move link building into models

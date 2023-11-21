@@ -9,6 +9,8 @@ impl Permissions {
     pub const VERIFY_RUNS: Self = Self(0b1 << 0);
     pub const BLOCK_USERS: Self = Self(0b1 << 1);
     pub const MANAGE_CATEGORIES: Self = Self(0b1 << 2);
+    pub const FORUM_MODERATOR: Self = Self(0b1 << 3);
+    pub const LEADERBOARD_MODERATOR: Self = Self(0b1 << 4);
     pub const ADMINISTRATOR: Self = Self(0b1 << 63);
 }
 
