@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE forum_entries SET content = $1, title = $2, edited_at = NOW() WHERE id = $3",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "067e669195eba1203b2e6ee42e27908aaa7c0f9bb79633cef9346fc606edd053"
+}

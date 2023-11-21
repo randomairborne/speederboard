@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM forum_entries WHERE id = $1 OR parent = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d4b5320323cccb0e70e24c71a1291886045a5fdc3857455ecef7fdb854c164e5"
+}
