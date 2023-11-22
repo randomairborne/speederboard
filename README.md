@@ -23,6 +23,17 @@ This command will near-instantly update templates and public, and update src wit
 ## windows
 
 On windows, you can also download the exe: [speederboard.exe](https://user-content.speederboard.org/executables/speederboard.exe).
-it requires certain environment variables, but most of them have sane localhost-y defaults or will be pointed out to you on run.
 You will need to clone the repository and run speederboard.exe in the speederboard root directory, but you need to do this for
-development anyway
+development anyway.
+
+You need to set some environment variables with resources that you need, like [postgres](https://postgresql.org), [redis](https://redis.io), and [s3](https://min.io).
+
+```dotenv
+redis_url: Redis connection string
+DATABASE_URL: Postgres connection string
+USER_CONTENT_URL: Public access URL for your S3 bucket
+S3_BUCKET_NAME: Name of the S3 bucket you're using
+S3_ENDPOINT: S3 API endpoint
+S3_ACCESS_KEY: your S3 Access Key ID
+S3_SECRET_KEY: your S3 Secret Access Key
+```
