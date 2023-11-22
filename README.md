@@ -29,7 +29,7 @@ development anyway.
 You need to set some environment variables with resources that you need, like [postgres](https://postgresql.org), [redis](https://redis.io), and [s3](https://min.io).
 
 ```dotenv
-redis_url: Redis connection string
+REDIS_URL: Redis connection string
 DATABASE_URL: Postgres connection string
 USER_CONTENT_URL: Public access URL for your S3 bucket
 S3_BUCKET_NAME: Name of the S3 bucket you're using
