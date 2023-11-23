@@ -42,7 +42,7 @@ tokio = { version = "1", features = [
 notify = { version = "6", default-features = false, optional = true, features = [
     "macos_kqueue",
 ] }
-image = { version = "0.24.7", default-features = false, features = [
+image = { version = "0.24", default-features = false, features = [
     "webp-encoder",
     "webp",
     "jpeg",
@@ -58,7 +58,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 garde = { version = "0.16", features = ["derive", "email", "url"] }
 simpleinterpolation = { path = "./subcrates/simpleinterpolation" }
 tower = { version = "0.4", default-features = false }
-strum = { version = "0.25.0", features = ["derive"] }
+strum = { version = "0.25", features = ["derive"] }
 tera = { version = "1.19", features = ["builtins"] }
 serde = { version = "1", features = ["derive"] }
 markdown = "1.0.0-alpha.14"
