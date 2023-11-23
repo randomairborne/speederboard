@@ -1,7 +1,7 @@
 use std::{cmp::Ordering, sync::Arc};
 
 use chrono::NaiveDateTime;
-use sqlx::{postgres::PgRow, Row};
+use sqlx::{postgres::PgRow, PgPool, Row};
 
 use super::{Category, Game, User};
 use crate::{
@@ -157,6 +157,7 @@ struct ResolvedRunRequestMultiple {
     limit: usize,
     page: usize,
 }
+
 enum ResolvedRunRequest {
     Single(Id<RunMarker>),
     Multiple(ResolvedRunRequestMultiple),
@@ -167,7 +168,8 @@ impl ResolvedRun {
         state: &AppState,
         run_id: Id<RunMarker>,
     ) -> Result<Option<ResolvedRun>, Error> {
-        let resolveds = Self::run_fetcher(state, ResolvedRunRequest::Single(run_id)).await?;
+        let resolveds =
+            Self::run_fetcher(&state.postgres, ResolvedRunRequest::Single(run_id)).await?;
         if resolveds.len() > 1 {
             return Err(Error::TooManyRows(1, resolveds.len()));
         }
@@ -191,7 +193,7 @@ impl ResolvedRun {
             limit,
             page,
         });
-        let mut resolveds = Self::run_fetcher(state, request).await?;
+        let mut resolveds = Self::run_fetcher(&state.postgres, request).await?;
         let has_next = resolveds.len() > limit;
         resolveds.truncate(limit);
         Ok(ResolvedRunResult {
@@ -201,7 +203,7 @@ impl ResolvedRun {
     }
 
     async fn run_fetcher(
-        state: &AppState,
+        pg: &PgPool,
         request: ResolvedRunRequest,
     ) -> Result<Vec<ResolvedRun>, Error> {
         let mut query = sqlx::QueryBuilder::new(
@@ -267,7 +269,7 @@ impl ResolvedRun {
             query.push(" OFFSET ");
             query.push_bind(s_limit * page);
         }
-        let rows = query.build().fetch_all(&state.postgres).await?;
+        let rows = query.build().fetch_all(pg).await?;
         let mut resolveds = Vec::with_capacity(rows.len());
         let optional_game = match request {
             ResolvedRunRequest::Multiple(request) => Some(request.game),
@@ -386,15 +388,15 @@ impl ResolvedRun {
     }
 
     fn get_game_from_row(row: &PgRow) -> Result<Arc<Game>, Error> {
-        let id: Id<GameMarker> = row.try_get(37)?;
-        let name: String = row.try_get(38)?;
-        let description: String = row.try_get(39)?;
-        let slug: String = row.try_get(40)?;
-        let url: String = row.try_get(41)?;
-        let banner: bool = row.try_get(42)?;
-        let cover_art: bool = row.try_get(43)?;
-        let default_category: Id<CategoryMarker> = row.try_get(44)?;
-        let flags: i64 = row.try_get(45)?;
+        let id: Id<GameMarker> = row.try_get(38)?;
+        let name: String = row.try_get(39)?;
+        let description: String = row.try_get(40)?;
+        let slug: String = row.try_get(41)?;
+        let url: String = row.try_get(42)?;
+        let banner: bool = row.try_get(43)?;
+        let cover_art: bool = row.try_get(44)?;
+        let default_category: Id<CategoryMarker> = row.try_get(45)?;
+        let flags: i64 = row.try_get(46)?;
         Ok(Arc::new(Game {
             id,
             name,
@@ -406,5 +408,36 @@ impl ResolvedRun {
             cover_art,
             flags,
         }))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use sqlx::PgPool;
+
+    use super::*;
+    use crate::util::test::*;
+    #[sqlx::test(fixtures(path = "../fixtures", scripts("add_game", "add_user", "add_run")))]
+    async fn get_run(db: PgPool) {
+        let request = ResolvedRunRequest::Single(Id::new(1));
+        let runs = ResolvedRun::run_fetcher(&db, request).await.unwrap();
+        let expected_run = ResolvedRun {
+            id: Id::new(1),
+            game: Arc::new(test_game()),
+            category: test_category(),
+            submitter: test_user(),
+            verifier: None,
+            video: "https://www.youtube.com/watch?v=vOLivyykLqk".to_string(),
+            description: "test run".to_string(),
+            score: 0,
+            time: 0,
+            status: RunStatus::Pending,
+            created_at: NaiveDateTime::UNIX_EPOCH,
+            edited_at: None,
+            verified_at: None,
+            flags: 0,
+        };
+        assert_eq!(runs.len(), 1);
+        assert_eq!(runs[0], expected_run);
     }
 }

@@ -385,9 +385,9 @@ mod tests {
     use sqlx::{query, PgPool};
 
     use super::*;
-    use crate::{state::InnerAppState, Error};
+    use crate::{state::InnerAppState, util::test::*, Error};
 
-    #[sqlx::test(fixtures("add_user"))]
+    #[sqlx::test(fixtures(path = "../fixtures", scripts("add_user")))]
     async fn basic_user(db: PgPool) -> Result<(), Error> {
         let state = InnerAppState::test(db).await;
         let id = query!("SELECT id FROM users LIMIT 1")
@@ -395,12 +395,7 @@ mod tests {
             .await
             .unwrap();
         let user = User::from_db(&state, Id::new(id.id)).await.unwrap();
-        assert!(!user.pfp);
-        assert!(!user.banner);
-        assert!(!user.stylesheet);
-        assert_eq!(user.username, "test_user");
-        assert_eq!(user.biography, "biography");
-        assert!(!user.admin);
+        assert_eq!(user, test_user());
         Ok(())
     }
 }

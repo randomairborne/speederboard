@@ -69,8 +69,8 @@ CREATE TABLE runs (
     verified_at TIMESTAMP,
     edited_at TIMESTAMP,
     flags BIGINT NOT NULL DEFAULT 0,
-    CONSTRAINT root_forum_entries_have_titles CHECK
-    ((verifier IS NULL) <> (runs.verified_at IS NULL))
+    CONSTRAINT verifier_and_verified_at CHECK
+    ((verifier IS NULL) = (runs.verified_at IS NULL))
 );
 
 CREATE INDEX runs_category_index ON runs USING HASH (category);
