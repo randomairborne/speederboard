@@ -34,8 +34,6 @@ jobs:
     steps:
       - name: Check out code into the proper directory
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Install cargo
         uses: dtolnay/rust-toolchain@stable

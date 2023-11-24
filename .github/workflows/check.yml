@@ -40,14 +40,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-          # DEBUG VALUES
-
-      - run: ls -lah
-      - run: git rev-parse HEAD
-      - run: which git
-
       - name: Install various depdendencies
-        run: apt update -y && apt install pkg-config curl build-essential openssl libssl-dev -y
+        run: apt update -y && apt install pkg-config curl build-essential openssl libssl-dev git -y
 
       - uses: dtolnay/rust-toolchain@stable
         with:
