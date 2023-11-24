@@ -1,9 +1,13 @@
-use axum::extract::{Path, State};
+use axum::{
+    extract::{Path, State},
+    response::Redirect,
+};
 
 use crate::{
     id::{CategoryMarker, Id, RunMarker},
-    model::{Category, Game, ResolvedRun, User},
+    model::{Category, Game, Permissions, ResolvedRun, User},
     template::BaseRenderInfo,
+    util::game_n_member,
     AppState, Error, HandlerResult,
 };
 
@@ -38,4 +42,25 @@ pub async fn get(
         base,
     };
     state.render("run.jinja", ctx)
+}
+
+pub async fn delete(
+    State(state): State<AppState>,
+    Path((game_slug, _category_id, run_id)): Path<(String, Id<CategoryMarker>, Id<RunMarker>)>,
+    user: User,
+) -> Result<Redirect, Error> {
+    let (_game, member) = game_n_member(&state, user, &game_slug).await?;
+    let run = query!("SELECT submitter FROM runs WHERE id = $1", run_id.get())
+        .fetch_optional(&state.postgres)
+        .await?
+        .ok_or(Error::NotFound)?;
+    if !member.perms.contains(Permissions::LEADERBOARD_MODERATOR)
+        && member.user.id.get() != run.submitter
+    {
+        return Err(Error::InsufficientPermissions);
+    }
+    query!("DELETE FROM runs WHERE id = $1", run_id.get())
+        .execute(&state.postgres)
+        .await?;
+    Ok(state.redirect(format!("/game/{game_slug}")))
 }
