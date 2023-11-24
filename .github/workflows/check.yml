@@ -4,8 +4,10 @@ on:
     paths:
       - src/**
       - subcrates/**
+      - migrations/**
       - .sqlx/**
       - .github/**
+      - build.rs
       - Cargo.toml
       - Cargo.lock
   workflow_dispatch:

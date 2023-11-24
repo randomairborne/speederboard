@@ -11,6 +11,7 @@ on:
       - translations/**
       - .sqlx/**
       - .github/**
+      - build.rs
       - Cargo.toml
       - Cargo.lock
       - Dockerfile
