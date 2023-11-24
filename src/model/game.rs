@@ -1,6 +1,6 @@
 use crate::{
     id::{CategoryMarker, GameMarker, Id},
-    AppState, Error,
+    static_path_prefix, AppState, Error,
 };
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Encode, Hash, PartialEq, Eq, Clone)]
@@ -50,7 +50,7 @@ impl Game {
         if self.banner {
             user_content.to_owned() + &self.banner_path(ext)
         } else {
-            static_root.to_owned() + "/defaults/game/banner.svg"
+            static_root.to_owned() + concat!(static_path_prefix!(), "/defaults/game/banner.svg")
         }
     }
 
@@ -58,7 +58,7 @@ impl Game {
         if self.cover_art {
             user_content.to_owned() + &self.cover_art_path(ext)
         } else {
-            static_root.to_owned() + "/defaults/game/coverart.svg"
+            static_root.to_owned() + concat!(static_path_prefix!(), "/defaults/game/coverart.svg")
         }
     }
 }

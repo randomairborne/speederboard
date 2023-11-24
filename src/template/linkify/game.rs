@@ -25,8 +25,8 @@ impl tera::Function for GetLinks<GameLinks> {
         let ext = "webp";
         let game: Game = serde_json::from_value(value.clone())?;
 
-        let cover_art_url = game.cover_art_url(&self.user_content, &self.static_content, ext);
-        let banner_url = game.banner_url(&self.user_content, &self.static_content, ext);
+        let cover_art_url = game.cover_art_url(&self.user_content, &self.root, ext);
+        let banner_url = game.banner_url(&self.user_content, &self.root, ext);
 
         let ui_url = format!("{}/game/{}", self.root, game.slug);
         let edit_url = format!("{ui_url}/edit");

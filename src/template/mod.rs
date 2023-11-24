@@ -12,6 +12,7 @@ pub use translate::{get_translations, GetTranslation};
 use crate::{
     config::Config,
     model::User,
+    static_path_prefix,
     template::linkify::{CategoryLinks, ForumPostLinks, GameLinks, GetLinks, RunLinks, UserLinks},
     AppState, Error,
 };
@@ -85,8 +86,8 @@ impl FromRequestParts<AppState> for BaseRenderInfo {
         };
         let bri = BaseRenderInfo {
             root_url: state.config.root_url.clone(),
-            static_url: state.config.static_url.clone(),
             user_content_url: state.config.user_content_url.clone(),
+            static_url: state.config.root_url.clone() + static_path_prefix!(),
             logged_in_user: user,
             language,
         };

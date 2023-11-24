@@ -6,6 +6,7 @@ use redis::AsyncCommands;
 use crate::{
     id::{Id, UserMarker},
     language::Language,
+    static_path_prefix,
     util::AUTHTOKEN_COOKIE,
     AppState, Error,
 };
@@ -157,7 +158,7 @@ impl User {
         if self.pfp {
             user_content.to_owned() + &self.pfp_path(ext)
         } else {
-            static_root.to_owned() + "/defaults/user/pfp.svg"
+            static_root.to_owned() + concat!(static_path_prefix!(), "/defaults/user/pfp.svg")
         }
     }
 
@@ -165,7 +166,7 @@ impl User {
         if self.banner {
             user_content.to_owned() + &self.banner_path(ext)
         } else {
-            static_root.to_owned() + "/defaults/user/banner.svg"
+            static_root.to_owned() + concat!(static_path_prefix!(), "/defaults/user/banner.svg")
         }
     }
 }

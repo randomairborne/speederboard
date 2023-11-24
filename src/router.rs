@@ -3,9 +3,12 @@ use axum::{
     Router,
 };
 use axum_extra::routing::RouterExt;
-use tower_http::{compression::CompressionLayer, decompression::DecompressionLayer};
+use tower::ServiceBuilder;
+use tower_http::{
+    compression::CompressionLayer, decompression::DecompressionLayer, services::ServeDir,
+};
 
-use crate::{routes, AppState};
+use crate::{routes, static_path_prefix, AppState};
 
 pub fn build(state: AppState) -> Router {
     Router::new()
@@ -21,8 +24,16 @@ pub fn build(state: AppState) -> Router {
         .merge(game_router(state.clone()))
         .merge(forum_router(state.clone()))
         .merge(admin_router(state.clone()))
+        .nest_service(
+            static_path_prefix!(),
+            ServiceBuilder::new()
+                .layer(axum::middleware::from_fn(
+                    crate::util::infinicache_middleware,
+                ))
+                .service(ServeDir::new("./assets/public").append_index_html_on_directories(false)),
+        )
         .layer(
-            tower::ServiceBuilder::new()
+            ServiceBuilder::new()
                 .layer(axum::middleware::from_fn_with_state(
                     state.clone(),
                     crate::error::error_middleware,

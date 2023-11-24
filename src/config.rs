@@ -1,3 +1,10 @@
+#[macro_export]
+macro_rules! static_path_prefix {
+    () => {
+        concat!("/static/", env!("GIT_HASH"))
+    };
+}
+
 #[cfg(feature = "dev")]
 #[derive(serde::Deserialize, Clone, Debug)]
 pub struct Config {
@@ -5,8 +12,6 @@ pub struct Config {
     pub database_url: String,
     #[serde(default = "dev_defaults::root_url")]
     pub root_url: String,
-    #[serde(default = "dev_defaults::static_url")]
-    pub static_url: String,
     pub user_content_url: String,
     pub s3_bucket_name: String,
     #[serde(default = "dev_defaults::s3_region")]
@@ -26,9 +31,6 @@ mod dev_defaults {
     pub(super) fn root_url() -> String {
         String::from("http://localhost:8080")
     }
-    pub(super) fn static_url() -> String {
-        String::from("http://localhost:8000")
-    }
     pub(super) fn s3_region() -> Option<String> {
         Some(String::from("us-east-1"))
     }
@@ -40,7 +42,6 @@ pub struct Config {
     pub redis_url: String,
     pub database_url: String,
     pub root_url: String,
-    pub static_url: String,
     pub user_content_url: String,
     pub s3_bucket_name: String,
     pub s3_region: Option<String>,

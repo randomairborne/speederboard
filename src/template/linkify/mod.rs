@@ -16,7 +16,6 @@ use crate::config::Config;
 
 pub struct GetLinks<T> {
     root: String,
-    static_content: String,
     user_content: String,
     kind: PhantomData<T>,
 }
@@ -25,7 +24,6 @@ impl<T> GetLinks<T> {
     pub fn new(config: &Config) -> Self {
         Self {
             root: config.root_url.clone(),
-            static_content: config.static_url.clone(),
             user_content: config.user_content_url.clone(),
             kind: PhantomData,
         }

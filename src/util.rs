@@ -9,6 +9,7 @@ use axum::{
 };
 use axum_extra::extract::cookie::{Cookie, SameSite};
 use rand::rngs::OsRng;
+use reqwest::header::HeaderValue;
 
 use crate::{
     error::ArgonError,
@@ -133,7 +134,7 @@ where
 }
 
 pub async fn game_n_member(
-    state: &crate::AppState,
+    state: &AppState,
     user: User,
     game_slug: &str,
 ) -> Result<(Game, Member), crate::Error> {
@@ -185,6 +186,15 @@ pub async fn csp_middleware<B>(
     let mut resp = next.run(request).await;
     resp.headers_mut()
         .insert("content-security-policy", state.csp());
+    resp
+}
+
+pub async fn infinicache_middleware<B>(request: Request<B>, next: Next<B>) -> Response {
+    let mut resp = next.run(request).await;
+    resp.headers_mut().insert(
+        "cache-control",
+        HeaderValue::from_static("public, max-age=31536000, immutable"),
+    );
     resp
 }
 

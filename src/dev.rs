@@ -53,15 +53,3 @@ fn check_event_interest(event: &Event) -> bool {
             notify::EventKind::Modify(notify::event::ModifyKind::Name(_))
         ))
 }
-
-pub async fn cdn_static() {
-    let router = axum::Router::new()
-        .nest_service("/", tower_http::services::ServeDir::new("./assets/public/"))
-        .layer(tower_http::cors::CorsLayer::permissive());
-    info!("Starting static CDN on http://localhost:8000");
-    axum::Server::bind(&([0, 0, 0, 0], 8000).into())
-        .serve(router.into_make_service())
-        .with_graceful_shutdown(crate::shutdown_signal())
-        .await
-        .expect("Failed to start static CDN");
-}

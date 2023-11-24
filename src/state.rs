@@ -10,7 +10,7 @@ use sqlx::{postgres::PgPoolOptions, PgPool};
 use tera::Tera;
 use url::Url;
 
-use crate::{config::Config, Error};
+use crate::{config::Config, static_path_prefix, Error};
 
 pub type AppState = Arc<InnerAppState>;
 
@@ -271,22 +271,21 @@ impl InnerAppState {
     pub async fn inner_from_environment() -> Self {
         let config: Config = envy::from_env().expect("Failed to read config");
         let root_url = config.root_url.trim_end_matches('/').to_string();
-        let static_url = config.static_url.trim_end_matches('/').to_string();
         let user_content_url = config.user_content_url.trim_end_matches('/').to_string();
         let config = Config {
             root_url,
-            static_url,
             user_content_url,
             ..config
         };
         let csp = HeaderValue::from_str(&format!(
-            "default-src {0} {1} {2}; script-src {1}; object-src 'none'; \
-            frame-src https://youtube.com https://clips.twitch.tv {2}",
+            "default-src {0} {1}; script-src {0}{2}/page-scripts/; \
+            frame-src https://youtube.com https://clips.twitch.tv {1}; \
+            require-trusted-types-for 'script'; object-src 'none';",
             Self::url_to_origin(&config.root_url),
-            Self::url_to_origin(&config.static_url),
-            Self::url_to_origin(&config.user_content_url)
+            Self::url_to_origin(&config.user_content_url),
+            static_path_prefix!()
         ))
-        .expect("Invalid csp header value (check your STATIC_URL)");
+        .expect("Invalid csp header value (check your USER_CONTENT_URL)");
         let postgres = PgPoolOptions::new()
             .max_connections(15)
             .connect(&config.database_url)

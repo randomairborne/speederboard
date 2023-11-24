@@ -22,8 +22,8 @@ impl tera::Function for GetLinks<UserLinks> {
         let ext = "webp";
         let user: User = serde_json::from_value(value.clone())?;
 
-        let pfp_url = user.pfp_url(&self.user_content, &self.static_content, ext);
-        let banner_url = user.banner_url(&self.user_content, &self.static_content, ext);
+        let pfp_url = user.pfp_url(&self.user_content, &self.root, ext);
+        let banner_url = user.banner_url(&self.user_content, &self.root, ext);
         let stylesheet_url = user.stylesheet_url(&self.user_content);
         let ui_url = format!("{}/user/{}", self.root, user.username);
 
