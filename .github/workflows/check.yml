@@ -39,11 +39,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
+
           # DEBUG VALUES
-      - run: which git
+
       - run: ls -lah
+      - run: git rev-parse HEAD
+      - run: which git
 
       - name: Install various depdendencies
         run: apt update -y && apt install pkg-config curl build-essential openssl libssl-dev -y
