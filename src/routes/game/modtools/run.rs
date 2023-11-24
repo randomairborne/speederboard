@@ -5,22 +5,12 @@ use axum::{
 
 use crate::{
     id::{CategoryMarker, Id, RunMarker},
-    model::{Category, Game, Member, Permissions, ResolvedRun, User},
+    model::{Member, Permissions, ResolvedRun, User},
+    routes::game::run::RunPage,
     template::BaseRenderInfo,
     util::game_n_member,
     AppState, Error, HandlerResult,
 };
-
-#[derive(serde::Serialize, Debug, Clone)]
-pub struct RunPage<'a> {
-    user: &'a User,
-    game: &'a Game,
-    category: &'a Category,
-    verifier: &'a Option<User>,
-    run: &'a ResolvedRun,
-    #[serde(flatten)]
-    base: BaseRenderInfo,
-}
 
 pub async fn fetch_review(
     State(state): State<AppState>,

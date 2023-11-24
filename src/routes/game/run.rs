@@ -9,13 +9,13 @@ use crate::{
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct RunPage<'a> {
-    user: &'a User,
-    game: &'a Game,
-    category: &'a Category,
-    verifier: &'a Option<User>,
-    run: &'a ResolvedRun,
+    pub user: &'a User,
+    pub game: &'a Game,
+    pub category: &'a Category,
+    pub verifier: &'a Option<User>,
+    pub run: &'a ResolvedRun,
     #[serde(flatten)]
-    base: BaseRenderInfo,
+    pub base: BaseRenderInfo,
 }
 
 pub async fn get(
