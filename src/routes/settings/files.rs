@@ -31,7 +31,8 @@ pub async fn pfp_del(State(state): State<AppState>, user: User) -> Result<Redire
         state.delete_r2_file(&webp_path),
         state.delete_r2_file(&jpeg_path)
     );
-    (webp?, jpeg?);
+    webp?;
+    jpeg?;
     Ok(state.redirect("/settings"))
 }
 
@@ -57,7 +58,8 @@ pub async fn banner_del(State(state): State<AppState>, user: User) -> Result<Red
         state.delete_r2_file(&webp_path),
         state.delete_r2_file(&jpeg_path)
     );
-    (webp?, jpeg?);
+    webp?;
+    jpeg?;
     Ok(state.redirect("/settings"))
 }
 
@@ -104,12 +106,13 @@ async fn upload_image(
             (bytes, limit),
         )
         .await??;
-    let (webp_path, jpeg_path) = (path(&user, "webp"), path(&user, "jpeg"));
+    let (webp_path, jpeg_path) = (path(user, "webp"), path(user, "jpeg"));
     let (one, two) = tokio::join!(
         state.put_r2_file(&webp_path, &reencoding.webp, "image/webp"),
         state.put_r2_file(&jpeg_path, &reencoding.jpeg, "image/jpeg")
     );
-    (one?, two?);
+    one?;
+    two?;
     Ok(())
 }
 
