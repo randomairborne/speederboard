@@ -4,7 +4,12 @@ fn main() {
         .output()
         .expect("No git command found, or other git error");
     if !output.status.success() {
-        panic!("Bad exit status: {}", output.status)
+        panic!(
+            "Bad exit status: {}\n---stdout\n{}\n\n---stderr\n{}\n",
+            output.status,
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        )
     }
     let git_output = String::from_utf8(output.stdout).unwrap();
     let git_hash = git_output.trim();
