@@ -2,7 +2,7 @@ fn main() {
     let output = std::process::Command::new("git")
         .args(["rev-parse", "--short", "HEAD"])
         .output()
-        .expect("No git command found, or other git error!");
+        .expect("No git command found, or other git error");
     if !output.status.success() {
         panic!("Bad exit status: {}", output.status)
     }
