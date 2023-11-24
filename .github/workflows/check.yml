@@ -43,6 +43,9 @@ jobs:
       - name: Install various depdendencies
         run: apt update -y && apt install pkg-config curl build-essential openssl libssl-dev git -y
 
+      - name: Safelist all git directories
+        run: git config --global safe.directory '*'
+
       - uses: actions/checkout@v4
 
       - uses: dtolnay/rust-toolchain@stable
