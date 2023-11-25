@@ -133,42 +133,7 @@ pub async fn error_middleware<B>(
     } else {
         return response;
     };
-    let status = match error {
-        Error::Sqlx(_)
-        | Error::DeadpoolRedis(_)
-        | Error::Redis(_)
-        | Error::Tera(_)
-        | Error::Argon2(_)
-        | Error::OneshotRecv(_)
-        | Error::SerdeJson(_)
-        | Error::Reqwest(_)
-        | Error::S3(_)
-        | Error::S3Status(_)
-        | Error::Impossible(_)
-        | Error::TaskJoin(_)
-        | Error::Io(_)
-        | Error::Format(_)
-        | Error::TryFromInt(_)
-        | Error::UrlParse(_)
-        | Error::MissingQueryPair(_)
-        | Error::TooManyRows(_, _)
-        | Error::RowDoesNotMatchInputGame
-        | Error::NoDomainInUrl
-        | Error::PathHasNoParent
-        | Error::NoFileStem
-        | Error::InvalidOsString => StatusCode::INTERNAL_SERVER_ERROR,
-        Error::FormValidation(_)
-        | Error::CustomFormValidation(_)
-        | Error::FormRejection(_)
-        | Error::MultiFormValidation(_)
-        | Error::Multipart(_)
-        | Error::Image(_)
-        | Error::ImageTooTall(_)
-        | Error::ImageTooWide(_)
-        | Error::TokenHasIdButIdIsUnkown
-        | Error::InvalidGameCategoryPair
-        | Error::CannotDeleteDefaultCategory => StatusCode::BAD_REQUEST,
-        Error::InvalidPassword | Error::InsufficientPermissions => StatusCode::UNAUTHORIZED,
+    match error {
         Error::InvalidCookie => return state.redirect("/login").into_response(),
         Error::NeedsLogin(return_to) => {
             return state
@@ -178,10 +143,15 @@ pub async fn error_middleware<B>(
         Error::NotFound => {
             return crate::routes::notfound(&state, base, uri.to_string()).into_response()
         }
+        _ => {}
     };
+
+    let status = error.status();
+
     if status == StatusCode::INTERNAL_SERVER_ERROR {
         error!(?error, "failed to handle request");
     }
+
     let error_as_string = error.to_string();
     let mut ctx = match tera::Context::from_serialize(base) {
         Ok(v) => v,
@@ -199,6 +169,51 @@ pub async fn error_middleware<B>(
         format_raw_error(&error_as_string, &source.to_string())
     });
     (status, [("cache-control", "private")], content).into_response()
+}
+
+impl Error {
+    fn status(&self) -> StatusCode {
+        match self {
+            Error::Sqlx(_)
+            | Error::DeadpoolRedis(_)
+            | Error::Redis(_)
+            | Error::Tera(_)
+            | Error::Argon2(_)
+            | Error::OneshotRecv(_)
+            | Error::SerdeJson(_)
+            | Error::Reqwest(_)
+            | Error::S3(_)
+            | Error::S3Status(_)
+            | Error::Impossible(_)
+            | Error::TaskJoin(_)
+            | Error::Io(_)
+            | Error::Format(_)
+            | Error::TryFromInt(_)
+            | Error::UrlParse(_)
+            | Error::MissingQueryPair(_)
+            | Error::TooManyRows(_, _)
+            | Error::RowDoesNotMatchInputGame
+            | Error::NoDomainInUrl
+            | Error::PathHasNoParent
+            | Error::NoFileStem
+            | Error::InvalidOsString => StatusCode::INTERNAL_SERVER_ERROR,
+            Error::FormValidation(_)
+            | Error::CustomFormValidation(_)
+            | Error::FormRejection(_)
+            | Error::MultiFormValidation(_)
+            | Error::Multipart(_)
+            | Error::Image(_)
+            | Error::ImageTooTall(_)
+            | Error::ImageTooWide(_)
+            | Error::NeedsLogin(_)
+            | Error::TokenHasIdButIdIsUnkown
+            | Error::InvalidGameCategoryPair
+            | Error::CannotDeleteDefaultCategory
+            | Error::InvalidCookie => StatusCode::BAD_REQUEST,
+            Error::InvalidPassword | Error::InsufficientPermissions => StatusCode::UNAUTHORIZED,
+            Error::NotFound => StatusCode::NOT_FOUND,
+        }
+    }
 }
 
 fn format_raw_error(original: &str, tera: &str) -> String {
