@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace]
-members = ["subcrates/simpleinterpolation"]
+members = ["subcrates/hashserver", "subcrates/simpleinterpolation"]
 
 [profile.release]
 incremental = false
@@ -59,8 +59,9 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 garde = { version = "0.16", features = ["derive", "email", "url"] }
 simpleinterpolation = { path = "./subcrates/simpleinterpolation" }
 tower = { version = "0.4", default-features = false }
-strum = { version = "0.25", features = ["derive"] }
 tera = { version = "1.19", features = ["builtins"] }
+strum = { version = "0.25", features = ["derive"] }
+hashserver = { path = "./subcrates/hashserver" }
 serde = { version = "1", features = ["derive"] }
 markdown = "1.0.0-alpha.15"
 deadpool-redis = "0.13"
