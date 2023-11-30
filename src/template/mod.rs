@@ -1,8 +1,6 @@
 mod linkify;
 mod translate;
 
-#[cfg(feature = "dev")]
-use std::sync::{Arc, RwLock};
 use std::{collections::HashMap, fmt::Write};
 
 use axum::{extract::FromRequestParts, http::request::Parts};
@@ -10,14 +8,12 @@ use tera::{Tera, Value};
 pub use translate::{get_translations, GetTranslation};
 
 use crate::{
-    config::Config,
     model::User,
-    static_path_prefix,
     template::linkify::{CategoryLinks, ForumPostLinks, GameLinks, GetLinks, RunLinks, UserLinks},
     AppState, Error,
 };
 
-fn real_tera(config: &Config) -> Tera {
+pub fn tera(state: AppState) -> Tera {
     let translations = get_translations().expect("Failed to load translations");
     let mut tera = match Tera::new("./templates/**/*") {
         Ok(v) => v,
@@ -37,31 +33,27 @@ fn real_tera(config: &Config) -> Tera {
     tera.register_filter("video_embed", VideoEmbedder);
     tera.register_function("devmode", DevModeFunction);
     tera.register_function("gettrans", GetTranslation::new(translations));
-    tera.register_function("getuserlinks", GetLinks::<UserLinks>::new(config));
-    tera.register_function("getcategorylinks", GetLinks::<CategoryLinks>::new(config));
-    tera.register_function("getgamelinks", GetLinks::<GameLinks>::new(config));
-    tera.register_function("getpostlinks", GetLinks::<ForumPostLinks>::new(config));
-    tera.register_function("getrunlinks", GetLinks::<RunLinks>::new(config));
+    tera.register_function("getuserlinks", GetLinks::<UserLinks>::new(state.clone()));
+    tera.register_function(
+        "getcategorylinks",
+        GetLinks::<CategoryLinks>::new(state.clone()),
+    );
+    tera.register_function("getgamelinks", GetLinks::<GameLinks>::new(state.clone()));
+    tera.register_function(
+        "getpostlinks",
+        GetLinks::<ForumPostLinks>::new(state.clone()),
+    );
+    tera.register_function("getrunlinks", GetLinks::<RunLinks>::new(state));
     tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
     tera
-}
-
-#[cfg(feature = "dev")]
-pub fn tera(config: &Config) -> Arc<RwLock<Tera>> {
-    Arc::new(RwLock::new(real_tera(config)))
-}
-
-#[cfg(not(feature = "dev"))]
-#[inline]
-pub fn tera(config: &Config) -> Tera {
-    real_tera(config)
 }
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct BaseRenderInfo {
     pub root_url: String,
     pub user_content_url: String,
-    pub static_url: String,
+    pub stylesheet_url: String,
+    pub favicon_url: String,
     pub logged_in_user: Option<User>,
     pub language: String,
 }
@@ -87,7 +79,8 @@ impl FromRequestParts<AppState> for BaseRenderInfo {
         let bri = BaseRenderInfo {
             root_url: state.config.root_url.clone(),
             user_content_url: state.config.user_content_url.clone(),
-            static_url: state.config.root_url.clone() + static_path_prefix!(),
+            stylesheet_url: state.static_resource("/style.css"),
+            favicon_url: state.static_resource("/favicon.svg"),
             logged_in_user: user,
             language,
         };

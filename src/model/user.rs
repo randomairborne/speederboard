@@ -6,7 +6,6 @@ use redis::AsyncCommands;
 use crate::{
     id::{Id, UserMarker},
     language::Language,
-    static_path_prefix,
     util::AUTHTOKEN_COOKIE,
     AppState, Error,
 };
@@ -146,27 +145,27 @@ impl User {
         format!("/users/{}/banner.{ext}", self.id)
     }
 
-    pub fn stylesheet_url(&self, root: &str) -> Option<String> {
+    pub fn stylesheet_url(&self, state: &AppState) -> Option<String> {
         if self.stylesheet {
-            Some(root.to_owned() + &self.stylesheet_path())
+            Some(state.config.root_url.to_owned() + &self.stylesheet_path())
         } else {
             None
         }
     }
 
-    pub fn pfp_url(&self, user_content: &str, static_root: &str, ext: &str) -> String {
+    pub fn pfp_url(&self, state: &AppState, ext: &str) -> String {
         if self.pfp {
-            user_content.to_owned() + &self.pfp_path(ext)
+            state.config.user_content_url.clone() + &self.pfp_path(ext)
         } else {
-            static_root.to_owned() + concat!(static_path_prefix!(), "/defaults/user/pfp.svg")
+            state.static_resource("/defaults/user/pfp.svg")
         }
     }
 
-    pub fn banner_url(&self, user_content: &str, static_root: &str, ext: &str) -> String {
+    pub fn banner_url(&self, state: &AppState, ext: &str) -> String {
         if self.banner {
-            user_content.to_owned() + &self.banner_path(ext)
+            state.config.user_content_url.clone() + &self.banner_path(ext)
         } else {
-            static_root.to_owned() + concat!(static_path_prefix!(), "/defaults/user/banner.svg")
+            state.static_resource("/defaults/user/banner.svg")
         }
     }
 }
@@ -386,11 +385,11 @@ mod tests {
     use sqlx::{query, PgPool};
 
     use super::*;
-    use crate::{state::InnerAppState, util::test::*, Error};
+    use crate::{util::test::*, AppState, Error};
 
     #[sqlx::test(fixtures(path = "../fixtures", scripts("add_user")))]
     async fn basic_user(db: PgPool) -> Result<(), Error> {
-        let state = InnerAppState::test(db).await;
+        let state = AppState::test(db).await;
         let id = query!("SELECT id FROM users LIMIT 1")
             .fetch_one(&state.postgres)
             .await

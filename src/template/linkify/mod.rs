@@ -12,19 +12,17 @@ pub use game::GameLinks;
 pub use run::RunLinks;
 pub use user::UserLinks;
 
-use crate::config::Config;
+use crate::AppState;
 
 pub struct GetLinks<T> {
-    root: String,
-    user_content: String,
+    state: AppState,
     kind: PhantomData<T>,
 }
 
 impl<T> GetLinks<T> {
-    pub fn new(config: &Config) -> Self {
+    pub fn new(state: AppState) -> Self {
         Self {
-            root: config.root_url.clone(),
-            user_content: config.user_content_url.clone(),
+            state,
             kind: PhantomData,
         }
     }

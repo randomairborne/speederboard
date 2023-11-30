@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace]
-members = ["subcrates/hashserver", "subcrates/simpleinterpolation"]
+members = ["subcrates/simpleinterpolation"]
 
 [profile.release]
 incremental = false
@@ -61,16 +61,17 @@ simpleinterpolation = { path = "./subcrates/simpleinterpolation" }
 tower = { version = "0.4", default-features = false }
 tera = { version = "1.19", features = ["builtins"] }
 strum = { version = "0.25", features = ["derive"] }
-hashserver = { path = "./subcrates/hashserver" }
 serde = { version = "1", features = ["derive"] }
 markdown = "1.0.0-alpha.15"
 deadpool-redis = "0.13"
+parking_lot = "0.12"
 serde_repr = "0.1"
 serde_json = "1"
 dotenvy = "0.15"
 thiserror = "1"
 tracing = "0.1"
 argon2 = "0.5"
+blake3 = "1"
 envy = "0.4"
 rand = "0.8"
 rayon = "1"

@@ -15,7 +15,6 @@ mod dev;
 use axum::response::Html;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 
-use crate::state::InnerAppState;
 pub use crate::{error::Error, state::AppState};
 
 pub type HandlerResult = Result<Html<String>, Error>;
@@ -44,7 +43,7 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .with(env_filter)
         .init();
-    let state = InnerAppState::from_environment().await;
+    let state = AppState::from_environment().await;
     #[cfg(feature = "dev")]
     let (tera_jh, translations_jh) = {
         let s1 = state.clone();

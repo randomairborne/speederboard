@@ -27,7 +27,7 @@ impl tera::Function for GetLinks<RunLinks> {
 
         let ui_url = format!(
             "{}/game/{}/category/{}/run/{}",
-            self.root, game.slug, run.category.id, run.id
+            self.state.config.root_url, game.slug, run.category.id, run.id
         );
         let review_url = format!("{ui_url}/review");
         let verify_post_url = format!("{ui_url}/verify");

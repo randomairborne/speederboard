@@ -22,7 +22,10 @@ impl tera::Function for GetLinks<ForumPostLinks> {
         let post: ForumPost = serde_json::from_value(post_val.clone())?;
         let game: Game = serde_json::from_value(game_val.clone())?;
 
-        let ui_url = format!("{}/forum/{}/post/{}", self.root, game.slug, post.id);
+        let ui_url = format!(
+            "{}/forum/{}/post/{}",
+            self.state.config.root_url, game.slug, post.id
+        );
 
         let links = ForumPostLinks { ui_url };
         Ok(serde_json::value::to_value(links)?)

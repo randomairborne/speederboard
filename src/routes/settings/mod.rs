@@ -24,6 +24,7 @@ pub struct SettingsPage {
     incorrect: bool,
     languages: Vec<LanguageMetadata>,
     custom_styles_disabled: bool,
+    js_url: String,
 }
 
 #[derive(serde::Serialize, Debug, Clone)]
@@ -113,6 +114,7 @@ pub async fn get(
             })
             .collect(),
         custom_styles_disabled: true,
+        js_url: state.static_resource("/page-scripts/settings.js"),
     };
     state.render("settings.jinja", ctx)
 }

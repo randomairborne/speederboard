@@ -25,14 +25,14 @@ impl tera::Function for GetLinks<GameLinks> {
         let ext = "webp";
         let game: Game = serde_json::from_value(value.clone())?;
 
-        let cover_art_url = game.cover_art_url(&self.user_content, &self.root, ext);
-        let banner_url = game.banner_url(&self.user_content, &self.root, ext);
+        let cover_art_url = game.cover_art_url(&self.state, ext);
+        let banner_url = game.banner_url(&self.state, ext);
 
-        let ui_url = format!("{}/game/{}", self.root, game.slug);
+        let ui_url = format!("{}/game/{}", self.state.config.root_url, game.slug);
         let edit_url = format!("{ui_url}/edit");
         let feed_url = format!("{ui_url}/feed");
         let team_url = format!("{ui_url}/team");
-        let forum_url = format!("{}/forum/{}", self.root, game.slug);
+        let forum_url = format!("{}/forum/{}", self.state.config.root_url, game.slug);
         let forum_new_post_url = format!("{forum_url}/new");
 
         let links = GameLinks {

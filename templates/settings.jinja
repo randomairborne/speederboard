@@ -1,7 +1,7 @@
 {% extends "base.jinja" %}
 {% block title %}{{ gettrans(lang=language, key="settings.title") }}{% endblock title %}
 {% block extraheaders %}
-<script src="{{ static_url }}/page-scripts/settings.js"></script>
+<script src="{{ js_url }}"></script>
 {% endblock extraheaders %}
 {% block body %}
 {% set userlinks = getuserlinks(user=user) %}

@@ -1,10 +1,3 @@
-#[macro_export]
-macro_rules! static_path_prefix {
-    () => {
-        concat!("/static/", env!("GIT_HASH"))
-    };
-}
-
 #[cfg(feature = "dev")]
 #[derive(serde::Deserialize, Clone, Debug)]
 pub struct Config {

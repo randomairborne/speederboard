@@ -8,7 +8,7 @@ use tower_http::{
     compression::CompressionLayer, decompression::DecompressionLayer, services::ServeDir,
 };
 
-use crate::{routes, static_path_prefix, AppState};
+use crate::{routes, AppState};
 
 pub fn build(state: AppState) -> Router {
     Router::new()
@@ -25,12 +25,12 @@ pub fn build(state: AppState) -> Router {
         .merge(forum_router(state.clone()))
         .merge(admin_router(state.clone()))
         .nest_service(
-            static_path_prefix!(),
+            "/static/",
             ServiceBuilder::new()
                 .layer(axum::middleware::from_fn(
                     crate::util::infinicache_middleware,
                 ))
-                .service(ServeDir::new("./assets/public").append_index_html_on_directories(false)),
+                .service(ServeDir::new("./assets/public/")),
         )
         .layer(
             ServiceBuilder::new()

@@ -1,6 +1,6 @@
 use crate::{
     id::{CategoryMarker, GameMarker, Id},
-    static_path_prefix, AppState, Error,
+    AppState, Error,
 };
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Encode, Hash, PartialEq, Eq, Clone)]
@@ -46,19 +46,19 @@ impl Game {
         format!("/games/{}/cover_art.{ext}", self.id)
     }
 
-    pub fn banner_url(&self, user_content: &str, static_root: &str, ext: &str) -> String {
+    pub fn banner_url(&self, state: &AppState, ext: &str) -> String {
         if self.banner {
-            user_content.to_owned() + &self.banner_path(ext)
+            state.config.user_content_url.clone() + &self.banner_path(ext)
         } else {
-            static_root.to_owned() + concat!(static_path_prefix!(), "/defaults/game/banner.svg")
+            state.static_resource("/defaults/game/banner.svg")
         }
     }
 
-    pub fn cover_art_url(&self, user_content: &str, static_root: &str, ext: &str) -> String {
+    pub fn cover_art_url(&self, state: &AppState, ext: &str) -> String {
         if self.cover_art {
-            user_content.to_owned() + &self.cover_art_path(ext)
+            state.config.user_content_url.clone() + &self.cover_art_path(ext)
         } else {
-            static_root.to_owned() + concat!(static_path_prefix!(), "/defaults/game/coverart.svg")
+            state.static_resource("/defaults/game/coverart.svg")
         }
     }
 }

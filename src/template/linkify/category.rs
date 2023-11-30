@@ -35,7 +35,10 @@ impl tera::Function for GetLinks<CategoryLinks> {
             ));
         }
 
-        let ui_url = format!("{}/game/{}/category/{}", self.root, game.slug, category.id);
+        let ui_url = format!(
+            "{}/game/{}/category/{}",
+            self.state.config.root_url, game.slug, category.id
+        );
         let feed_url = format!("{ui_url}/feed");
         let edit_url = format!("{ui_url}/edit");
         let new_run_url = format!("{ui_url}/run/new");

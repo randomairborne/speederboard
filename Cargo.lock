@@ -1152,17 +1152,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "hashserver"
-version = "0.1.0"
-dependencies = [
- "blake3",
- "http",
- "mime_guess",
- "thiserror",
- "tower",
-]
-
-[[package]]
 name = "headers"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2790,15 +2779,16 @@ dependencies = [
  "argon2",
  "axum",
  "axum-extra",
+ "blake3",
  "chrono",
  "deadpool-redis",
  "dotenvy",
  "envy",
  "garde",
- "hashserver",
  "image",
  "markdown",
  "notify",
+ "parking_lot",
  "rand",
  "rayon",
  "redis",

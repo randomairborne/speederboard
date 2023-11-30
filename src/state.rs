@@ -1,9 +1,15 @@
-use std::sync::RwLock;
-use std::{num::NonZeroUsize, sync::Arc, time::Duration};
+use std::{
+    collections::HashMap,
+    num::NonZeroUsize,
+    path::{Path, PathBuf},
+    sync::Arc,
+    time::Duration,
+};
 
 use argon2::Argon2;
 use axum::{http::HeaderValue, response::Redirect};
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
+use parking_lot::RwLock;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use redis::AsyncCommands;
 use s3::creds::Credentials;
@@ -11,42 +17,36 @@ use sqlx::{postgres::PgPoolOptions, PgPool};
 use tera::Tera;
 use url::Url;
 
-use crate::{config::Config, static_path_prefix, Error};
-
-pub type AppState = Arc<InnerAppState>;
-
-#[cfg(feature = "dev")]
-pub type InnerTera = Arc<RwLock<Tera>>;
-
-#[cfg(not(feature = "dev"))]
-pub type InnerTera = Tera;
+use crate::{config::Config, Error};
 
 #[derive(Clone)]
-pub struct InnerAppState {
-    pub config: Config,
-    tera: InnerTera,
+pub struct AppState {
+    pub config: Arc<Config>,
+    tera: Arc<RwLock<Tera>>,
     pub redis: RedisPool,
     pub postgres: PgPool,
     rayon: Arc<ThreadPool>,
-    pub argon: Argon2<'static>,
+    pub argon: Arc<Argon2<'static>>,
     pub http: reqwest::Client,
-    bucket: s3::Bucket,
-    csp: HeaderValue,
+    pub static_hashes: Arc<HashMap<String, String>>,
+    bucket: Arc<s3::Bucket>,
+    csp: Arc<HeaderValue>,
 }
 
-impl InnerAppState {
+impl AppState {
     const DEFAULT_THREADPOOL_SIZE: NonZeroUsize = unsafe { NonZeroUsize::new_unchecked(8) };
 
     pub fn new(
-        config: Config,
-        tera: InnerTera,
+        config: Arc<Config>,
+        tera: Arc<RwLock<Tera>>,
         redis: RedisPool,
         postgres: PgPool,
         rayon: Arc<ThreadPool>,
-        argon: Argon2<'static>,
+        argon: Arc<Argon2<'static>>,
         http: reqwest::Client,
-        bucket: s3::Bucket,
-        csp: HeaderValue,
+        static_hashes: Arc<HashMap<String, String>>,
+        bucket: Arc<s3::Bucket>,
+        csp: Arc<HeaderValue>,
     ) -> Self {
         Self {
             config,
@@ -56,6 +56,7 @@ impl InnerAppState {
             rayon,
             argon,
             http,
+            static_hashes,
             bucket,
             csp,
         }
@@ -71,11 +72,11 @@ impl InnerAppState {
     where
         O: Send + 'static,
         S: Send + 'static,
-        F: Fn(InnerAppState, S) -> O + Send + 'static,
+        F: Fn(AppState, S) -> O + Send + 'static,
     {
         trace!("spawning blocking task on rayon threadpool");
-        let app_state = self.clone();
         let (tx, rx) = tokio::sync::oneshot::channel();
+        let app_state = self.clone();
         self.rayon.spawn(move || {
             let _ = tx.send(func(app_state, state));
         });
@@ -135,29 +136,17 @@ impl InnerAppState {
         context: &tera::Context,
     ) -> Result<axum::response::Html<String>, Error> {
         trace!(?context, ?template_name, "rendering template");
-        #[cfg(feature = "dev")]
-        let tera = self
-            .tera
-            .read()
-            .expect("Tera read lock poisoned, check logs for previous panics");
-        #[cfg(not(feature = "dev"))]
-        let tera = &self.tera;
-        let html_text = tera.render(template_name, context)?;
+        let html_text = self.tera.read().render(template_name, context)?;
         Ok(axum::response::Html(html_text))
     }
 
     pub fn csp(&self) -> HeaderValue {
-        self.csp.clone()
+        (*self.csp).clone()
     }
 
     #[cfg(feature = "dev")]
     pub fn reload_tera(&self) {
-        if let Err(source) = self
-            .tera
-            .write()
-            .expect("Tera write lock poisoned, check logs for previous panics!")
-            .full_reload()
-        {
+        if let Err(source) = self.tera.write().full_reload() {
             if let tera::ErrorKind::Msg(msg) = &source.kind {
                 error!("Failed to reload templates: {msg}");
             } else {
@@ -175,13 +164,10 @@ impl InnerAppState {
                 return;
             }
         };
-        self.tera
-            .write()
-            .expect("Tera write lock poisoned, check logs for previous panics!")
-            .register_function(
-                "gettrans",
-                crate::template::GetTranslation::new(translations),
-            );
+        self.tera.write().register_function(
+            "gettrans",
+            crate::template::GetTranslation::new(translations),
+        );
     }
 
     async fn get_s3_bucket_from_config(config: &Config) -> s3::Bucket {
@@ -227,6 +213,11 @@ impl InnerAppState {
             .ascii_serialization()
     }
 
+    pub fn static_resource(&self, path: &str) -> String {
+        let bust = self.static_hashes.get(path).map_or("none", |v| v.as_str());
+        format!("{}/static{}?cb={bust}", self.config.root_url, path)
+    }
+
     pub async fn get_redis_object<
         T: for<'de> serde::Deserialize<'de>,
         K: redis::ToRedisArgs + Send + Sync,
@@ -260,33 +251,32 @@ impl InnerAppState {
 
     #[cfg(test)]
     pub async fn test(db: PgPool) -> AppState {
-        let mut me = Self::inner_from_environment().await;
+        let mut me = Self::from_environment().await;
         me.postgres = db;
-        Arc::new(me)
+        me
     }
 
     pub async fn from_environment() -> AppState {
-        Arc::new(Self::inner_from_environment().await)
-    }
-
-    pub async fn inner_from_environment() -> Self {
         let config: Config = envy::from_env().expect("Failed to read config");
         let root_url = config.root_url.trim_end_matches('/').to_string();
         let user_content_url = config.user_content_url.trim_end_matches('/').to_string();
-        let config = Config {
+        let config = Arc::new(Config {
             root_url,
             user_content_url,
             ..config
-        };
-        let csp = HeaderValue::from_str(&format!(
-            "default-src {0} {1}; script-src {0}{2}/page-scripts/; \
+        });
+        let csp = Arc::new(
+            HeaderValue::from_str(&format!(
+                "default-src {0} {1}; script-src {0}/static/page-scripts/; \
             frame-src https://youtube.com https://clips.twitch.tv {1}; \
             require-trusted-types-for 'script'; object-src 'none';",
-            Self::url_to_origin(&config.root_url),
-            Self::url_to_origin(&config.user_content_url),
-            static_path_prefix!()
-        ))
-        .expect("Invalid csp header value (check your USER_CONTENT_URL)");
+                Self::url_to_origin(&config.root_url),
+                Self::url_to_origin(&config.user_content_url),
+            ))
+            .expect("Invalid csp header value (check your USER_CONTENT_URL)"),
+        );
+        let static_hashes = Arc::new(Self::walk_for_hashes("./assets/public/"));
+        trace!(?static_hashes, "static hashes created");
         let postgres = PgPoolOptions::new()
             .max_connections(15)
             .connect(&config.database_url)
@@ -299,7 +289,6 @@ impl InnerAppState {
             .build()
             .unwrap();
         redis.get().await.expect("Failed to load redis");
-        let tera = crate::template::tera(&config);
         let rayon = Arc::new(
             ThreadPoolBuilder::new()
                 .num_threads(
@@ -310,27 +299,62 @@ impl InnerAppState {
                 .build()
                 .unwrap(),
         );
-        let argon = Argon2::new(
+        let argon = Arc::new(Argon2::new(
             argon2::Algorithm::Argon2id,
             argon2::Version::V0x13,
             argon2::Params::new(16384, 192, 8, Some(64)).unwrap(),
-        );
+        ));
+
         let http = reqwest::ClientBuilder::new()
             .user_agent("speederboard/http")
             .timeout(Duration::from_secs(10))
             .build()
             .unwrap();
-        let bucket = Self::get_s3_bucket_from_config(&config).await;
-        InnerAppState::new(
-            config.clone(),
+        let bucket = Arc::new(Self::get_s3_bucket_from_config(&config).await);
+        let tera = Arc::new(RwLock::new(Tera::default()));
+        let temp_state = AppState::new(
+            config,
             tera,
             redis,
             postgres,
             rayon,
             argon,
             http,
+            static_hashes,
             bucket,
             csp,
-        )
+        );
+        *temp_state.clone().tera.write() = crate::template::tera(temp_state.clone());
+        temp_state
+    }
+
+    fn walk_for_hashes(path: impl AsRef<Path>) -> HashMap<String, String> {
+        let path = path.as_ref();
+        let mut output = HashMap::new();
+        let files = Self::walkdir(path).expect("Failed to get cachebusting files");
+        for file in files {
+            let data = std::fs::read(&file).expect("Failed to read file");
+            let path = file
+                .strip_prefix(path)
+                .expect("Failed to strip prefix of file")
+                .to_str()
+                .expect("Bad characters in path");
+            let hash = blake3::hash(&data);
+            output.insert(format!("/{path}"), hash.to_hex().to_string());
+        }
+        output
+    }
+
+    fn walkdir(path: &Path) -> Result<Vec<PathBuf>, std::io::Error> {
+        let mut outputs = Vec::new();
+        if path.is_dir() {
+            for file in path.read_dir()? {
+                let mut children = Self::walkdir(&file?.path())?;
+                outputs.append(&mut children);
+            }
+        } else if path.is_file() {
+            outputs.push(path.to_path_buf())
+        }
+        Ok(outputs)
     }
 }
