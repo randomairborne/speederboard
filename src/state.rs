@@ -1,3 +1,4 @@
+use std::sync::RwLock;
 use std::{num::NonZeroUsize, sync::Arc, time::Duration};
 
 use argon2::Argon2;
@@ -15,7 +16,7 @@ use crate::{config::Config, static_path_prefix, Error};
 pub type AppState = Arc<InnerAppState>;
 
 #[cfg(feature = "dev")]
-pub type InnerTera = Arc<std::sync::RwLock<Tera>>;
+pub type InnerTera = Arc<RwLock<Tera>>;
 
 #[cfg(not(feature = "dev"))]
 pub type InnerTera = Tera;
