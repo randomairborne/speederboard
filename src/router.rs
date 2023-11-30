@@ -137,7 +137,7 @@ pub fn game_router(state: AppState) -> Router<AppState> {
         )
         .route_with_tsr(
             "/game/:gameslug/category/:catid/run/:runid/delete",
-            any(routes::game::run::get),
+            any(routes::game::run::delete),
         )
         .route_with_tsr(
             "/game/:gameslug/category/:catid/run/:runid/review",
