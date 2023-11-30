@@ -136,6 +136,10 @@ pub fn game_router(state: AppState) -> Router<AppState> {
             get(routes::game::run::get),
         )
         .route_with_tsr(
+            "/game/:gameslug/category/:catid/run/:runid/delete",
+            any(routes::game::run::get),
+        )
+        .route_with_tsr(
             "/game/:gameslug/category/:catid/run/:runid/review",
             get(routes::game::modtools::run::fetch_review),
         )
