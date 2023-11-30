@@ -268,8 +268,8 @@ impl AppState {
         let csp = Arc::new(
             HeaderValue::from_str(&format!(
                 "default-src {0} {1}; script-src {0}/static/page-scripts/; \
-            frame-src https://youtube.com https://clips.twitch.tv {1}; \
-            require-trusted-types-for 'script'; object-src 'none';",
+                frame-src https://youtube.com https://clips.twitch.tv {1}; \
+                require-trusted-types-for 'script'; object-src 'none';",
                 Self::url_to_origin(&config.root_url),
                 Self::url_to_origin(&config.user_content_url),
             ))
@@ -347,14 +347,17 @@ impl AppState {
 
     fn walkdir(path: &Path) -> Result<Vec<PathBuf>, std::io::Error> {
         let mut outputs = Vec::new();
-        if path.is_dir() {
-            for file in path.read_dir()? {
-                let mut children = Self::walkdir(&file?.path())?;
+        for file in path.read_dir()? {
+            let file = file?;
+            let kind = file.file_type()?;
+            if kind.is_dir() {
+                let mut children = Self::walkdir(&file.path())?;
                 outputs.append(&mut children);
+            } else if kind.is_file() {
+                outputs.push(file.path())
             }
-        } else if path.is_file() {
-            outputs.push(path.to_path_buf())
         }
+        trace!(paths=?outputs, parent=?path, "walked parent for paths");
         Ok(outputs)
     }
 }
