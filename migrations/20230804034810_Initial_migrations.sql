@@ -10,9 +10,9 @@ CREATE TABLE users (
     stylesheet BOOL NOT NULL,
     banner BOOL NOT NULL,
     pfp BOOL NOT NULL,
-    flags BIGINT NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL,
-    language VARCHAR(5)
+    language VARCHAR(5),
+    flags BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE INDEX users_name_index ON users USING HASH (username);
@@ -42,6 +42,10 @@ CREATE TABLE categories (
     scoreboard BOOL NOT NULL DEFAULT false,
     flags BIGINT NOT NULL DEFAULT 0
 );
+
+ALTER TABLE games
+  add foreign key (default_category) references games
+  deferrable initially immediate;  
 
 CREATE INDEX categories_game_index ON categories USING HASH (game);
 

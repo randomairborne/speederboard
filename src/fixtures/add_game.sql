@@ -1,3 +1,4 @@
+set CONSTRAINTS ALL DEFERRED;
 INSERT INTO games (id, name, slug, url, default_category, description, banner, cover_art, flags)
 VALUES
     (1, 'Test game', 'test', 'https://example.com', 1, 'Test game for speederboard', false, false, 0);

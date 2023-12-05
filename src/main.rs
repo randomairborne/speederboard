@@ -12,6 +12,9 @@ mod util;
 #[cfg(feature = "dev")]
 mod dev;
 
+#[cfg(test)]
+mod test;
+
 use axum::response::Html;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 

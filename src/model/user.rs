@@ -381,7 +381,7 @@ impl<T: Clone> From<MaybeNullUpdate<T>> for Option<T> {
 }
 
 #[cfg(test)]
-mod tests {
+mod test {
     use sqlx::{query, PgPool};
 
     use super::*;
