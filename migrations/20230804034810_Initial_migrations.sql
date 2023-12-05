@@ -44,8 +44,9 @@ CREATE TABLE categories (
 );
 
 ALTER TABLE games
-  add foreign key (default_category) references games
-  deferrable initially immediate;  
+  ADD FOREIGN KEY (default_category) REFERENCES categories(id)
+  ON DELETE RESTRICT
+  DEFERRABLE INITIALLY IMMEDIATE; 
 
 CREATE INDEX categories_game_index ON categories USING HASH (game);
 

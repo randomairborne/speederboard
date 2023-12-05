@@ -46,6 +46,9 @@ pub async fn post(
 ) -> Result<Redirect, Error> {
     user.check_admin()?;
     let mut trans = state.postgres.begin().await?;
+    query!("SET CONSTRAINTS ALL DEFERRED;")
+        .execute(trans.as_mut())
+        .await?;
     let game_id = query!(
         "INSERT INTO games
         (
