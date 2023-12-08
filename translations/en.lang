@@ -180,7 +180,8 @@
         "css": {
             "label": "custom stylesheet",
             "submit": "set custom stylesheet",
-            "delete": "delete custom stylesheet"
+            "delete": "delete custom stylesheet",
+            "warning": "custom stylesheets are not rendered on this page for security reasons"
         },
         "email": {
             "summary": "change email",

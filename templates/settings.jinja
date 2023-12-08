@@ -76,6 +76,7 @@
   </div>
 
   <div class="settings-files-stylesheet">
+    <div class="warning">{{ gettrans(lang=language, key="settings.css.warning") }}</div>
     <form method="post" action="{{ root_url }}/settings/stylesheet" enctype="multipart/form-data" id="css-form">
       <td><label for="stylesheet">{{ gettrans(lang=language, key="settings.css.label") }}</label></td>
       <td><input name="stylesheet" id="stylesheet" type="file" accept=".css,.txt,text/css" /></td>
