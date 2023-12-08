@@ -41,7 +41,7 @@ jobs:
 
     steps:
       - name: Install various depdendencies
-        run: apt update -y && apt install pkg-config curl build-essential openssl libssl-dev git -y
+        run: apt update -y && apt install pkg-config curl build-essential openssl libssl-dev git python3 -y
 
       - name: Safelist all git directories
         run: git config --global safe.directory '*'
@@ -73,6 +73,9 @@ jobs:
 
       - name: Check prod build
         run: cargo clippy --no-default-features
+
+      - name: Generate test data
+        run: python3 ./src/fixtures/generate/all.py
 
       - name: Run tests
         run: cargo test
