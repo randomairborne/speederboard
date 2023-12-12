@@ -8,6 +8,7 @@ use tera::{Tera, Value};
 pub use translate::{get_translations, GetTranslation};
 
 use crate::{
+    language::Language,
     model::User,
     template::linkify::{CategoryLinks, ForumPostLinks, GameLinks, GetLinks, RunLinks, UserLinks},
     AppState, Error,
@@ -68,13 +69,9 @@ impl FromRequestParts<AppState> for BaseRenderInfo {
     ) -> Result<Self, Self::Rejection> {
         let user = User::from_request_parts(parts, state).await.ok();
         let language = if let Some(user) = user.as_ref() {
-            if let Some(lang) = user.language.as_ref() {
-                lang.clone()
-            } else {
-                "en".to_owned()
-            }
+            user.language.unwrap_or_default()
         } else {
-            "en".to_owned()
+            Language::English
         };
         let bri = BaseRenderInfo {
             root_url: state.config.root_url.clone(),
@@ -82,7 +79,7 @@ impl FromRequestParts<AppState> for BaseRenderInfo {
             stylesheet_url: state.static_resource("/style.css"),
             favicon_url: state.static_resource("/favicon.svg"),
             logged_in_user: user,
-            language,
+            language: language.lang_code().to_owned(),
         };
         Ok(bri)
     }

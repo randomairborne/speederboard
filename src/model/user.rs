@@ -21,7 +21,7 @@ pub struct User {
     pub admin: bool,
     pub created_at: chrono::NaiveDateTime,
     pub flags: i64,
-    pub language: Option<String>,
+    pub language: Option<Language>,
 }
 
 #[allow(dead_code)]
@@ -50,7 +50,10 @@ impl User {
             admin: record.admin,
             created_at: record.created_at,
             flags: record.flags,
-            language: record.language,
+            language: record
+                .language
+                .map(|v| Language::from_lang_code(&v))
+                .flatten(),
         };
         Ok(user)
     }
@@ -88,7 +91,10 @@ impl User {
             admin: record.admin,
             created_at: record.created_at,
             flags: record.flags,
-            language: record.language,
+            language: record
+                .language
+                .map(|v| Language::from_lang_code(&v))
+                .flatten(),
         };
         if let Err(argon2::password_hash::Error::Password) = password_result {
             return Ok(Err(()));
@@ -109,7 +115,7 @@ impl User {
         admin: Option<bool>,
         created_at: Option<chrono::NaiveDateTime>,
         flags: Option<i64>,
-        language: Option<String>,
+        language: Option<Language>,
     ) -> Option<User> {
         Some(User {
             id: id?,
@@ -252,8 +258,7 @@ impl UserUpdate {
 
     pub async fn execute(self, state: &AppState) -> Result<User, Error> {
         trace!(?self, "updating user with data");
-        let new_db_user = query_as!(
-            User,
+        let record = query!(
             "UPDATE users SET
                 username = COALESCE($2, username),
                 stylesheet = COALESCE($3, stylesheet),
@@ -279,18 +284,35 @@ impl UserUpdate {
         )
         .fetch_one(&state.postgres)
         .await?;
-        trace!(?new_db_user, "updated user with data, adding to redis");
+        let language = if let Some(code) = record.language {
+            Language::from_lang_code(&code)
+        } else {
+            None
+        };
+        let user = User {
+            id: Id::new(record.id),
+            username: record.username,
+            stylesheet: record.stylesheet,
+            biography: record.biography,
+            pfp: record.pfp,
+            banner: record.banner,
+            admin: record.admin,
+            created_at: record.created_at,
+            flags: record.flags,
+            language,
+        };
+        trace!(?user, "updated user with data, adding to redis");
         state
             .redis
             .get()
             .await?
             .set_ex(
                 format!("user:{}", self.id.get()),
-                serde_json::to_string(&new_db_user)?,
+                serde_json::to_string(&user)?,
                 86_400,
             )
             .await?;
-        Ok(new_db_user)
+        Ok(user)
     }
 
     pub fn username(self, username: String) -> Self {
@@ -396,6 +418,23 @@ mod test {
             .unwrap();
         let user = User::from_db(&state, Id::new(id.id)).await.unwrap();
         assert_eq!(user, test_user());
+        Ok(())
+    }
+    #[sqlx::test(fixtures(path = "../fixtures", scripts("add_user")))]
+    async fn basic_user_update(db: PgPool) -> Result<(), Error> {
+        let state = AppState::test(db).await;
+        let id = query!("SELECT id FROM users LIMIT 1")
+            .fetch_one(&state.postgres)
+            .await
+            .unwrap();
+        let updated = UserUpdate::new(Id::new(id.id))
+            .language(Some(Language::French))
+            .execute(&state)
+            .await
+            .unwrap();
+        let mut expected = test_user();
+        expected.language = Some(Language::French);
+        assert_eq!(updated, expected);
         Ok(())
     }
 }

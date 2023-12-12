@@ -2,6 +2,7 @@ use axum::extract::{Path, State};
 
 use crate::{
     id::{ForumPostMarker, GameMarker, Id},
+    language::Language,
     model::{ForumPost, Game, User},
     template::BaseRenderInfo,
     AppState, HandlerResult,
@@ -61,7 +62,10 @@ pub async fn get(
             admin: row.user_admin,
             created_at: row.user_created_at,
             flags: row.user_flags,
-            language: row.user_language,
+            language: row
+                .user_language
+                .map(|v| Language::from_lang_code(&v))
+                .unwrap_or_default(),
         };
         posts.push(ForumPost {
             id,

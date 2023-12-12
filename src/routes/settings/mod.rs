@@ -97,7 +97,10 @@ pub async fn get(
         admin: record.admin,
         created_at: record.created_at,
         flags: record.flags,
-        language: record.language,
+        language: record
+            .language
+            .map(|v| Language::from_lang_code(&v))
+            .unwrap_or_default(),
     };
     let private_user = PrivateUser {
         base: base_user,

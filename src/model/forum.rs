@@ -1,6 +1,7 @@
 use super::User;
 use crate::{
     id::{ForumCommentMarker, ForumPostMarker, GameMarker, Id},
+    language::Language,
     AppState, Error,
 };
 
@@ -53,7 +54,10 @@ impl ForumPost {
             admin: post.user_admin,
             created_at: post.user_created_at,
             flags: post.user_flags,
-            language: post.user_language,
+            language: post
+                .user_language
+                .map(|v| Language::from_lang_code(&v))
+                .unwrap_or_default(),
         };
         Ok(Self {
             id,

@@ -3,6 +3,7 @@ use redis::AsyncCommands;
 use super::{Permissions, User};
 use crate::{
     id::{GameMarker, Id, UserMarker},
+    language::Language,
     AppState, Error,
 };
 
@@ -58,7 +59,10 @@ impl Member {
             admin: member.admin,
             created_at: member.created_at,
             flags: member.flags,
-            language: member.language,
+            language: member
+                .language
+                .map(|v| Language::from_lang_code(&v))
+                .unwrap_or_default(),
         };
         let perms = if user.admin {
             Permissions::ADMINISTRATOR

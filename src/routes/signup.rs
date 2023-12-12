@@ -7,6 +7,9 @@ use rand::distributions::DistString;
 use redis::AsyncCommands;
 
 use crate::{
+    id::Id,
+    language::Language,
+    model::User,
     template::BaseRenderInfo,
     util::{auth_cookie, ValidatedForm, AUTHTOKEN_TTL},
     AppState, Error, HandlerResult,
@@ -60,8 +63,7 @@ pub async fn post(
         )
         .await?;
     let password_hash = password_hash_res?;
-    let user = query_as!(
-        crate::model::User,
+    let row = query!(
         "INSERT INTO users
         (username, email, password, stylesheet, flags,
             pfp, banner, biography, admin, created_at)
@@ -74,6 +76,21 @@ pub async fn post(
     )
     .fetch_one(&state.postgres)
     .await?;
+    let user = User {
+        id: Id::new(row.id),
+        username: row.username,
+        stylesheet: row.stylesheet,
+        biography: row.biography,
+        pfp: row.pfp,
+        banner: row.banner,
+        admin: row.admin,
+        created_at: row.created_at,
+        flags: row.flags,
+        language: row
+            .language
+            .map(|v| Language::from_lang_code(&v))
+            .unwrap_or_default(),
+    };
     let token = rand::distributions::Alphanumeric.sample_string(&mut rand::thread_rng(), 64);
     state
         .redis

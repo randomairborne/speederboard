@@ -6,6 +6,7 @@ use redis::AsyncCommands;
 
 use crate::{
     id::{Id, UserMarker},
+    language::Language,
     model::{Game, Member, Permissions, User},
     template::BaseRenderInfo,
     util::{game_n_member, ValidatedForm},
@@ -69,7 +70,10 @@ pub async fn get(
             admin: row.admin,
             created_at: row.created_at,
             flags: row.flags,
-            language: row.language,
+            language: row
+                .language
+                .map(|v| Language::from_lang_code(&v))
+                .unwrap_or_default(),
         },
     })
     .collect();

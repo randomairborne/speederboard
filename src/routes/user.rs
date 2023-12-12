@@ -1,6 +1,6 @@
 use axum::extract::{Path, State};
 
-use crate::{model::User, template::BaseRenderInfo, AppState, Error, HandlerResult};
+use crate::{id::Id, model::User, template::BaseRenderInfo, AppState, Error, HandlerResult};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct UserPage {
@@ -15,8 +15,7 @@ pub async fn get(
     Path(username): Path<String>,
     base: BaseRenderInfo,
 ) -> HandlerResult {
-    let user = query_as!(
-        User,
+    let row = query!(
         "SELECT
         id, username, stylesheet, pfp, banner,
         biography, admin, created_at, flags, language
@@ -26,6 +25,18 @@ pub async fn get(
     .fetch_optional(&state.postgres)
     .await?
     .ok_or(Error::NotFound)?;
+    let user = User {
+        id: Id::new(row.id),
+        username: row.username,
+        stylesheet: row.stylesheet,
+        biography: row.biography,
+        pfp: row.pfp,
+        banner: row.banner,
+        admin: row.admin,
+        created_at: row.created_at,
+        flags: row.flags,
+        language: None,
+    };
     let ctx = UserPage { base, user };
     state.render("user.jinja", ctx)
 }

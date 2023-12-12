@@ -6,6 +6,7 @@ use sqlx::{postgres::PgRow, PgPool, Row};
 use super::{Category, Game, User};
 use crate::{
     id::{CategoryMarker, GameMarker, Id, RunMarker, UserMarker},
+    language::Language,
     AppState, Error,
 };
 
@@ -345,7 +346,9 @@ impl ResolvedRun {
             verifier_admin,
             verifier_created_at,
             verifier_flags,
-            verifier_language,
+            verifier_language
+                .map(|v| Language::from_lang_code(&v))
+                .unwrap_or_default(),
         );
         let submitter = User {
             id: submitter_id,
@@ -357,7 +360,9 @@ impl ResolvedRun {
             admin: submitter_admin,
             created_at: submitter_created_at,
             flags: submitter_flags,
-            language: submitter_language,
+            language: submitter_language
+                .map(|v| Language::from_lang_code(&v))
+                .unwrap_or_default(),
         };
         let category = Category {
             id: category_id,

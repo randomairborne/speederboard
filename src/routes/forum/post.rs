@@ -5,6 +5,7 @@ use axum::{
 
 use crate::{
     id::{ForumCommentMarker, ForumPostMarker, GameMarker, Id},
+    language::Language,
     model::{ForumComment, ForumPost, Game, User},
     template::BaseRenderInfo,
     util::ValidatedForm,
@@ -71,7 +72,10 @@ pub async fn get(
             admin: run.user_admin,
             created_at: run.user_created_at,
             flags: run.user_flags,
-            language: run.user_language,
+            language: run
+                .user_language
+                .map(|v| Language::from_lang_code(&v))
+                .unwrap_or_default(),
         };
         let id: Id<ForumCommentMarker> = Id::new(run.forum_comment_id);
         let parent: Id<ForumPostMarker> = Id::new(run.forum_comment_parent);
