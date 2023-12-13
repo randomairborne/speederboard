@@ -35,3 +35,23 @@ pub struct MiniCategory {
     pub scoreboard: bool,
     pub flags: i64,
 }
+
+#[cfg(test)]
+mod test {
+    use sqlx::PgPool;
+
+    use super::*;
+    use crate::{id::Id, util::test::test_category, AppState, Error};
+
+    #[sqlx::test(fixtures(path = "../fixtures", scripts("add_user", "add_game")))]
+    async fn basic_user(db: PgPool) -> Result<(), Error> {
+        let state = AppState::test(db).await;
+        let id = query!("SELECT id FROM categories LIMIT 1")
+            .fetch_one(&state.postgres)
+            .await
+            .unwrap();
+        let user = Category::from_db(&state, Id::new(id.id)).await.unwrap();
+        assert_eq!(user, test_category());
+        Ok(())
+    }
+}
