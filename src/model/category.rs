@@ -15,7 +15,7 @@ pub struct Category {
 }
 
 impl Category {
-    pub async fn from_db(state: AppState, id: Id<CategoryMarker>) -> Result<Category, Error> {
+    pub async fn from_db(state: &AppState, id: Id<CategoryMarker>) -> Result<Category, Error> {
         query_as!(
             Category,
             "SELECT id, game, name, description, rules, scoreboard, flags FROM categories WHERE id = $1",

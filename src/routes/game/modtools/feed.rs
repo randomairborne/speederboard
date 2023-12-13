@@ -70,10 +70,12 @@ async fn feed_maybe_cat(
     } else {
         DateSort::Oldest
     };
-    let state2 = state.clone();
     let mut maybe_task = None;
     if let Some(cat_id) = maybe_category_id {
-        maybe_task = Some(tokio::spawn(Category::from_db(state2, cat_id)));
+        let state = state.clone();
+        maybe_task = Some(tokio::spawn(async move {
+            Category::from_db(&state, cat_id).await
+        }));
     }
     let leaderboard = ResolvedRun::fetch_leaderboard(
         state,
