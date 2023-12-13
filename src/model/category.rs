@@ -43,8 +43,8 @@ mod test {
     use super::*;
     use crate::{id::Id, util::test::test_category, AppState, Error};
 
-    #[sqlx::test(fixtures(path = "../fixtures", scripts("add_user", "add_game")))]
-    async fn basic_user(db: PgPool) -> Result<(), Error> {
+    #[sqlx::test(fixtures(path = "../fixtures", scripts("add_game")))]
+    async fn select_category(db: PgPool) -> Result<(), Error> {
         let state = AppState::test(db).await;
         let id = query!("SELECT id FROM categories LIMIT 1")
             .fetch_one(&state.postgres)
