@@ -437,4 +437,25 @@ mod test {
         assert_eq!(updated, expected);
         Ok(())
     }
+    #[sqlx::test(fixtures(path = "../fixtures", scripts("add_user")))]
+    async fn user_language_clear(db: PgPool) -> Result<(), Error> {
+        let state = AppState::test(db).await;
+        let id = query!("SELECT id FROM users LIMIT 1")
+            .fetch_one(&state.postgres)
+            .await
+            .unwrap();
+        let _updated_wrong = UserUpdate::new(Id::new(id.id))
+            .language(Some(Language::French))
+            .execute(&state)
+            .await
+            .unwrap();
+        let updated = UserUpdate::new(Id::new(id.id))
+            .language(None)
+            .execute(&state)
+            .await
+            .unwrap();
+        let expected = test_user();
+        assert_eq!(updated, expected);
+        Ok(())
+    }
 }
