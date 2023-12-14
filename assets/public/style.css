@@ -149,3 +149,24 @@ table.outlines-collapse {
 .edit-game-non-default > * {
     margin-right: 1ch;
 }
+
+.language-picker {
+    display: flex;
+}
+
+.language-picker-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.warning {
+    border-style: solid;
+    border-radius: 1ch;
+    border-color: #ffbf00;
+    background-color: #ffdf00;
+    padding: 1ch;
+    margin: 1em;
+    width: fit-content;
+}
