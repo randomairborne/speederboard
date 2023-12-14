@@ -40,6 +40,10 @@ nav .right {
     width: 50%;
 }
 
+button, input[type="file"]::file-selector-button {
+    border-radius: 1ch;
+}
+
 .pad-left-1ch {
     padding-left: 1ch;
 }

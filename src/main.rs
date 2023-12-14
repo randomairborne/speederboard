@@ -48,12 +48,14 @@ async fn main() {
         .init();
     let state = AppState::from_environment().await;
     #[cfg(feature = "dev")]
-    let (tera_jh, translations_jh) = {
+    let (tera_jh, translations_jh, assets_jh) = {
         let s1 = state.clone();
         let s2 = state.clone();
+        let s3 = state.clone();
         let tera_jh = tokio::spawn(dev::reload_tera(s1));
         let translations_jh = tokio::spawn(dev::reload_translations(s2));
-        (tera_jh, translations_jh)
+        let assets_jh = tokio::spawn(dev::reload_assets(s3));
+        (tera_jh, translations_jh, assets_jh)
     };
     info!("Starting server on http://localhost:{}", state.config.port);
     axum::Server::bind(&([0, 0, 0, 0], state.config.port).into())
@@ -65,6 +67,7 @@ async fn main() {
     {
         tera_jh.await.unwrap();
         translations_jh.await.unwrap();
+        assets_jh.await.unwrap();
     }
 }
 

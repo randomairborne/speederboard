@@ -50,10 +50,7 @@ impl User {
             admin: record.admin,
             created_at: record.created_at,
             flags: record.flags,
-            language: record
-                .language
-                .map(|v| Language::from_lang_code(&v))
-                .flatten(),
+            language: record.language.and_then(|v| Language::from_lang_code(&v)),
         };
         Ok(user)
     }
@@ -91,10 +88,7 @@ impl User {
             admin: record.admin,
             created_at: record.created_at,
             flags: record.flags,
-            language: record
-                .language
-                .map(|v| Language::from_lang_code(&v))
-                .flatten(),
+            language: record.language.and_then(|v| Language::from_lang_code(&v)),
         };
         if let Err(argon2::password_hash::Error::Password) = password_result {
             return Ok(Err(()));
