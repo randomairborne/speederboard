@@ -28,7 +28,7 @@ pub struct AppState {
     rayon: Arc<ThreadPool>,
     pub argon: Arc<Argon2<'static>>,
     pub http: reqwest::Client,
-    pub static_hashes: Arc<HashMap<String, String>>,
+    pub static_hashes: Arc<RwLock<HashMap<String, String>>>,
     bucket: Arc<s3::Bucket>,
     csp: Arc<HeaderValue>,
 }
@@ -44,7 +44,7 @@ impl AppState {
         rayon: Arc<ThreadPool>,
         argon: Arc<Argon2<'static>>,
         http: reqwest::Client,
-        static_hashes: Arc<HashMap<String, String>>,
+        static_hashes: Arc<RwLock<HashMap<String, String>>>,
         bucket: Arc<s3::Bucket>,
         csp: Arc<HeaderValue>,
     ) -> Self {
@@ -156,6 +156,12 @@ impl AppState {
     }
 
     #[cfg(feature = "dev")]
+    pub fn reload_assets(&self) {
+        let new_hashes = Self::walk_for_hashes("./assets/public/");
+        *self.static_hashes.write() = new_hashes;
+    }
+
+    #[cfg(feature = "dev")]
     pub fn reload_translations(&self) {
         let translations = match crate::template::get_translations() {
             Ok(v) => v,
@@ -214,7 +220,8 @@ impl AppState {
     }
 
     pub fn static_resource(&self, path: &str) -> String {
-        let bust = self.static_hashes.get(path).map_or("none", |v| v.as_str());
+        let map = self.static_hashes.read();
+        let bust = map.get(path).map_or("none", |v| v.as_str());
         format!("{}/static{}?cb={bust}", self.config.root_url, path)
     }
 
@@ -275,7 +282,7 @@ impl AppState {
             ))
             .expect("Invalid csp header value (check your USER_CONTENT_URL)"),
         );
-        let static_hashes = Arc::new(Self::walk_for_hashes("./assets/public/"));
+        let static_hashes = Arc::new(RwLock::new(Self::walk_for_hashes("./assets/public/")));
         trace!(?static_hashes, "static hashes created");
         let postgres = PgPoolOptions::new()
             .max_connections(15)

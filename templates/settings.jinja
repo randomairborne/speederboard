@@ -22,20 +22,14 @@
   </table>
   <details>
   <summary>{{ gettrans(lang=language, key="settings.language.summary") }}</summary>
-  <table class="outlines-collapse">
-  <tr class="outlines-collapse">
-  <td class="outlines-collapse">
-  <input type="radio" id="unset" name="language" value="unset" checked>
-  <label for="unset">{{ gettrans(lang=language, key="settings.language.unset") }}</label>
-  </td>
+  <div class="language-picker">
+    <input type="radio" id="unset" name="language" value="unset"  class="language-picker-item" checked>
+    <label for="unset" class="language-picker-item">{{ gettrans(lang=language, key="settings.language.unset") }}</label>
     {% for language in languages %}
-    <td class="outlines-collapse">
-      <input type="radio" id="language-select-{{ language.code }}" name="language" value="{{ language.code }}">
-      <label for="language-select-{{ language.code }}">{{ language.name }}</label>
-     </td>
+      <input type="radio" id="language-select-{{ language.code }}" name="language" value="{{ language.code }}"  class="language-picker-item">
+      <label for="language-select-{{ language.code }}"  class="language-picker-item">{{ language.name }}</label>
     {% endfor %}
-   </table>
-  </tr>
+  </div>
   </details>
   <div>
     <button>{{ gettrans(lang=language, key="settings.update") }}</button>
