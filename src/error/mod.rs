@@ -67,8 +67,6 @@ pub enum Error {
     ImageTooWide(ImageTooBig),
     #[error("Username or password is incorrect")]
     InvalidPassword,
-    #[error("Invalid auth cookie")]
-    InvalidCookie,
     #[error(
         "This token has a valid ID associated with it, but no data is associated with its ID."
     )]
@@ -134,7 +132,6 @@ pub async fn error_middleware<B>(
         return response;
     };
     match error {
-        Error::InvalidCookie => return state.redirect("/login").into_response(),
         Error::NeedsLogin(return_to) => {
             return state
                 .redirect(format!("/login?return_to={return_to}"))
@@ -164,7 +161,8 @@ pub async fn error_middleware<B>(
         }
     };
     ctx.insert("error", &error_as_string);
-    let content = state.render_ctx("error.jinja", &ctx).map_err(|source| {
+    let template_name = format!("{}.jinja", status.as_u16());
+    let content = state.render_ctx(&template_name, &ctx).map_err(|source| {
         error!(?source, "failed to render error");
         format_raw_error(&error_as_string, &source.to_string())
     });
@@ -208,8 +206,7 @@ impl Error {
             | Error::NeedsLogin(_)
             | Error::TokenHasIdButIdIsUnkown
             | Error::InvalidGameCategoryPair
-            | Error::CannotDeleteDefaultCategory
-            | Error::InvalidCookie => StatusCode::BAD_REQUEST,
+            | Error::CannotDeleteDefaultCategory => StatusCode::BAD_REQUEST,
             Error::InvalidPassword | Error::InsufficientPermissions => StatusCode::UNAUTHORIZED,
             Error::NotFound => StatusCode::NOT_FOUND,
         }

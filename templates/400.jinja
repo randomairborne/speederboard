@@ -1,0 +1,7 @@
+{% extends "base.jinja" %}
+{% block title %}{{ gettrans(lang=language, key="400.title") }}{% endblock title %}
+{% block body %}
+{{ gettrans(lang=language, key="400.message") }}
+<br>
+{{ gettrans(lang=language, key="400.joke") }}
+{% endblock body %}

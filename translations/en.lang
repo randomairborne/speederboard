@@ -1,8 +1,23 @@
 {
+    "400": {
+        "title": "bad request",
+        "message": "unexpected invalid form",
+        "joke": "bad request RNG"
+    },
+    "401": {
+        "title": "unauthorized",
+        "message": "401 unauthorized - you are not allowed to access this page",
+        "joke": "you've been left on read by a website..."
+    },
     "404": {
         "title": "not found",
         "message": "404 page not found",
         "joke": "bad link RNG"
+    },
+    "500": {
+        "title": "error",
+        "body": "oops, we encountered an error: `{}`",
+        "ask_report": "make a bug report?"
     },
     "base": {
         "name": "speederboard",
@@ -93,12 +108,6 @@
                 "submit": "submit"
             }
         }
-    },
-    "error": {
-        "title": "error",
-        "heading": "oops, we encountered an error:",
-        "ask_report": "make a bug report?",
-        "internal": "error"
     },
     "forum": {
         "title": "{game} forums",

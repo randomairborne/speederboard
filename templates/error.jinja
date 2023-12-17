@@ -1,7 +1,0 @@
-{% extends "base.jinja" %}
-{% block title %}{{ gettrans(lang=language, key="error.title") }}{% endblock title %}
-{% block body %}
-<p>{{ gettrans(lang=language, key="error.heading") }}</p>
-<div class="codeblock">{{ error }}</div>
-<p><a href="https://github.com/randomairborne/speederboard/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=">{{ gettrans(lang=language, key="error.ask_report") }}</a></p>
-{% endblock body %}

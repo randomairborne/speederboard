@@ -16,7 +16,7 @@ use crate::{
 
 pub fn tera(state: AppState) -> Tera {
     let translations = get_translations().expect("Failed to load translations");
-    let mut tera = match Tera::new("./templates/**/*") {
+    let mut tera = match Tera::new("./templates/**/*.jinja") {
         Ok(v) => v,
         Err(source) => {
             if let tera::ErrorKind::Msg(msg) = &source.kind {
@@ -46,6 +46,7 @@ pub fn tera(state: AppState) -> Tera {
     );
     tera.register_function("getrunlinks", GetLinks::<RunLinks>::new(state));
     tera.autoescape_on(vec![".html", ".htm", ".jinja", ".jinja2"]);
+    trace!(?tera, "built tera");
     tera
 }
 
