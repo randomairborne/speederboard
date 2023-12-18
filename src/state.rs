@@ -6,6 +6,7 @@ use std::{
     time::Duration,
 };
 
+use arc_swap::ArcSwap;
 use argon2::Argon2;
 use axum::{http::HeaderValue, response::Redirect};
 use deadpool_redis::{Manager, Pool as RedisPool, Runtime};
@@ -13,6 +14,8 @@ use parking_lot::RwLock;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use redis::AsyncCommands;
 use s3::creds::Credentials;
+#[cfg(test)]
+use s3::BucketConfiguration;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tera::Tera;
 use url::Url;
@@ -28,7 +31,7 @@ pub struct AppState {
     rayon: Arc<ThreadPool>,
     pub argon: Arc<Argon2<'static>>,
     pub http: reqwest::Client,
-    pub static_hashes: Arc<RwLock<HashMap<String, String>>>,
+    pub static_hashes: Arc<ArcSwap<HashMap<String, String>>>,
     bucket: Arc<s3::Bucket>,
     csp: Arc<HeaderValue>,
 }
@@ -44,7 +47,7 @@ impl AppState {
         rayon: Arc<ThreadPool>,
         argon: Arc<Argon2<'static>>,
         http: reqwest::Client,
-        static_hashes: Arc<RwLock<HashMap<String, String>>>,
+        static_hashes: Arc<ArcSwap<HashMap<String, String>>>,
         bucket: Arc<s3::Bucket>,
         csp: Arc<HeaderValue>,
     ) -> Self {
@@ -158,7 +161,7 @@ impl AppState {
     #[cfg(feature = "dev")]
     pub fn reload_assets(&self) {
         let new_hashes = Self::walk_for_hashes("./assets/public/");
-        *self.static_hashes.write() = new_hashes;
+        self.static_hashes.swap(Arc::new(new_hashes));
     }
 
     #[cfg(feature = "dev")]
@@ -193,19 +196,37 @@ impl AppState {
                     .to_owned(),
             }
         };
-        let mut bucket = s3::Bucket::new(
-            &config.s3_bucket_name,
-            region,
-            Credentials::new(
-                config.s3_access_key.as_deref(),
-                config.s3_secret_key.as_deref(),
-                None,
-                None,
-                None,
-            )
-            .expect("Invalid S3 credentials"),
+        let credentials = Credentials::new(
+            config.s3_access_key.as_deref(),
+            config.s3_secret_key.as_deref(),
+            None,
+            None,
+            None,
         )
-        .expect("Invalid bucket (this is a bug)");
+        .expect("Invalid S3 credentials");
+        #[cfg(test)]
+        if config.s3_path_style {
+            s3::Bucket::create_with_path_style(
+                &config.s3_bucket_name,
+                region.clone(),
+                credentials.clone(),
+                BucketConfiguration::default(),
+            )
+            .await
+            .unwrap();
+        } else {
+            s3::Bucket::create(
+                &config.s3_bucket_name,
+                region.clone(),
+                credentials.clone(),
+                BucketConfiguration::default(),
+            )
+            .await
+            .unwrap();
+        }
+
+        let mut bucket = s3::Bucket::new(&config.s3_bucket_name, region, credentials)
+            .expect("Invalid bucket (this is a bug)");
         if config.s3_path_style {
             bucket.set_path_style();
         }
@@ -220,7 +241,7 @@ impl AppState {
     }
 
     pub fn static_resource(&self, path: &str) -> String {
-        let map = self.static_hashes.read();
+        let map = self.static_hashes.load();
         let bust = map.get(path).map_or("none", |v| v.as_str());
         format!("{}/static{}?cb={bust}", self.config.root_url, path)
     }
@@ -282,7 +303,9 @@ impl AppState {
             ))
             .expect("Invalid csp header value (check your USER_CONTENT_URL)"),
         );
-        let static_hashes = Arc::new(RwLock::new(Self::walk_for_hashes("./assets/public/")));
+        let static_hashes = Arc::new(ArcSwap::new(Arc::new(Self::walk_for_hashes(
+            "./assets/public/",
+        ))));
         trace!(?static_hashes, "static hashes created");
         let redis_mgr = Manager::new(config.redis_url.clone()).expect("failed to connect to redis");
         let redis = deadpool_redis::Pool::builder(redis_mgr)

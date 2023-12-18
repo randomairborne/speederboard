@@ -7,7 +7,7 @@ use crate::{
     model::{Category, Game, User},
 };
 
-pub static REDIS_DB_NUM: AtomicUsize = AtomicUsize::new(0);
+pub static TEST_DB_NUM: AtomicUsize = AtomicUsize::new(0);
 
 pub(crate) fn test_user() -> User {
     User {

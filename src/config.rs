@@ -70,15 +70,15 @@ impl Config {
 
     #[cfg(test)]
     pub fn test() -> Self {
+        let test_db_num =
+            crate::test::util::TEST_DB_NUM.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        let s3_bucket_name = format!("test-bucket-{test_db_num}");
         Self {
-            redis_url: format!(
-                "redis://redis/{}",
-                crate::test::util::REDIS_DB_NUM.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
-            ),
+            redis_url: format!("redis://redis/{test_db_num}"),
             database_url: "postgres://spd:spd@postgres/spd".to_string(),
             root_url: "http://localhost:8080".to_string(),
             user_content_url: "http://localhost:8000".to_string(),
-            s3_bucket_name: "dear-god".to_string(),
+            s3_bucket_name,
             s3_region: Some("us-east-1".to_string()),
             s3_endpoint: Some("http://minio".to_string()),
             s3_access_key: Some("us-east-1".to_string()),

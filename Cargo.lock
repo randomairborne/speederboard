@@ -2775,6 +2775,7 @@ dependencies = [
 name = "speederboard"
 version = "0.1.0"
 dependencies = [
+ "arc-swap",
  "argon2",
  "axum",
  "axum-extra",
