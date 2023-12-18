@@ -1,4 +1,7 @@
 // This module contains GLOBAL tests, not module-level ones, such as database migration and test tests
+// it also contains test utilities
+
+pub mod util;
 
 use crate::Error;
 

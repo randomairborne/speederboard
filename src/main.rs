@@ -16,7 +16,6 @@ mod dev;
 mod test;
 
 use axum::response::Html;
-use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 
 pub use crate::{error::Error, state::AppState};
 
@@ -37,15 +36,7 @@ pub const DEV_MODE: bool = false;
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();
-    let env_filter = tracing_subscriber::EnvFilter::builder()
-        .with_default_directive(concat!(env!("CARGO_PKG_NAME"), "=info").parse().unwrap())
-        .with_env_var("LOG")
-        .from_env()
-        .expect("failed to parse env");
-    tracing_subscriber::registry()
-        .with(tracing_subscriber::fmt::layer())
-        .with(env_filter)
-        .init();
+    util::start_tracing();
     let state = AppState::from_environment().await;
     #[cfg(feature = "dev")]
     let (tera_jh, translations_jh, assets_jh) = {

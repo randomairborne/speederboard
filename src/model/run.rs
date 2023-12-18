@@ -421,7 +421,7 @@ mod test {
     use sqlx::PgPool;
 
     use super::*;
-    use crate::util::test::*;
+    use crate::test::util::*;
     #[sqlx::test(fixtures(path = "../fixtures", scripts("add_game", "add_user", "add_run")))]
     async fn get_run(db: PgPool) {
         let request = ResolvedRunRequest::Single(Id::new(1));

@@ -401,7 +401,7 @@ mod test {
     use sqlx::{query, PgPool};
 
     use super::*;
-    use crate::{util::test::*, AppState, Error};
+    use crate::{test::util::*, AppState, Error};
 
     #[sqlx::test(fixtures(path = "../fixtures", scripts("add_user")))]
     async fn basic_user(db: PgPool) -> Result<(), Error> {
@@ -422,12 +422,12 @@ mod test {
             .await
             .unwrap();
         let updated = UserUpdate::new(Id::new(id.id))
-            .language(Some(Language::French))
+            .language(Some(Language::Spanish))
             .execute(&state)
             .await
             .unwrap();
         let mut expected = test_user();
-        expected.language = Some(Language::French);
+        expected.language = Some(Language::Spanish);
         assert_eq!(updated, expected);
         Ok(())
     }

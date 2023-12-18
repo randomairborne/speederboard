@@ -41,7 +41,7 @@ mod test {
     use sqlx::PgPool;
 
     use super::*;
-    use crate::{id::Id, util::test::test_category, AppState, Error};
+    use crate::{id::Id, test::util::*, AppState, Error};
 
     #[sqlx::test(fixtures(path = "../fixtures", scripts("add_game")))]
     async fn select_category(db: PgPool) -> Result<(), Error> {

@@ -258,20 +258,20 @@ impl AppState {
 
     #[cfg(test)]
     pub async fn test(db: PgPool) -> AppState {
-        let mut me = Self::from_environment().await;
-        me.postgres = db;
-        me
+        Self::from_environment_no_db(db, Arc::new(Config::test())).await
     }
 
     pub async fn from_environment() -> AppState {
-        let config: Config = envy::from_env().expect("Failed to read config");
-        let root_url = config.root_url.trim_end_matches('/').to_string();
-        let user_content_url = config.user_content_url.trim_end_matches('/').to_string();
-        let config = Arc::new(Config {
-            root_url,
-            user_content_url,
-            ..config
-        });
+        let config = Config::from_env();
+        let postgres = PgPoolOptions::new()
+            .max_connections(15)
+            .connect(&config.database_url)
+            .await
+            .expect("Failed to connect to the database");
+        Self::from_environment_no_db(postgres, Arc::new(config)).await
+    }
+
+    pub async fn from_environment_no_db(postgres: PgPool, config: Arc<Config>) -> AppState {
         let csp = Arc::new(
             HeaderValue::from_str(&format!(
                 "default-src {0} {1}; script-src {0}/static/page-scripts/; \
@@ -284,18 +284,13 @@ impl AppState {
         );
         let static_hashes = Arc::new(RwLock::new(Self::walk_for_hashes("./assets/public/")));
         trace!(?static_hashes, "static hashes created");
-        let postgres = PgPoolOptions::new()
-            .max_connections(15)
-            .connect(&config.database_url)
-            .await
-            .expect("Failed to connect to the database");
-        sqlx::migrate!().run(&postgres).await.unwrap();
         let redis_mgr = Manager::new(config.redis_url.clone()).expect("failed to connect to redis");
         let redis = deadpool_redis::Pool::builder(redis_mgr)
             .runtime(Runtime::Tokio1)
             .build()
             .unwrap();
         redis.get().await.expect("Failed to load redis");
+        sqlx::migrate!().run(&postgres).await.unwrap();
         let rayon = Arc::new(
             ThreadPoolBuilder::new()
                 .num_threads(

@@ -55,3 +55,37 @@ fn default_port() -> u16 {
 fn default_path_style() -> bool {
     true
 }
+
+impl Config {
+    pub fn from_env() -> Self {
+        let config: Config = envy::from_env().expect("Failed to read config");
+        let root_url = config.root_url.trim_end_matches('/').to_string();
+        let user_content_url = config.user_content_url.trim_end_matches('/').to_string();
+        Self {
+            root_url,
+            user_content_url,
+            ..config
+        }
+    }
+
+    #[cfg(test)]
+    pub fn test() -> Self {
+        Self {
+            redis_url: format!(
+                "redis://redis/{}",
+                crate::test::util::REDIS_DB_NUM.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+            ),
+            database_url: "postgres://spd:spd@postgres/spd".to_string(),
+            root_url: "http://localhost:8080".to_string(),
+            user_content_url: "http://localhost:8000".to_string(),
+            s3_bucket_name: "dear-god".to_string(),
+            s3_region: Some("us-east-1".to_string()),
+            s3_endpoint: Some("http://minio".to_string()),
+            s3_access_key: Some("us-east-1".to_string()),
+            s3_secret_key: Some("us-east-1".to_string()),
+            s3_path_style: true,
+            r2_account_id: None,
+            port: 8080,
+        }
+    }
+}

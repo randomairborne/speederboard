@@ -10,6 +10,7 @@ use axum::{
 use axum_extra::extract::cookie::{Cookie, SameSite};
 use rand::rngs::OsRng;
 use reqwest::header::HeaderValue;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::{
     error::ArgonError,
@@ -207,51 +208,14 @@ pub fn auth_cookie<'a>(token: String) -> Cookie<'a> {
         .finish()
 }
 
-#[cfg(test)]
-pub mod test {
-    use chrono::NaiveDateTime;
-
-    use crate::{
-        id::Id,
-        model::{Category, Game, User},
-    };
-
-    pub(crate) fn test_user() -> User {
-        User {
-            id: Id::new(1),
-            username: "test".to_string(),
-            stylesheet: false,
-            biography: "".to_string(),
-            pfp: false,
-            banner: false,
-            admin: false,
-            created_at: NaiveDateTime::UNIX_EPOCH,
-            flags: 0,
-            language: None,
-        }
-    }
-    pub(crate) fn test_category() -> Category {
-        Category {
-            id: Id::new(1),
-            game: Id::new(1),
-            name: "test category".to_string(),
-            description: "test category".to_string(),
-            rules: "(test)".to_string(),
-            scoreboard: false,
-            flags: 0,
-        }
-    }
-    pub(crate) fn test_game() -> Game {
-        Game {
-            id: Id::new(1),
-            name: "Test game".to_string(),
-            slug: "test".to_string(),
-            url: "https://example.com".to_string(),
-            default_category: Id::new(1),
-            description: "Test game for speederboard".to_string(),
-            banner: false,
-            cover_art: false,
-            flags: 0,
-        }
-    }
+pub fn start_tracing() {
+    let env_filter = tracing_subscriber::EnvFilter::builder()
+        .with_default_directive(concat!(env!("CARGO_PKG_NAME"), "=info").parse().unwrap())
+        .with_env_var("LOG")
+        .from_env()
+        .expect("failed to parse env");
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::fmt::layer())
+        .with(env_filter)
+        .init();
 }
