@@ -29,10 +29,6 @@ jobs:
           --health-retries 5
       minio:
         image: minio/minio:latest
-        options: >- 
-          --entrypoint="" 
-          minio/minio:latest 
-          /bin/bash -c 'mkdir /data/test && /usr/bin/minio server --address 0.0.0.0:9000 /srv/minio/data'
         ports:
           - 9000:9000
       redis:
