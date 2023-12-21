@@ -49,9 +49,9 @@ jobs:
 
       - run: dig postgres
 
-      - run: dig minio
+      - run: dig s3
 
-      - run: curl -vvv http://minio:9000/
+      - run: curl -vvv http://s3:9000/
 
       - name: Safelist all git directories
         run: git config --global safe.directory '*'
