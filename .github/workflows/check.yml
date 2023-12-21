@@ -47,12 +47,6 @@ jobs:
       - name: Install various dependencies
         run: apt update -y && apt install pkg-config curl build-essential openssl libssl-dev git python3 dnsutils -y
 
-      - run: dig postgres
-
-      - run: dig s3
-
-      - run: curl -vvv http://s3:9000/
-
       - name: Safelist all git directories
         run: git config --global safe.directory '*'
 
