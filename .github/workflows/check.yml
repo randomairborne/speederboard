@@ -44,7 +44,7 @@ jobs:
           --health-retries 5
 
     steps:
-      - run: nslookup minio
+      - run: dig minio
 
       - name: Install various dependencies
         run: apt update -y && apt install pkg-config curl build-essential openssl libssl-dev git python3 -y
