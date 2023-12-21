@@ -54,7 +54,7 @@ rust-s3 = { version = "0.33", default-features = false, features = ["tokio-rustl
 chrono = { version = "0.4", default-features = false, features = ["serde"] }
 redis = { version = "0.24", features = ["aio", "connection-manager"] }
 axum = { version = "0.6", features = ["http2", "headers", "macros"] }
-axum-extra = { version = "0.8", features = ["cookie", "multipart"] }
+axum-extra = { version = "0.9", features = ["cookie", "multipart"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 garde = { version = "0.16", features = ["derive", "email", "url"] }
 simpleinterpolation = { path = "./subcrates/simpleinterpolation" }
