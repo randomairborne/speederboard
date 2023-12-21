@@ -30,7 +30,9 @@ jobs:
       minio:
         image: minio/minio:latest
         options: >- 
-          --entrypoint="" minio/minio:latest /bin/bash -c 'mkdir /data/test && /usr/bin/minio'
+          --entrypoint="" 
+          minio/minio:latest 
+          /bin/bash -c 'mkdir /data/test && /usr/bin/minio server --address 0.0.0.0:9000 /srv/minio/data'
       redis:
         image: redis:latest
         options: >-
