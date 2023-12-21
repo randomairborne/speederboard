@@ -12,7 +12,8 @@ ARG TARGETARCH
 COPY /${TARGETARCH}-executables/speederboard /usr/bin/speederboard
 COPY /templates/ /etc/speederboard/templates/
 COPY /translations/ /etc/speederboard/translations/
-COPY --from=compressor /assets/public/ /etc/speederboard/assets/public/
+COPY --from=compressor /assets/public/ /var/www/speederboard/
 
-WORKDIR "/etc/speederboard/"
+ENV ASSET_DIR="/var/www/speederboard/"
+
 ENTRYPOINT "/usr/bin/speederboard"

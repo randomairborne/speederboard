@@ -11,6 +11,11 @@ use tower_http::{
 use crate::{routes, AppState};
 
 pub fn build(state: AppState) -> Router {
+    let static_server = ServeDir::new(&state.config.asset_dir)
+        .append_index_html_on_directories(false)
+        .precompressed_gzip()
+        .precompressed_br()
+        .precompressed_deflate();
     Router::new()
         .route("/", get(routes::index::get))
         .route_with_tsr("/login", get(routes::login::get).post(routes::login::post))
@@ -24,14 +29,6 @@ pub fn build(state: AppState) -> Router {
         .merge(game_router(state.clone()))
         .merge(forum_router(state.clone()))
         .merge(admin_router(state.clone()))
-        .nest_service(
-            "/static/",
-            ServiceBuilder::new()
-                .layer(axum::middleware::from_fn(
-                    crate::util::infinicache_middleware,
-                ))
-                .service(ServeDir::new("./assets/public/")),
-        )
         .layer(
             ServiceBuilder::new()
                 .layer(axum::middleware::from_fn_with_state(
@@ -44,6 +41,18 @@ pub fn build(state: AppState) -> Router {
                 ))
                 .layer(CompressionLayer::new())
                 .layer(DecompressionLayer::new()),
+        )
+        .nest_service(
+            "/static/",
+            ServiceBuilder::new()
+                .layer(axum::middleware::from_fn(
+                    crate::util::infinicache_middleware,
+                ))
+                .layer(axum::middleware::from_fn_with_state(
+                    state.clone(),
+                    crate::util::csp_middleware,
+                ))
+                .service(static_server),
         )
         .fallback(routes::notfound_handler)
         .with_state(state)
