@@ -31,11 +31,6 @@ jobs:
         image: bitnami/minio:latest
         ports:
           - 9000:9000
-        options: >-
-          --health-cmd "mc ping local"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
         env:
           MINIO_SERVER_PORT_NUMBER: 9000
           MINIO_SERVER_ROOT_USER: admin
