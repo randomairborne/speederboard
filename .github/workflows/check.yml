@@ -75,3 +75,5 @@ jobs:
 
       - name: Run tests
         run: cargo test
+        env:
+          DATABASE_URL: postgres://postgres:postgres@postgres/postgres
