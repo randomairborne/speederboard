@@ -266,7 +266,7 @@ impl AppState {
         &self,
         key: K,
         data: &V,
-        expiry: usize,
+        expiry: u64,
     ) -> Result<(), Error> {
         let game_str = serde_json::to_string(data)?;
         self.redis
