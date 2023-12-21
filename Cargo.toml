@@ -18,7 +18,6 @@ dev = ["dep:notify"]
 [dependencies]
 tower-http = { version = "0.4", default-features = false, features = [
     "compression-full",
-    "decompression-full",
     "tracing",
     "fs"
 ] }

@@ -11,6 +11,11 @@ use tower_http::{
 use crate::{routes, AppState};
 
 pub fn build(state: AppState) -> Router {
+    let static_server = ServeDir::new(&state.config.asset_dir)
+        .append_index_html_on_directories(false)
+        .precompressed_gzip()
+        .precompressed_br()
+        .precompressed_deflate();
     Router::new()
         .route("/", get(routes::index::get))
         .route_with_tsr("/login", get(routes::login::get).post(routes::login::post))
@@ -25,6 +30,7 @@ pub fn build(state: AppState) -> Router {
         .merge(forum_router(state.clone()))
         .merge(admin_router(state.clone()))
         .fallback(routes::notfound_handler)
+        .nest_service("/static/", static_server)
         .layer(
             ServiceBuilder::new()
                 .layer(axum::middleware::from_fn_with_state(
@@ -35,31 +41,9 @@ pub fn build(state: AppState) -> Router {
                     state.clone(),
                     crate::util::csp_middleware,
                 ))
-                .layer(CompressionLayer::new())
-                .layer(DecompressionLayer::new()),
+                .layer(CompressionLayer::new()),
         )
-        .merge(static_router(state.clone()))
         .with_state(state)
-}
-
-pub fn static_router(state: AppState) -> Router<AppState> {
-    let static_server = ServeDir::new(&state.config.asset_dir)
-        .append_index_html_on_directories(false)
-        .precompressed_gzip()
-        .precompressed_br()
-        .precompressed_deflate();
-    Router::new().nest_service(
-        "/static/",
-        ServiceBuilder::new()
-            .layer(axum::middleware::from_fn(
-                crate::util::infinicache_middleware,
-            ))
-            .layer(axum::middleware::from_fn_with_state(
-                state.clone(),
-                crate::util::csp_middleware,
-            ))
-            .service(static_server),
-    )
 }
 
 pub fn settings_router(state: AppState) -> Router<AppState> {
