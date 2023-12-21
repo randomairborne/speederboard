@@ -31,6 +31,11 @@ jobs:
         image: minio/minio:latest
         ports:
           - 9000:9000
+        options: >-
+          --health-cmd "mc alias set test http://minio minioadmin minioadmin && mc ping test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
       redis:
         image: redis:latest
         options: >-
