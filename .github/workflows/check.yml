@@ -43,6 +43,8 @@ jobs:
       - name: Install various dependencies
         run: apt update -y && apt install pkg-config curl build-essential openssl libssl-dev git python3 dnsutils -y
 
+      - run: dig postgres
+
       - run: dig minio
 
       - run: curl -vvv http://minio:9000/
