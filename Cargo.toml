@@ -52,7 +52,7 @@ tokio = { version = "1", features = [
 ] }
 rust-s3 = { version = "0.33", default-features = false, features = ["tokio-rustls-tls", "with-tokio"] }
 chrono = { version = "0.4", default-features = false, features = ["serde"] }
-redis = { version = "0.23", features = ["aio", "connection-manager"] }
+redis = { version = "0.24", features = ["aio", "connection-manager"] }
 axum = { version = "0.6", features = ["http2", "headers", "macros"] }
 axum-extra = { version = "0.8", features = ["cookie", "multipart"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
@@ -62,8 +62,8 @@ tower = { version = "0.4", default-features = false }
 tera = { version = "1.19", features = ["builtins"] }
 strum = { version = "0.25", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
-markdown = "1.0.0-alpha.15"
-deadpool-redis = "0.13"
+markdown = "1.0.0-alpha.16"
+deadpool-redis = "0.14"
 parking_lot = "0.12"
 serde_repr = "0.1"
 serde_json = "1"

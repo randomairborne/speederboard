@@ -1,5 +1,7 @@
 FROM alpine AS compressor
 
+RUN apk add zstd brotli gzip
+
 COPY /assets/public/ /assets/public/
 
 RUN find /assets/public/ -type f -exec gzip -k9 '{}' \; -exec brotli -k9 '{}' \; -exec zstd -qk19 '{}' \; 
