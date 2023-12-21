@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install cargo
-        uses: dtolnay/rust-toolchain@nightly
+        uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.arch }}-unknown-linux-musl
 
