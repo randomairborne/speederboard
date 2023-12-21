@@ -4,9 +4,7 @@ use axum::{
 };
 use axum_extra::routing::RouterExt;
 use tower::ServiceBuilder;
-use tower_http::{
-    compression::CompressionLayer, decompression::DecompressionLayer, services::ServeDir,
-};
+use tower_http::{compression::CompressionLayer, services::ServeDir};
 
 use crate::{routes, AppState};
 
