@@ -67,7 +67,7 @@ impl Config {
             user_content_url: "http://localhost:8000".to_string(),
             s3_bucket_name,
             s3_region: Some("us-east-1".to_string()),
-            s3_endpoint: Some("http://minio:9000".to_string()),
+            s3_endpoint: Some("http://s3:9000".to_string()),
             s3_access_key: Some("us-east-1".to_string()),
             s3_secret_key: Some("us-east-1".to_string()),
             s3_path_style: true,
