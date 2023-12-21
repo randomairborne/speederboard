@@ -45,7 +45,7 @@ jobs:
 
     steps:
       - name: Install various dependencies
-        run: apt update -y && apt install pkg-config curl build-essential openssl libssl-dev git python3 dnsutils -y
+        run: apt update -y && apt install pkg-config curl build-essential openssl libssl-dev git python3 -y
 
       - name: Safelist all git directories
         run: git config --global safe.directory '*'
