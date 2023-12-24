@@ -192,10 +192,12 @@ pub async fn csp_middleware<B>(
 
 pub async fn infinicache_middleware<B>(request: Request<B>, next: Next<B>) -> Response {
     let mut resp = next.run(request).await;
-    resp.headers_mut().insert(
-        "cache-control",
-        HeaderValue::from_static("public, max-age=31536000, immutable"),
-    );
+    if resp.status().is_success() {
+        resp.headers_mut().insert(
+            "cache-control",
+            HeaderValue::from_static("public, max-age=31536000, immutable"),
+        );
+    }
     resp
 }
 

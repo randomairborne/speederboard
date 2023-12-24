@@ -6,14 +6,17 @@ use axum_extra::routing::RouterExt;
 use tower::ServiceBuilder;
 use tower_http::{compression::CompressionLayer, services::ServeDir};
 
-use crate::{routes, AppState};
+use crate::{routes, util::infinicache_middleware, AppState};
 
 pub fn build(state: AppState) -> Router {
-    let static_server = ServeDir::new(&state.config.asset_dir)
+    let serve_dir = ServeDir::new(&state.config.asset_dir)
         .append_index_html_on_directories(false)
         .precompressed_gzip()
         .precompressed_br()
         .precompressed_deflate();
+    let static_server = ServiceBuilder::new()
+        .layer(axum::middleware::from_fn(infinicache_middleware))
+        .service(serve_dir);
     Router::new()
         .route("/", get(routes::index::get))
         .route_with_tsr("/login", get(routes::login::get).post(routes::login::post))
