@@ -50,6 +50,9 @@ jobs:
       - name: Safelist all git directories
         run: git config --global safe.directory '*'
 
+      - name: Set up NodeJS
+        uses: actions/setup-node@v4
+
       - uses: actions/checkout@v4
 
       - uses: dtolnay/rust-toolchain@nightly
