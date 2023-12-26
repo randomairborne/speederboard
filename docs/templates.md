@@ -5,23 +5,28 @@ speederboard uses [tera](https://keats.github.io/tera/), which is similiar to Ji
 The handlers that render the templates definite a Rust struct which is serialized to tera- This context can be viewed at the top of the page html when in dev mode, with specifics available in the handler file context structs.
 
 ## Documentation for this documentation
+
 Information on fields of structs is documented with a jinja comment. These look like {% raw %} {# this #} {% endraw %}.
 
 ### Link types
 
 #### UI links
+
 A "UI Link" is a link you can anchor, redirect, or type into the URL bar to bring someone to show them a nice HTML page
-representing the documented resource. 
+representing the documented resource.
 
 #### Action link
+
 A link that can be specified as an `action` in an HTML form, taking an action on the inputted resource.
 
 #### Image link
+
 A link that can be loaded with an `img` tag.
 
 ### "Optional"
-An optional variable may or may not be set, and must be checked for truthiness with 
-{% raw %} 
+
+An optional variable may or may not be set, and must be checked for truthiness with
+{% raw %}
 
 ```jinja2
 {% if variable %} {% endif %}
@@ -29,8 +34,8 @@ An optional variable may or may not be set, and must be checked for truthiness w
 
 {% endraw %}
 
-
 ### Variables
+
 {% raw %}
 
 ```jinja2
@@ -43,7 +48,8 @@ An optional variable may or may not be set, and must be checked for truthiness w
 There are three functions worth knowing about. - `gettrans`, `getuserlinks`, and `getgamelinks`
 
 ## `gettrans`
-`gettrans` takes at minimum two arguments, `key` and `lang`. 
+
+`gettrans` takes at minimum two arguments, `key` and `lang`.
 You can set lang to the "magic" variable `language`, and `key`
 should be a static string literal referencing the key in en.lang.
 
@@ -62,7 +68,8 @@ Some translations also support interpolation. Any extra arguments passed into ge
 {% endraw %}
 
 ## `getuserlinks`
-`getuserlinks` takes exactly one argument- a `User` object. 
+
+`getuserlinks` takes exactly one argument- a `User` object.
 It returns a map of strings, documented below. `stylesheet_url` is optional.
 
 {% raw %}
@@ -78,7 +85,8 @@ It returns a map of strings, documented below. `stylesheet_url` is optional.
 {% endraw %}
 
 ## `getgamelinks`
-`getgamelinks` takes exactly one argument- a `Game` object. 
+
+`getgamelinks` takes exactly one argument- a `Game` object.
 It returns a map of strings, documented below.
 These will always be valid links.
 
@@ -99,7 +107,8 @@ These will always be valid links.
 {% endraw %}
 
 ## `getrunlinks`
-`getrunlinks` takes exactly two arguments- a `Game` object, in `game`, and a `Run` object in `run`. 
+
+`getrunlinks` takes exactly two arguments- a `Game` object, in `game`, and a `Run` object in `run`.
 It returns a map of strings, documented below.
 These will always be valid links.
 
@@ -116,6 +125,7 @@ These will always be valid links.
 {% endraw %}
 
 ## `getpostlinks`
+
 `getpostlinks` takes exactly two arguments- a `Game` object, in `game`, and a `ForumPost` object in `post`.
 A map of strings is returned, documented below.
 These will always be valid links.
@@ -130,6 +140,7 @@ These will always be valid links.
 {% endraw %}
 
 ## `getcategorylinks`
+
 `getcategorylinks` takes exactly two arguments- a `Game` object, in `game`, and a `MiniCategory` or `Category` object in `category`.
 A map of strings is returned, documented below.
 These will always be valid links.

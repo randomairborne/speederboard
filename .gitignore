@@ -1,7 +1,9 @@
-/target
+target
+.vscode
+.idea
+node_modules
 
 .env
-
-/.vscode
-/.idea
 .DS_Store
+
+package-lock.json

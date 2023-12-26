@@ -7,7 +7,6 @@ A game leaderboard website.
 If you're looking to contribute, you might want to have a look at [templates.md](https://developer-docs.speederboard.org/templates.html),
 [assets.md](https://developer-docs.speederboard.org/assets.html), or [translations.md](https://developer-docs.speederboard.org/translations.html). If you know Rust, please look at [todo.md](./todo.md)
 
-
 Docs for contributing are available at [developer-docs.speederboard.org](https://developer-docs.speederboard.org/).
 Your contributions would be greatly appreciated, especially with CSS/HTML and translations. Please
 [contact me](https://randomairborne.dev/contact/) if you're interested in helping.

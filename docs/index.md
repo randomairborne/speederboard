@@ -9,4 +9,3 @@ Please update it if you make a change relating to any of its topics.
 - [templates](templates.md)
 - [style](style.md)
 - [translations](translations.md)
-

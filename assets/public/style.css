@@ -1,176 +1,179 @@
 * {
-    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
 }
 
-html, body {
-    height: 100%;
-    width: 100%;
-    margin: 0;
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
 }
 
 nav {
-    width: 100%;
-    height: 5ch;
-    background-color: blueviolet;
-    align-items: center;
-    display: flex;
+  width: 100%;
+  height: 5ch;
+  background-color: blueviolet;
+  align-items: center;
+  display: flex;
 }
 
 nav * {
-    display: flex;
+  display: flex;
 }
 
 nav * a {
-    color: white;
-    height: 100%;
+  color: white;
+  height: 100%;
 }
 
 nav * a:visited {
-    color: white;
-    height: 100%;
+  color: white;
+  height: 100%;
 }
 
 nav .left {
-    justify-content: left;
-    width: 50%;
+  justify-content: left;
+  width: 50%;
 }
 
 nav .right {
-    justify-content: right;
-    width: 50%;
+  justify-content: right;
+  width: 50%;
 }
 
-button, input[type="file"]::file-selector-button {
-    border-radius: 1ch;
+button,
+input[type="file"]::file-selector-button {
+  border-radius: 1ch;
 }
 
 .pad-left-1ch {
-    padding-left: 1ch;
+  padding-left: 1ch;
 }
 
 .pad-right-1ch {
-    padding-right: 1ch;
+  padding-right: 1ch;
 }
 
 code {
-    font-family: monospace;
+  font-family: monospace;
 }
 
 a {
-    color: #000;
+  color: #000;
 }
 
 a:visited {
-    color: #444;
+  color: #444;
 }
 
 details {
-    margin: 1ch;
+  margin: 1ch;
 }
 
 .body {
-    padding-right: 5ch;
-    padding-left: 5ch;
-    padding-top: 2ch;
+  padding-right: 5ch;
+  padding-left: 5ch;
+  padding-top: 2ch;
 }
 
 .root-game-card {
-    padding-left: 1ch;
-    padding-right: 1ch;
+  padding-left: 1ch;
+  padding-right: 1ch;
 }
 
 .coverart-anchor {
-    display: flex;
-    flex-direction: column;
-    max-width: fit-content;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  max-width: fit-content;
+  align-items: center;
 }
 
 .coverart-tag {
-    padding-top: 1vh;
-    padding-bottom: 1vh;
+  padding-top: 1vh;
+  padding-bottom: 1vh;
 }
 
 .coverart-img {
-    border: 2px solid #000;
+  border: 2px solid #000;
 }
 
 .codeblock {
-    background-color: #DDD;
-    font-family: monospace;
-    padding: 1ch;
-    border-radius: 10px;
-    white-space: pre-wrap;
+  background-color: #ddd;
+  font-family: monospace;
+  padding: 1ch;
+  border-radius: 10px;
+  white-space: pre-wrap;
 }
 
 .forum-posts {
-    display: flex;
+  display: flex;
 }
 
 .forum-post-card {
-    width: 10vw;
-    text-decoration: none;
-    margin: 2ch;
-    padding: 1ch;
-    border-style: groove;
-    border-radius: 5px;
+  width: 10vw;
+  text-decoration: none;
+  margin: 2ch;
+  padding: 1ch;
+  border-style: groove;
+  border-radius: 5px;
 }
 
 .forum-post-card:visited {
-    border-style: groove;
-    border-color: black;
-    color: black
+  border-style: groove;
+  border-color: black;
+  color: black;
 }
 
 .game-list {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 table.outlines-collapse {
-    margin: 1ch;
+  margin: 1ch;
 }
 
 .outlines-collapse {
-    border: 1px solid black;
-    border-collapse: collapse;
+  border: 1px solid black;
+  border-collapse: collapse;
 }
 
 .flexible-form {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .flexible-form > * {
-    width: fit-content;
-    margin: 2px;
+  width: fit-content;
+  margin: 2px;
 }
 
 .edit-game-non-default {
-    display: flex;
+  display: flex;
 }
 
 .edit-game-non-default > * {
-    margin-right: 1ch;
+  margin-right: 1ch;
 }
 
 .language-picker {
-    display: flex;
+  display: flex;
 }
 
 .language-picker-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .warning {
-    border-style: solid;
-    border-radius: 1ch;
-    border-color: #ffbf00;
-    background-color: #ffdf00;
-    padding: 1ch;
-    margin: 1em;
-    width: fit-content;
+  border-style: solid;
+  border-radius: 1ch;
+  border-color: #ffbf00;
+  background-color: #ffdf00;
+  padding: 1ch;
+  margin: 1em;
+  width: fit-content;
 }
