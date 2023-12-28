@@ -153,18 +153,15 @@ pub async fn error_middleware<B>(
     let mut ctx = match tera::Context::from_serialize(base) {
         Ok(v) => v,
         Err(source) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format_raw_error(&error_as_string, &source.to_string()),
-            )
-                .into_response()
+            error!(?source, original = ?error, "failed to contextualize error");
+            return (StatusCode::INTERNAL_SERVER_ERROR, RAW_STR_ERROR.to_string()).into_response();
         }
     };
     ctx.insert("error", &error_as_string);
     let template_name = format!("{}.jinja", status.as_u16());
     let content = state.render_ctx(&template_name, &ctx).map_err(|source| {
-        error!(?source, "failed to render error");
-        format_raw_error(&error_as_string, &source.to_string())
+        error!(?source, original = ?error, "failed to render error");
+        RAW_STR_ERROR.to_string()
     });
     (status, [("cache-control", "private")], content).into_response()
 }
@@ -213,15 +210,9 @@ impl Error {
     }
 }
 
-fn format_raw_error(original: &str, tera: &str) -> String {
-    format!(
-        "There was an error handling your request. \n\
-        In addition, there was an error attempting to use tera to template said error. \n\
-        original error: `{original}` \n\
-        tera error: `{tera}` \n\
-        Please send an email to valk@randomairborne.dev with a copy of this message."
-    )
-}
+const RAW_STR_ERROR: &str = "There was an error handling your request. \n\
+In addition, there was an error attempting to use tera to template said error. \n\
+Please send an email to valk@randomairborne.dev with a copy of this message.";
 
 #[derive(Debug)]
 pub enum ArgonError {
