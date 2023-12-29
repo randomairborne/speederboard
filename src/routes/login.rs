@@ -107,7 +107,7 @@ pub async fn logout(
     };
     state.redis.get().await?.del(format!("user:{id}")).await?;
     Ok((
-        cookies.remove(Cookie::named(AUTHTOKEN_COOKIE)),
+        cookies.remove(Cookie::build(AUTHTOKEN_COOKIE)),
         state.redirect("/"),
     ))
 }

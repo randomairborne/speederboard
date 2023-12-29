@@ -15,7 +15,10 @@ mod dev;
 #[cfg(test)]
 mod test;
 
+use std::net::SocketAddr;
+
 use axum::response::Html;
+use tokio::net::TcpListener;
 
 pub use crate::{error::Error, state::AppState};
 
@@ -45,12 +48,15 @@ async fn main() {
         let assets_jh = tokio::spawn(dev::reload_assets(state.clone()));
         (tera_jh, translations_jh, assets_jh)
     };
+    let bind_address = SocketAddr::from(([0, 0, 0, 0], state.config.port));
     info!("Starting server on http://localhost:{}", state.config.port);
-    axum::Server::bind(&([0, 0, 0, 0], state.config.port).into())
-        .serve(router::build(state).into_make_service())
+    let app = router::build(state);
+    let tcp = TcpListener::bind(bind_address).await.unwrap();
+    axum::serve(tcp, app)
         .with_graceful_shutdown(shutdown_signal())
         .await
         .unwrap();
+
     #[cfg(feature = "dev")]
     {
         tera_jh.await.unwrap();

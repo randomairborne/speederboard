@@ -2,14 +2,13 @@ use std::fmt::Debug;
 
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use axum::{
-    extract::{FromRequest, State},
-    http::Request,
+    extract::{FromRequest, Request, State},
+    http::HeaderValue,
     middleware::Next,
     response::Response,
 };
 use axum_extra::extract::cookie::{Cookie, SameSite};
 use rand::rngs::OsRng;
-use reqwest::header::HeaderValue;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::{
@@ -116,17 +115,14 @@ pub fn hash_password(password: &[u8], argon: &Argon2) -> Result<String, ArgonErr
 pub struct ValidatedForm<T>(pub T);
 
 #[axum::async_trait]
-impl<S, B, T> FromRequest<S, B> for ValidatedForm<T>
+impl<S, T> FromRequest<S> for ValidatedForm<T>
 where
     T: serde::de::DeserializeOwned + garde::Validate<Context = ()> + Debug,
-    B: axum::body::HttpBody + Send + 'static,
-    B::Data: Send,
-    B::Error: Into<axum::BoxError>,
     S: Send + Sync,
 {
     type Rejection = crate::Error;
 
-    async fn from_request(req: axum::http::Request<B>, state: &S) -> Result<Self, Self::Rejection> {
+    async fn from_request(req: Request, state: &S) -> Result<Self, Self::Rejection> {
         let form: T = axum::Form::from_request(req, state).await?.0;
         trace!(data = ?form, "deserialized form-data, validating");
         form.validate(&())?;
@@ -179,10 +175,10 @@ pub async fn game_n_member(
     Ok((game, member))
 }
 
-pub async fn csp_middleware<B>(
+pub async fn csp_middleware(
     State(state): State<AppState>,
-    request: Request<B>,
-    next: Next<B>,
+    request: Request,
+    next: Next,
 ) -> Response {
     let mut resp = next.run(request).await;
     resp.headers_mut()
@@ -190,11 +186,11 @@ pub async fn csp_middleware<B>(
     resp
 }
 
-pub async fn infinicache_middleware<B>(request: Request<B>, next: Next<B>) -> Response {
+pub async fn infinicache_middleware(request: Request, next: Next) -> Response {
     let mut resp = next.run(request).await;
     if resp.status().is_success() {
         resp.headers_mut().insert(
-            "cache-control",
+            axum::http::header::CACHE_CONTROL,
             HeaderValue::from_static("public, max-age=31536000, immutable"),
         );
     }
@@ -202,12 +198,12 @@ pub async fn infinicache_middleware<B>(request: Request<B>, next: Next<B>) -> Re
 }
 
 pub fn auth_cookie<'a>(token: String) -> Cookie<'a> {
-    Cookie::build(AUTHTOKEN_COOKIE, token)
+    Cookie::build((AUTHTOKEN_COOKIE, token))
         .secure(true)
         .http_only(true)
         .max_age(s3::creds::time::Duration::seconds(AUTHTOKEN_TTL_I64))
         .same_site(SameSite::Strict)
-        .finish()
+        .build()
 }
 
 pub fn start_tracing() {

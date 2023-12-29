@@ -1,8 +1,8 @@
-use std::fmt::Display;
+use std::{fmt::Display, sync::Arc};
 
 use axum::{
-    extract::{OriginalUri, State},
-    http::{Request, StatusCode},
+    extract::{OriginalUri, Request, State},
+    http::StatusCode,
     middleware::Next,
     response::{IntoResponse, Response},
 };
@@ -113,25 +113,25 @@ impl IntoResponse for Error {
     fn into_response(self) -> Response {
         let mut resp = (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response();
         trace!(?self, "Converting error into response");
-        resp.extensions_mut().insert(self);
+        resp.extensions_mut().insert(Arc::new(self));
         resp
     }
 }
 
-pub async fn error_middleware<B>(
+pub async fn error_middleware(
     State(state): State<AppState>,
     uri: OriginalUri,
     base: BaseRenderInfo,
-    request: Request<B>,
-    next: Next<B>,
+    request: Request,
+    next: Next,
 ) -> Response {
     let response = next.run(request).await;
-    let error: &Error = if let Some(v) = response.extensions().get() {
+    let error: &Arc<Error> = if let Some(v) = response.extensions().get() {
         v
     } else {
         return response;
     };
-    match error {
+    match error.as_ref() {
         Error::NeedsLogin(return_to) => {
             return state
                 .redirect(format!("/login?return_to={return_to}"))
