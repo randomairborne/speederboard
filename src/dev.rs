@@ -19,7 +19,7 @@ pub async fn reload_tera(state: AppState) {
     watcher
         .watch(Path::new("./templates/"), notify::RecursiveMode::Recursive)
         .expect("Failed to watch for template changes");
-    crate::shutdown_signal().await;
+    vss::shutdown_signal().await;
 }
 
 pub async fn reload_translations(state: AppState) {
@@ -40,7 +40,7 @@ pub async fn reload_translations(state: AppState) {
             notify::RecursiveMode::Recursive,
         )
         .expect("Failed to watch for translation changes");
-    crate::shutdown_signal().await;
+    vss::shutdown_signal().await;
 }
 
 pub async fn reload_assets(state: AppState) {
@@ -61,7 +61,7 @@ pub async fn reload_assets(state: AppState) {
             notify::RecursiveMode::Recursive,
         )
         .expect("Failed to watch for asset changes");
-    crate::shutdown_signal().await;
+    vss::shutdown_signal().await;
 }
 
 fn check_event_interest(event: &Event) -> bool {
