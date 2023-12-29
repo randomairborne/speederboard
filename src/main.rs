@@ -40,12 +40,9 @@ async fn main() {
     let state = AppState::from_environment().await;
     #[cfg(feature = "dev")]
     let (tera_jh, translations_jh, assets_jh) = {
-        let s1 = state.clone();
-        let s2 = state.clone();
-        let s3 = state.clone();
-        let tera_jh = tokio::spawn(dev::reload_tera(s1));
-        let translations_jh = tokio::spawn(dev::reload_translations(s2));
-        let assets_jh = tokio::spawn(dev::reload_assets(s3));
+        let tera_jh = tokio::spawn(dev::reload_tera(state.clone()));
+        let translations_jh = tokio::spawn(dev::reload_translations(state.clone()));
+        let assets_jh = tokio::spawn(dev::reload_assets(state.clone()));
         (tera_jh, translations_jh, assets_jh)
     };
     info!("Starting server on http://localhost:{}", state.config.port);
