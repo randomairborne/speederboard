@@ -304,7 +304,7 @@ impl AppState {
             .expect("Invalid csp header value (check your USER_CONTENT_URL)"),
         );
         let static_hashes = Arc::new(ArcSwap::new(Arc::new(Self::walk_for_hashes(
-            "./assets/public/",
+            &config.asset_dir,
         ))));
         trace!(?static_hashes, "static hashes created");
         let redis_mgr = Manager::new(config.redis_url.clone()).expect("failed to connect to redis");
