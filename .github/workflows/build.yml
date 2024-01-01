@@ -60,7 +60,7 @@ jobs:
         run: cargo build --release --target ${{ matrix.arch }}-unknown-linux-musl --no-default-features
 
       - name: Upload executables
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.arch }}-executables
           path: |
@@ -77,13 +77,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download ARM executables
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: aarch64-executables
           path: ./arm64-executables
 
       - name: Download x86 executables
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: x86_64-executables
           path: ./amd64-executables
