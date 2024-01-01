@@ -60,7 +60,7 @@ jobs:
         run: cargo build --release --target ${{ matrix.arch }}-unknown-linux-musl --no-default-features
 
       - name: Upload executables
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.arch }}-executables
           path: |
