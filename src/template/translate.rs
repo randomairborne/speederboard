@@ -4,7 +4,7 @@ use markdown::mdast::Node;
 use simpleinterpolation::Interpolation;
 use tera::Value;
 
-use crate::{language::Language, Error};
+use crate::{config::Config, language::Language, Error};
 
 pub struct GetTranslation {
     translations: Arc<HashMap<(Language, String), Interpolation>>,
@@ -128,12 +128,13 @@ enum TranslationLeaf {
     Branch(HashMap<String, TranslationLeaf>),
 }
 
-pub fn get_translations() -> Result<Vec<Translation>, Error> {
+pub fn get_translations(config: &Config) -> Result<Vec<Translation>, Error> {
+    let translation_path = config.translation_dir.trim_end_matches('/');
     trace!("Reading translations");
-    let files = std::fs::read_dir("./translations/")
-        .expect("Failed to open ./translations/")
+    let files = std::fs::read_dir(translation_path)
+        .expect("Failed to open translation directory")
         .collect::<Result<Vec<std::fs::DirEntry>, std::io::Error>>()
-        .expect("Failed to read ./translations/");
+        .expect("Failed to read translation directory");
     let mut translations: Vec<Translation> = Vec::new();
     for file in files {
         let file_name = file.path();

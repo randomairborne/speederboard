@@ -15,8 +15,12 @@ use crate::{
 };
 
 pub fn tera(state: AppState) -> Tera {
-    let translations = get_translations().expect("Failed to load translations");
-    let mut tera = match Tera::new("./templates/**/*.jinja") {
+    let translations = get_translations(&state.config).expect("Failed to load translations");
+    let glob = format!(
+        "{}/**/*.jinja",
+        state.config.template_dir.trim_end_matches('/')
+    );
+    let mut tera = match Tera::new(&glob) {
         Ok(v) => v,
         Err(source) => {
             if let tera::ErrorKind::Msg(msg) = &source.kind {

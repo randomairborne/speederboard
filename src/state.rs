@@ -166,7 +166,7 @@ impl AppState {
 
     #[cfg(feature = "dev")]
     pub fn reload_translations(&self) {
-        let translations = match crate::template::get_translations() {
+        let translations = match crate::template::get_translations(&self.config) {
             Ok(v) => v,
             Err(source) => {
                 error!(?source, "Failed to reload translations");

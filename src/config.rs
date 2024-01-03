@@ -4,7 +4,10 @@ pub struct Config {
     pub database_url: String,
     #[serde(default = "defaults::asset_dir")]
     pub asset_dir: String,
-    #[serde(default = "defaults::root_url")]
+    #[serde(default = "defaults::template_dir")]
+    pub template_dir: String,
+    #[serde(default = "defaults::translation_dir")]
+    pub translation_dir: String,
     pub root_url: String,
     pub user_content_url: String,
     pub s3_bucket_name: String,
@@ -21,12 +24,16 @@ pub struct Config {
 }
 
 mod defaults {
-    pub(super) fn root_url() -> String {
-        String::from("http://localhost:8080")
-    }
-
     pub(super) fn asset_dir() -> String {
         String::from("./assets/public/")
+    }
+
+    pub(super) fn template_dir() -> String {
+        String::from("./templates/")
+    }
+
+    pub(super) fn translation_dir() -> String {
+        String::from("./translations/")
     }
 
     pub(super) fn s3_region() -> Option<String> {
@@ -62,7 +69,9 @@ impl Config {
         Self {
             redis_url: format!("redis://redis/{test_db_num}"),
             database_url: "postgres://spd:spd@postgres/spd".to_string(),
-            asset_dir: "./assets/public/".to_string(),
+            asset_dir: defaults::asset_dir(),
+            template_dir: defaults::template_dir(),
+            translation_dir: defaults::translation_dir(),
             root_url: "http://localhost:8080".to_string(),
             user_content_url: "http://localhost:8000".to_string(),
             s3_bucket_name,
