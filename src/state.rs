@@ -297,7 +297,7 @@ impl AppState {
             HeaderValue::from_str(&format!(
                 "default-src {0} {1}; script-src {0}/static/page-scripts/; \
                 frame-src https://youtube.com https://clips.twitch.tv {1}; \
-                require-trusted-types-for 'script'; object-src 'none';",
+                 object-src 'none'; require-trusted-types-for 'script';",
                 Self::url_to_origin(&config.root_url),
                 Self::url_to_origin(&config.user_content_url),
             ))
