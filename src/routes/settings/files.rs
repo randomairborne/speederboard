@@ -148,7 +148,8 @@ fn encode_jpeg(image_data: &DynamicImage) -> Result<Vec<u8>, Error> {
 
 fn encode_webp(image_data: &DynamicImage) -> Result<Vec<u8>, Error> {
     let mut data: Vec<u8> = Vec::with_capacity(1024 * 1024);
-    image_data.write_with_encoder(WebPEncoder::new(&mut data))?;
+    // TODO: Change this to lossy if possible
+    image_data.write_with_encoder(WebPEncoder::new_lossless(&mut data))?;
     Ok(data)
 }
 
