@@ -1,4 +1,4 @@
-FROM alpine AS client-builder
+FROM alpine AS asset-compressor
 
 RUN apk add zstd brotli pigz
 
@@ -12,7 +12,7 @@ ARG TARGETARCH
 COPY /${TARGETARCH}-executables/speederboard /usr/bin/speederboard
 COPY /templates/ /var/www/speederboard/templates/
 COPY /translations/ /var/www/speederboard/translations/
-COPY --from=compressor /assets/public/ /var/www/speederboard/static/
+COPY --from=asset-compressor /assets/public/ /var/www/speederboard/static/
 
 ENV ASSET_DIR="/var/www/speederboard/static/"
 ENV TEMPLATE_DIR="/var/www/speederboard/templates/"
