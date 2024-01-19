@@ -12,8 +12,8 @@ pub fn build(state: AppState) -> Router {
     let serve_dir = ServeDir::new(&state.config.asset_dir)
         .append_index_html_on_directories(false)
         .precompressed_gzip()
-        .precompressed_br()
-        .precompressed_deflate();
+        .precompressed_deflate()
+        .precompressed_zstd();
     let static_server = ServiceBuilder::new()
         .layer(axum::middleware::from_fn(infinicache_middleware))
         .service(serve_dir);

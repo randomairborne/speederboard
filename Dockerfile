@@ -1,10 +1,10 @@
-FROM alpine AS compressor
+FROM alpine AS client-builder
 
-RUN apk add zstd brotli gzip
+RUN apk add zstd brotli pigz
 
-COPY /assets/public/ /assets/public/
+COPY /assets/public /assets/public/
 
-RUN find /assets/public/ -type f -exec gzip -k9 '{}' \; -exec brotli -k9 '{}' \; -exec zstd -qk19 '{}' \;
+RUN find /assets/public/ -type f ! -name "*.png" -exec pigz -k9 '{}' \; -exec pigz -zk9 '{}' \; -exec brotli -k9 '{}' \; -exec zstd -qk19 '{}' \;
 
 FROM alpine
 ARG TARGETARCH
