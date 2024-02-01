@@ -59,7 +59,7 @@ garde = { version = "0.17", features = ["derive", "email", "url"] }
 simpleinterpolation = { path = "./subcrates/simpleinterpolation" }
 tower = { version = "0.4", default-features = false }
 tera = { version = "1.19", features = ["builtins"] }
-strum = { version = "0.25", features = ["derive"] }
+strum = { version = "0.26", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
 markdown = "1.0.0-alpha.16"
 deadpool-redis = "0.14"
