@@ -3,12 +3,16 @@ use std::fmt::Debug;
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use axum::{
     extract::{FromRequest, Request, State},
-    http::HeaderValue,
+    http::{
+        header::{CACHE_CONTROL, CONTENT_SECURITY_POLICY},
+        HeaderValue,
+    },
     middleware::Next,
     response::Response,
 };
 use axum_extra::extract::cookie::{Cookie, SameSite};
 use rand::rngs::OsRng;
+use s3::creds::time::Duration as S3Duration;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::{
@@ -65,6 +69,9 @@ pub const MAX_CSS_LEN: usize = 1024 * 50;
 pub const AUTHTOKEN_COOKIE: &str = "token";
 pub const AUTHTOKEN_TTL: u64 = 24 * 60 * 60 * 7;
 pub const AUTHTOKEN_TTL_I64: i64 = 24 * 60 * 60 * 7;
+
+static CACHE_CONTROL_VALUE: HeaderValue =
+    HeaderValue::from_static("public,max-age=31536000,immutable");
 
 #[derive(Debug, Copy, Clone)]
 pub struct ImageSizeLimit {
@@ -182,26 +189,25 @@ pub async fn csp_middleware(
 ) -> Response {
     let mut resp = next.run(request).await;
     resp.headers_mut()
-        .insert("content-security-policy", state.csp());
+        .insert(CONTENT_SECURITY_POLICY, state.csp());
     resp
 }
 
 pub async fn infinicache_middleware(request: Request, next: Next) -> Response {
     let mut resp = next.run(request).await;
     if resp.status().is_success() {
-        resp.headers_mut().insert(
-            axum::http::header::CACHE_CONTROL,
-            HeaderValue::from_static("public, max-age=31536000, immutable"),
-        );
+        resp.headers_mut()
+            .insert(CACHE_CONTROL, CACHE_CONTROL_VALUE.clone());
     }
     resp
 }
 
 pub fn auth_cookie<'a>(token: String) -> Cookie<'a> {
+    const AUTHTOKEN_TTL: S3Duration = S3Duration::seconds(AUTHTOKEN_TTL_I64);
     Cookie::build((AUTHTOKEN_COOKIE, token))
         .secure(true)
         .http_only(true)
-        .max_age(s3::creds::time::Duration::seconds(AUTHTOKEN_TTL_I64))
+        .max_age(AUTHTOKEN_TTL)
         .same_site(SameSite::Strict)
         .build()
 }
