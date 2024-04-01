@@ -39,6 +39,7 @@ pub struct AppState {
 impl AppState {
     const DEFAULT_THREADPOOL_SIZE: NonZeroUsize = unsafe { NonZeroUsize::new_unchecked(8) };
 
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         config: Arc<Config>,
         tera: Arc<RwLock<Tera>>,

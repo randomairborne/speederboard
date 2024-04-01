@@ -145,7 +145,7 @@ fn encode_jpeg(image_data: &DynamicImage) -> Result<Vec<u8>, Error> {
 fn encode_webp(image_data: &DynamicImage) -> Vec<u8> {
     let new_image = image_data.clone().into_rgba8();
     let encoder = webp::Encoder::new(
-        &*new_image,
+        &new_image,
         PixelLayout::Rgba,
         image_data.width(),
         image_data.height(),

@@ -99,6 +99,7 @@ impl User {
         Ok(Ok(user))
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn collapse_optional(
         id: Option<Id<UserMarker>>,
         name: Option<String>,
