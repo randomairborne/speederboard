@@ -62,7 +62,7 @@ tera = { version = "1.19", features = ["builtins"] }
 strum = { version = "0.26", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
 markdown = "1.0.0-alpha.16"
-deadpool-redis = "0.14"
+deadpool-redis = "0.15"
 parking_lot = "0.12"
 serde_repr = "0.1"
 serde_json = "1"
