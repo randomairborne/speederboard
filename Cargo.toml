@@ -24,14 +24,11 @@ tower-http = { version = "0.5", default-features = false, features = [
 notify = { version = "6", default-features = false, optional = true, features = [
     "macos_kqueue",
 ] }
-image = { version = "0.24", default-features = false, features = [
-    "webp-encoder",
-    "webp",
+image = { version = "0.25", default-features = false, features = [
     "jpeg",
-    "jpeg_rayon",
     "png"
 ] }
-reqwest = { version = "0.11", features = [
+reqwest = { version = "0.12", features = [
     "rustls-tls",
     "stream",
     "trust-dns",
@@ -51,7 +48,7 @@ tokio = { version = "1", features = [
 ] }
 rust-s3 = { version = "0.33", default-features = false, features = ["tokio-rustls-tls", "with-tokio"] }
 chrono = { version = "0.4", default-features = false, features = ["serde"] }
-redis = { version = "0.24", features = ["aio", "connection-manager"] }
+redis = { version = "0.25", features = ["aio", "connection-manager"] }
 axum = { version = "0.7", features = ["http2", "macros"] }
 axum-extra = { version = "0.9", features = ["cookie", "multipart"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
@@ -62,7 +59,7 @@ tera = { version = "1.19", features = ["builtins"] }
 strum = { version = "0.26", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
 markdown = "1.0.0-alpha.16"
-deadpool-redis = "0.14"
+deadpool-redis = "0.15"
 parking_lot = "0.12"
 serde_repr = "0.1"
 serde_json = "1"
@@ -74,6 +71,7 @@ argon2 = "0.5"
 blake3 = "1"
 envy = "0.4"
 rand = "0.8"
+webp = "0.2"
 rayon = "1"
 vss = "0.1"
 url = "2"

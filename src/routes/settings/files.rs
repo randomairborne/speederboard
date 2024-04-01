@@ -1,10 +1,8 @@
 use axum::{body::Bytes, extract::State, response::Redirect};
 use axum_extra::extract::multipart::Multipart;
-use image::{
-    codecs::{jpeg::JpegEncoder, webp::WebPEncoder},
-    DynamicImage,
-};
-use tokio::join;
+use image::{codecs::jpeg::JpegEncoder, DynamicImage};
+use tokio::{join, try_join};
+use webp::PixelLayout;
 
 use crate::{
     error::ImageTooBig,
@@ -107,12 +105,10 @@ async fn upload_image(
         )
         .await??;
     let (webp_path, jpeg_path) = (path(user, "webp"), path(user, "jpeg"));
-    let (one, two) = tokio::join!(
+    try_join!(
         state.put_r2_file(&webp_path, &reencoding.webp, "image/webp"),
         state.put_r2_file(&jpeg_path, &reencoding.jpeg, "image/jpeg")
-    );
-    one?;
-    two?;
+    )?;
     Ok(())
 }
 
@@ -131,7 +127,7 @@ fn reencode_image(bytes: &Bytes, limit: ImageSizeLimit) -> Result<ImageReencodin
         }));
     }
     let jpeg = encode_jpeg(&image_data)?;
-    let webp = encode_webp(&image_data)?;
+    let webp = encode_webp(&image_data);
     Ok(ImageReencoding { jpeg, webp })
 }
 
@@ -146,11 +142,15 @@ fn encode_jpeg(image_data: &DynamicImage) -> Result<Vec<u8>, Error> {
     Ok(data)
 }
 
-fn encode_webp(image_data: &DynamicImage) -> Result<Vec<u8>, Error> {
-    let mut data: Vec<u8> = Vec::with_capacity(1024 * 1024);
-    // TODO: Change this to lossy if possible
-    image_data.write_with_encoder(WebPEncoder::new_lossless(&mut data))?;
-    Ok(data)
+fn encode_webp(image_data: &DynamicImage) -> Vec<u8> {
+    let new_image = image_data.clone().into_rgba8();
+    let encoder = webp::Encoder::new(
+        &*new_image,
+        PixelLayout::Rgba,
+        image_data.width(),
+        image_data.height(),
+    );
+    encoder.encode(80.0).to_vec()
 }
 
 async fn multipart_into_bytes(
