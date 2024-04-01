@@ -31,7 +31,7 @@ image = { version = "0.24", default-features = false, features = [
     "jpeg_rayon",
     "png"
 ] }
-reqwest = { version = "0.11", features = [
+reqwest = { version = "0.12", features = [
     "rustls-tls",
     "stream",
     "trust-dns",
