@@ -38,7 +38,6 @@ pub const DEV_MODE: bool = false;
 
 #[tokio::main]
 async fn main() {
-    dotenvy::dotenv().ok();
     util::start_tracing();
     let state = AppState::from_environment().await;
     #[cfg(feature = "dev")]
