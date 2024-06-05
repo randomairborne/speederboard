@@ -2,9 +2,8 @@
 //!
 //! A dead simple interpolation format
 //! `this is an {interpolated} string`
-//! Variable names may have `-` `_`, `a-z`, and `A-Z`, any other charc
+//! Variable names may have `-` `_`, `a-z`, and `A-Z`, any other characters will cause errors.
 //!
-//! #
 use std::{collections::HashMap, fmt::Formatter};
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq)]
