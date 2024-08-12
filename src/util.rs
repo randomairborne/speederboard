@@ -124,7 +124,7 @@ pub struct ValidatedForm<T>(pub T);
 #[axum::async_trait]
 impl<S, T> FromRequest<S> for ValidatedForm<T>
 where
-    T: serde::de::DeserializeOwned + garde::Validate<Context=()> + Debug,
+    T: serde::de::DeserializeOwned + garde::Validate<Context = ()> + Debug,
     S: Send + Sync,
 {
     type Rejection = crate::Error;
@@ -152,8 +152,8 @@ pub async fn game_n_member(
         user.id.get(),
         game_slug
     )
-        .fetch_one(&state.postgres)
-        .await?;
+    .fetch_one(&state.postgres)
+    .await?;
     let perms = if user.admin {
         trace!(
             user.username = user.username,
