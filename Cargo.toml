@@ -46,7 +46,7 @@ tokio = { version = "1", features = [
     "signal",
     "tracing",
 ] }
-rust-s3 = { version = "0.33", default-features = false, features = ["tokio-rustls-tls", "with-tokio"] }
+rust-s3 = { version = "0.34", default-features = false, features = ["tokio-rustls-tls", "with-tokio"] }
 chrono = { version = "0.4", default-features = false, features = ["serde"] }
 redis = { version = "0.25", features = ["aio", "connection-manager"] }
 axum = { version = "0.7", features = ["http2", "macros"] }
