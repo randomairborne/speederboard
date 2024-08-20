@@ -1,6 +1,7 @@
 use std::fmt::Formatter;
 
 use serde::{de::Error, Deserializer, Serializer};
+use sqlx::{encode::IsNull, error::BoxDynError, Database};
 use strum::{EnumCount, EnumIter};
 
 #[derive(Clone, Copy, Debug, Default, Hash, Eq, PartialEq, EnumIter, EnumCount)]
@@ -105,10 +106,7 @@ impl<'q, DB: sqlx::Database> sqlx::Encode<'q, DB> for Language
 where
     &'static str: sqlx::Encode<'q, DB>,
 {
-    fn encode(
-        self,
-        buf: &mut <DB as sqlx::database::HasArguments<'q>>::ArgumentBuffer,
-    ) -> sqlx::encode::IsNull
+    fn encode(self, buf: &mut <DB as Database>::ArgumentBuffer<'q>) -> Result<IsNull, BoxDynError>
     where
         Self: Sized,
     {
@@ -117,8 +115,8 @@ where
 
     fn encode_by_ref(
         &self,
-        buf: &mut <DB as sqlx::database::HasArguments<'q>>::ArgumentBuffer,
-    ) -> sqlx::encode::IsNull {
+        buf: &mut <DB as Database>::ArgumentBuffer<'q>,
+    ) -> Result<IsNull, BoxDynError> {
         sqlx::Encode::<DB>::encode_by_ref(&self.lang_code(), buf)
     }
 
@@ -135,9 +133,7 @@ impl<'q, DB: sqlx::Database> sqlx::Decode<'q, DB> for Language
 where
     String: sqlx::Decode<'q, DB>,
 {
-    fn decode(
-        value: <DB as sqlx::database::HasValueRef<'q>>::ValueRef,
-    ) -> Result<Self, sqlx::error::BoxDynError> {
+    fn decode(value: <DB as Database>::ValueRef<'q>) -> Result<Self, BoxDynError> {
         let inner: String = sqlx::Decode::decode(value)?;
         Ok(Self::from_lang_code(&inner).unwrap_or_default())
     }

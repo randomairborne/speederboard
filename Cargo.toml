@@ -31,9 +31,9 @@ image = { version = "0.25", default-features = false, features = [
 reqwest = { version = "0.12", features = [
     "rustls-tls",
     "stream",
-    "trust-dns",
+    "hickory-dns",
 ], default-features = false }
-sqlx = { version = "0.7", features = [
+sqlx = { version = "0.8", features = [
     "macros",
     "postgres",
     "tls-rustls",

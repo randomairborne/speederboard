@@ -1,7 +1,7 @@
 use core::hash::Hash;
 use std::marker::PhantomData;
 
-use sqlx::{postgres::PgTypeInfo, Postgres};
+use sqlx::{encode::IsNull, error::BoxDynError, postgres::PgTypeInfo, Database, Postgres};
 
 #[derive(serde::Deserialize, serde::Serialize, Clone, Copy, PartialEq, Eq, Hash)]
 #[serde(transparent)]
@@ -47,14 +47,11 @@ impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> sqlx::Type<Postgres> fo
 }
 
 impl<'q, T: IdMarker + Clone + Copy + PartialEq + Eq + Hash, DB: sqlx::Database>
-    sqlx::Encode<'q, DB> for Id<T>
+sqlx::Encode<'q, DB> for Id<T>
 where
     i64: sqlx::Encode<'q, DB>,
 {
-    fn encode(
-        self,
-        buf: &mut <DB as sqlx::database::HasArguments<'q>>::ArgumentBuffer,
-    ) -> sqlx::encode::IsNull
+    fn encode(self, buf: &mut <DB as Database>::ArgumentBuffer<'q>) -> Result<IsNull, BoxDynError>
     where
         Self: Sized,
     {
@@ -63,8 +60,8 @@ where
 
     fn encode_by_ref(
         &self,
-        buf: &mut <DB as sqlx::database::HasArguments<'q>>::ArgumentBuffer,
-    ) -> sqlx::encode::IsNull {
+        buf: &mut <DB as Database>::ArgumentBuffer<'q>,
+    ) -> Result<IsNull, BoxDynError> {
         sqlx::Encode::<DB>::encode_by_ref(&self.inner, buf)
     }
 
@@ -78,13 +75,11 @@ where
 }
 
 impl<'q, T: IdMarker + Clone + Copy + PartialEq + Eq + Hash, DB: sqlx::Database>
-    sqlx::Decode<'q, DB> for Id<T>
+sqlx::Decode<'q, DB> for Id<T>
 where
     i64: sqlx::Decode<'q, DB>,
 {
-    fn decode(
-        value: <DB as sqlx::database::HasValueRef<'q>>::ValueRef,
-    ) -> Result<Self, sqlx::error::BoxDynError> {
+    fn decode(value: <DB as Database>::ValueRef<'q>) -> Result<Self, BoxDynError> {
         let inner = sqlx::Decode::decode(value)?;
         Ok(Self {
             inner,
