@@ -47,7 +47,7 @@ impl<T: IdMarker + Clone + Copy + PartialEq + Eq + Hash> sqlx::Type<Postgres> fo
 }
 
 impl<'q, T: IdMarker + Clone + Copy + PartialEq + Eq + Hash, DB: sqlx::Database>
-sqlx::Encode<'q, DB> for Id<T>
+    sqlx::Encode<'q, DB> for Id<T>
 where
     i64: sqlx::Encode<'q, DB>,
 {
@@ -75,7 +75,7 @@ where
 }
 
 impl<'q, T: IdMarker + Clone + Copy + PartialEq + Eq + Hash, DB: sqlx::Database>
-sqlx::Decode<'q, DB> for Id<T>
+    sqlx::Decode<'q, DB> for Id<T>
 where
     i64: sqlx::Decode<'q, DB>,
 {
