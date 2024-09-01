@@ -231,7 +231,7 @@ impl AppState {
         if config.s3_path_style {
             bucket.set_path_style();
         }
-        bucket
+        *bucket
     }
 
     fn url_to_origin(input: &str) -> String {
